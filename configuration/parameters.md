@@ -1,132 +1,138 @@
-# Global Configuration Parameters
+# グローバル設定パラメータ
 
-Each parameter has a default value which applies if the parameters is empty, or not specified in the configuration file.
+各パラメーターには、パラメーターが空の場合、または構成ファイルで指定されていない場合に適用されるデフォルト値があります。
 
-**Indexer-UUID**
-Applies to:			Indexer
-Default Value:		[randomly generated if not set]
-Example:			`Indexer-UUID="ecdeeff8-8382-48f1-a24f-79f83af00e97"`
-Description:		Sets a unique identifier for a particular indexer. No two indexers should have the same UUID. If this parameter is not set, the indexer will generate a UUID and write it into the config file; this is usually the best choice, unless an indexer has catastrophically failed and is to be rebuilt from replication (see [the replication docs](configuration/replication.md)). Think twice before modifying this parameter.
+**インデクサー-UUID **
+適用対象：インデクサー
+デフォルト値：[設定されていない場合はランダムに生成]
+例： `Indexer-UUID ="ecdeeff8-8382-48f1-a24f-79f83af00e97"`
+説明：特定のインデクサーに一意の識別子を設定します。 2つのインデクサーが同じUUIDを持つことはできません。 このパラメーターが設定されていない場合、インデクサーはUUIDを生成し、構成ファイルに書き込みます。 これは通常、インデクサーが壊滅的な障害を起こし、レプリケーションから再構築される場合を除き、最良の選択です（[レプリケーションドキュメント](configuration/replication.md)を参照）。 このパラメーターを変更する前によく考えてください。
 
-**Webserver-UUID**
-Applies to:			Webserver
-Default Value:		[randomly generated if not set]
-Example:			`Webserver-UUID="ecdeeff8-8382-48f1-a24f-79f83af00e97"`
-Description:		Sets a unique identifier for a particular webserver. No two webserver should have the same UUID. If this parameter is not set, the webserver will generate a UUID and *write it back into the config file*; this is usually the best choice. Think twice before modifying this parameter.
+** Webserver-UUID **
+適用対象：Webサーバー
+デフォルト値：[設定されていない場合はランダムに生成]
+例：`Webserver-UUID="ecdeeff8-8382-48f1-a24f-79f83af00e97"`
+説明：特定のWebサーバーの一意の識別子を設定します。 2つのWebサーバーが同じUUIDを持つことはできません。 このパラメーターが設定されていない場合、WebサーバーはUUIDを生成し、それを設定ファイルに書き戻します*。 通常、これが最良の選択です。 このパラメーターを変更する前によく考えてください。
 
-**License-Location**
-Applies to:        Indexer and Webserver
-Default Value:        `/opt/gravwell/etc/license`
-Example:        `License-Location=/opt/gravwell/etc/my_license`
-Description:        Sets the path to the gravwell license file, the path must be readable by the gravwell user and group.
+**ライセンスの場所**
+適用対象：インデクサーとWebサーバー
+デフォルト値：`/opt/gravwell/etc/license`
+例： `License-Location=/opt/gravwell/etc/my_license`
+説明：gravwellライセンスファイルへのパスを設定します。このパスはgravwellユーザーとグループが読み取り可能である必要があります。
 
-**Config-Location**
-Applies to:        Indexer and Webserver
-Default Value:        `/opt/gravwell/etc`
-Example:        `Config-Location=/tmp/path/to/etc`
-Description:        The config location allows for specifying an alternate location for housing all other configuration parameters.  Specifying an alternate Config-Location allows for setting a single parameter without requiring that all other parameters be specified with the alternate path.
+**構成場所**
+適用対象：インデクサーとWebサーバー
+デフォルト値：`/opt/gravwell/etc`
+例： `Config-Location=/tmp/path/to/etc`
+説明：構成の場所により、他のすべての構成パラメーターを格納する代替の場所を指定できます。 代替のConfig-Locationを指定すると、他のすべてのパラメーターを代替パスで指定することなく、単一のパラメーターを設定できます。
 
-**Web-Port**
-Applies to:        Webserver
-Default Value:        `443`
-Example:        `Web-Port=80`
-Description:        Specifies the listening port for the webserver. Note that setting the Web-Port parameter to 80 will not switch the webserver to HTTP-only mode; that requires the Insecure-Disable-HTTPS setting.
+**ウェブポート**
+適用対象：Webサーバー
+デフォルト値： `443`
+例： `Web-Port=80`
+説明：Webサーバーのlistenポートを指定します。 Web-Portパラメーターを80に設定しても、WebサーバーはHTTPのみのモードに切り替わりません。 Insecure-Disable-HTTPS設定が必要です。
 
-**Disable-HTTP-Redirector**
-Applies to:        Webserver
-Default Value:        `False`
-Example:        `Disable-HTTP-Redirector=true`
-Description:        By default Gravwell starts an HTTP redirector which redirects clients requesting the cleartext HTTP portal to the encrypted HTTPS portal.
+** Disable-HTTP-Redirector **
+適用対象：Webサーバー
+デフォルト値： `False`
+例： `Disable-HTTP-Redirector=true`
+説明：デフォルトでは、GrabwellはHTTPリダイレクタを起動し、クリアテキストHTTPポータルを要求するクライアントを暗号化されたHTTPSポータルにリダイレクトします。
 
-**Insecure-Disable-HTTPS**
-Applies to:		Webserver
-Default Value:	`false`
-Example:		`Insecure-Disable-HTTPS=true`
-Description:	By default Gravwell operates in HTTPS mode. Setting `Insecure-Disable-HTTPS=true` instructs Gravwell to instead use plaintext HTTP, listening on `Web-Port`.
+** Insecure-Disable-HTTPS **
+適用対象：Webサーバー
+デフォルト値： `false`
+例： `Insecure-Disable-HTTPS=true`
+説明：デフォルトでは、GravwellはHTTPSモードで動作します。`Insecure-Disable-HTTPS=true`を設定すると、代わりにGravwellはプレーンテキストHTTPを使用し、`Web-Port`でリッスンします。
 
-**Control-Listen-Address**
-Applies to:        Indexer
-Default Value:
-Example:        `Control-Listen-Address=”10.0.0.1”`
-Description:        The Control-Listen-Address parameter can bind the indexer's control listener to a specific address.  Gravwell installations on dual-home machines, or machines with high speed data networks and low speed control networks, may wish to bind indexers to specific addresses to ensure the traffic is routed appropriately.
+** Control-Listen-Address **
+適用対象：インデクサー
+デフォルト値：
+例： `Control-Listen-Address=”10.0.0.1”`
+説明：Control-Listen-Addressパラメーターは、インデクサーのコントロールリスナーを特定のアドレスにバインドできます。 デュアルホームマシン、または高速データネットワークと低速制御ネットワークを備えたマシンにGravwellをインストールする場合、インデクサーを特定のアドレスにバインドして、トラフィックが適切にルーティングされるようにすることができます。
 
-**Control-Port**
-Applies to:        Indexer and Webserver
-Default Value:        `9404`
-Example:        `Control-Port=12345`
-Description:        The Control-Port parameter selects the port on which the indexer should listen for control commands from the webserver. This setting must be the same on indexers and webservers in order for them to communicate. The installer does not set the bind capability on the indexers by default, so ports must be set to a value greater than 1024.  Adjusting the control port may be necessary in environments where multiple indexers are run on a single machine, or where another application is binding to port 9404.
+**コントロールポート**
+適用対象：インデクサーとWebサーバー
+デフォルト値： `9404`
+例： `Control-Port=12345`
+説明：Control-Portパラメーターは、インデクサーがWebサーバーからの制御コマンドをリッスンするポートを選択します。 この設定は、インデクサーとWebサーバーが通信するために同じでなければなりません。 インストーラーはデフォルトでインデクサーのバインド機能を設定しないため、ポートは1024より大きい値に設定する必要があります。単一のマシンで複数のインデクサーが実行されている環境、または別のアプリケーションが存在する環境では、制御ポートの調整が必要になる場合があります ポート9404へのバインド。
 
-**Datastore-Listen-Address**
-Applies to:			Datastore
-Default Value:
-Example:			`Datastore-Listen-Address=10.0.0.1`
-Description:		The Datastore-Listen-Address parameter instructs the datastore to listen only on a particular address. By default, the datastore listens on all addresses on the system.
+** Datastore-Listen-Address **
+適用対象：データストア
+デフォルト値：
+例： `Datastore-Listen-Address=10.0.0.1`
+説明：Datastore-Listen-Addressパラメーターは、特定のアドレスでのみリッスンするようにデータストアに指示します。 デフォルトでは、データストアはシステム上のすべてのアドレスをリッスンします。
 
-**Datastore-Port**
-Applies to:			Datastore
-Default Value:		`9405`
-Example:			`Datastore-Port=7888`
-Description:		The Datastore-Port parameter selects the port on which the datastore will communicate. The port should be greater than 1024. The default value of 9405 is typically suitable for most installations.
+**データストアポート**
+適用対象：データストア
+デフォルト値： `9405`
+例： `Datastore-Port=7888`
+説明：Datastore-Portパラメーターは、データストアが通信するポートを選択します。 ポートは1024より大きい必要があります。通常、デフォルト値の9405はほとんどのインストールに適しています。
 
-**Datastore**
-Applies to:			Webserver
-Default Value:
-Example:			`Datastore=10.0.0.1:9405`
-Description:		The Datastore parameter specifies that the webserver should connect to a datastore to synchronize its dashboards, resources, user preferences, and search history. This allows for [distributed webservers](distributed/frontend.md) but should only be set if needed. By default, webservers do not connect to a datastore.
+**データストア**
+適用対象：Webサーバー
+デフォルト値：
+例： `Datastore=10.0.0.1:9405`
+説明：Datastoreパラメーターは、Webサーバーがデータストアに接続して、ダッシュボード、リソース、ユーザー設定、および検索履歴を同期することを指定します。 これにより、[分散Webサーバー](distributed/frontend.md)が許可されますが、必要な場合にのみ設定する必要があります。 デフォルトでは、ウェブサーバーはデータストアに接続しません。
 
-**Datastore-Update-Interval**
-Applies to:			Webserver
-Default Value:		`10`
-Example:			`Datastore-Update-Interval=5`
-Description:		The Datastore-Update-Interval parameter determines how long (in seconds) the webserver should wait before checking the datastore for updates. The default value of 10 seconds is typically suitable.
+**データストア更新間隔**
+適用対象：Webサーバー
+デフォルト値： `10`
+例： `Datastore-Update-Interval = 5`
+説明：Datastore-Update-Intervalパラメーターは、更新のためにデータストアをチェックする前にWebサーバーが待機する時間（秒単位）を決定します。 通常、デフォルト値の10秒が適切です。
 
-**Datastore-Insecure-Disable-TLS**
-Applies to:		Webserver and Datastore
-Default Value:	`false`
-Example:		`Datastore-Insecure-Disable-TLS=true`
-Description:	The Datastore-Insecure-Disable-TLS parameter is used by both the webserver and the datastore. By default, the datastore listens for incoming HTTPS connections from webservers; setting this parameter to false makes the datastore expect plaintext HTTP and instructs the webservers to use HTTP.
+**データストアの更新間隔**
+適用対象：Webサーバー
+デフォルト値： `10`
+例： `Datastore-Update-Interval=5`
+説明：Datastore-Update-Intervalパラメーターは、更新のためにデータストアをチェックする前にWebサーバーが待機する時間（秒単位）を決定します。通常、デフォルト値の10秒が適切です。
 
-**Datastore-Insecure-Skip-TLS-Verify**
-Applies to:		Webserver
-Default Value:	`false`
-Example:		`Datastore-Insecure-Skip-TLS-Verify=true`
-Description:	The Datastore-Insecure-Skip-TLS-Verify parameter instructs the webserver to ignore invalid TLS certificates when connecting to the datastore. This is necessary when using self-signed certificates but should be avoided when possible.
+** Datastore-Insecure-Disable-TLS **
+適用対象：Webサーバーとデータストア
+デフォルト値： `false`
+例：`Datastore-Insecure-Disable-TLS=true`
+説明：Datastore-Insecure-Disable-TLSパラメーターは、Webサーバーとデータストアの両方で使用されます。 デフォルトでは、データストアはWebサーバーからの着信HTTPS接続をリッスンします。 このパラメーターをfalseに設定すると、データストアはプレーンテキストHTTPを想定し、WebサーバーにHTTPを使用するよう指示します。
 
-**External-Addr**
-Applies to:		Webserver
-Default Value:
-Example:		`External-Addr=10.0.0.1:443`
-Description:	The External-Addr parameter specifies the address other webservers should use to contact this webserver. This parameter is **required** when using a datastore, as it allows a user on one webserver to load the results of a search performed on another webserver.
+** Datastore-Insecure-Skip-TLS-Verify **
+適用対象：Webサーバー
+デフォルト値： `false`
+例： `Datastore-Insecure-Skip-TLS-Verify=true`
+説明：Datastore-Insecure-Skip-TLS-Verifyパラメーターは、データストアへの接続時に無効なTLS証明書を無視するようWebサーバーに指示します。 これは自己署名証明書を使用する場合に必要ですが、可能な場合は避ける必要があります。
 
-**Search-Forwarding-Insecure-Skip-TLS-Verify**
-Applies to:		Webserver
-Default Value:	`false`
-Example:		`Search-Forwarding-Insecure-Skip-TLS-Verify=true`
-Description:	This parameter is only useful when operating multiple webservers in distributed mode using a datastore. If the webservers have self-signed certificates, users will be unable to access searches from remote webservers *unless* this parameter is set to true.
+**外部アドレス**
+適用対象：Webサーバー
+デフォルト値：
+例： `External-Addr=10.0.0.1:443`
+説明：External-Addrパラメーターは、このWebサーバーに接続するために他のWebサーバーが使用する必要があるアドレスを指定します。 データストアを使用する場合、このパラメーターは**必須**です。これは、あるWebサーバー上のユーザーが別のWebサーバーで実行された検索結果をロードできるようにするためです。
 
-**Ingest-Port**
-Applies to:        Indexer
-Default Value:        `4023`
-Example:        `Ingest-Port=14023`
-Description:        The Ingest-Port parameter controls the port the indexers listen on for ingester connections.  Altering the Ingest-Port parameter can be useful when running multiple indexers on a single machine or another application is already bound to the default port of 4023.
+** Search-Forwarding-Insecure-Skip-TLS-Verify **
+適用対象：Webサーバー
+デフォルト値： `false`
+例： `Search-Forwarding-Insecure-Skip-TLS-Verify=true`
+説明：このパラメーターは、データストアを使用して分散モードで複数のWebサーバーを操作する場合にのみ役立ちます。 Webサーバーに自己署名証明書がある場合、このパラメーターがtrueに設定されていない限り、ユーザーはリモートWebサーバーから検索にアクセスできません。
 
-**TLS-Ingest-Port**
-Applies to:        Indexer
-Default Value:        `4024`
-Example:        `TLS-Ingest-Port=14024`
-Description:        The TLS-Ingest-Port parameter controls the port the indexers listen on for ingester connections.  Altering the TLS-Ingest-Port parameter can be useful when running multiple indexers on a single machine or another application is already bound to the default port of 4024.  By default, all ingesters using the TLS transport will validate remote certificates.  If a deployment is using the auto generated certificates, ingesters either need to have the certificates installed as trusted, or they must disable certificate validation (this effectively destroys the protections provided by a TLS transport).
+**取り込みポート**
+適用対象：インデクサー
+デフォルト値： `4023`
+例： `Ingest-Port=14023`
+説明：Ingest-Portパラメーターは、インデクサーがingester接続をリッスンするポートを制御します。 Ingest-Portパラメーターの変更は、単一のマシンで複数のインデクサーを実行している場合、または別のアプリケーションが既にデフォルトポートの4023にバインドされている場合に役立ちます。
 
-**Pipe-Ingest-Path**
-Applies to:			Indexer
-Default Value:		`/opt/gravwell/comms/pipe`
-Example:			`Pipe-Ingest-Path=/tmp/path/to/pipe`
-Description:		The Pipe-Ingest-Path specifies the full path to a Unix named pipe.  The indexer will create the named pipe and co-resident ingesters can attach to the pipe and use it as a very high speed and low latency transport.  Named pipes are excellent for ingesters that require extremely high performance, such as a network packet ingester operating above 1 gigabit.  Named pipes can also be used to facilitate transport over unusual network transports or very high speed non-IP based interconnects.
+** TLS-Ingest-Port **
+適用対象：インデクサー
+デフォルト値： `4024`
+例： `TLS-Ingest-Port=14024`
+説明：TLS-Ingest-Portパラメーターは、インジェスター接続のためにインデクサーがリッスンするポートを制御します。 TLS-Ingest-Portパラメーターの変更は、単一のマシンで複数のインデクサーを実行する場合、または別のアプリケーションがデフォルトポート4024に既にバインドされている場合に役立ちます。デフォルトでは、TLSトランスポートを使用するすべてのインジェスターがリモート証明書を検証します。 展開で自動生成された証明書を使用している場合、インジェスターは証明書を信頼済みとしてインストールするか、証明書の検証を無効にする必要があります（これにより、TLSトランスポートによって提供される保護が事実上無効になります）。
 
-**Log-Location**
-Applies to:        Indexer
-Default Value:        `/opt/gravwell/log`
-Example:        `Log-Location=/tmp/path/to/logs`
-Description:        The Log-Location parameter controls the location that Gravwell infrastructure places its own logs.  Gravwell does not feed its own logs directly into indexers, and instead writes them to files (use the file follower ingester if you want to ingest Gravwell logs too).  This parameter specifies where those logs go.
+** Pipe-Ingest-Path **
+適用対象：インデクサー
+デフォルト値： `/opt/gravwell/comms/pipe`
+例： `Pipe-Ingest-Path=/tmp/path/to/pipe`
+説明：Pipe-Ingest-Pathは、Unix名前付きパイプへのフルパスを指定します。 インデクサーは名前付きパイプを作成し、共存するインジェスターはパイプに接続して、非常に高速で低遅延のトランスポートとして使用できます。 名前付きパイプは、1ギガビット以上で動作するネットワークパケットingesterなど、非常に高いパフォーマンスを必要とするインジェスターに最適です。 名前付きパイプを使用して、異常なネットワークトランスポートまたは非常に高速な非IPベースの相互接続を介したトランスポートを促進することもできます。
+
+** Pipe-Ingest-Path **
+適用対象：インデクサー
+デフォルト値：  `/opt/gravwell/log`
+例： `Log-Location=/tmp/path/to/logs`
+説明：Pipe-Ingest-Pathは、Unix名前付きパイプへのフルパスを指定します。 インデクサーは名前付きパイプを作成し、共存するインジェスターはパイプに接続して、非常に高速で低遅延のトランスポートとして使用できます。 名前付きパイプは、1ギガビット以上で動作するネットワークパケットingesterなど、非常に高いパフォーマンスを必要とするインジェスターに最適です。 名前付きパイプを使用して、異常なネットワークトランスポートまたは非常に高速な非IPベースの相互接続を介したトランスポートを促進することもできます。
 
 **Web-Log-Location**
 Applies to:        Webserver
@@ -134,303 +140,116 @@ Default Value:        `/opt/gravwell/log/web`
 Example:        `Web-Log-Location=/tmp/path/to/logs/web`
 Description:        The Web-Log-Location parameter controls where webserver logs are stored.  Gravwell does not feed its own logs directly into indexers, and instead writes them to files (use the file follower ingester if you want to ingest Gravwell logs too).  This parameter specifies where those logs go.
 
-**Datastore-Log-Location**
-Applies to:		Datastore
-Default Value:	`/opt/gravwell/log/datastore`
-Example:		`Datastore-Log-Location=/tmp/path/to/logs/datastore`
-Description:	The Datastore-Log-Location parameter controls where datastore logs are stored.
+**ウェブログの場所**
+適用対象：Webサーバー
+デフォルト値： `/opt/gravwell/log/web`
+例： `Web-Log-Location= /tmp/path/to/logs/web`
+説明：Web-Log-Locationパラメーターは、Webサーバーログの保存場所を制御します。 Gravwellは独自のログをインデクサーに直接フィードせず、代わりにそれらをファイルに書き込みます（Gravwellログも取り込む場合は、ファイルフォロワーを使用します）。 このパラメーターは、これらのログの保存先を指定します。
 
-**Log-Level**
-Applies to:        Indexer, Datastore, and Webserver
-Default Value:        `INFO`
-Example:        `Log-Level=ERROR`
-Description:        The Log-Level parameter controls the verbosity of logs from gravwell infrastructure.  There are three available arguments to the Log-Level: INFO, WARN, and ERROR.  INFO is the most verbose, and ERROR is the least.  The logging system will generate a file for each level of logging and rotate them in a similar manner to the syslog daemon.
+** Datastore-Log-Location **
+適用対象：データストア
+デフォルト値： `/opt/gravwell/log/datastore`
+例： `Datastore-Log-Location=/tmp/path/to/logs/datastore`
+説明：Datastore-Log-Locationパラメーターは、データストアログの保存場所を制御します。
 
-**Disable-Access-Log**
-Applies to:        Webserver
-Default Value:        `false`
-Example:        `Disable-Access-Log=true`
-Description:        The Disable-Access-Log parameter is used to disable the access log generated by the webserver.  The access logging infrastructure logs individual page accesses; while is typically valuable to have these access logs to audit Gravwell access and to debug potential problems, the access logs can become large in environments with a lot of users, so it may be desirable to disable them.
+**ログレベル**
+適用対象：インデクサー、データストア、およびWebサーバー
+デフォルト値： `INFO`
+例： `Log-Level=ERROR`
+説明：Log-Levelパラメーターは、gravwellインフラストラクチャからのログの詳細度を制御します。 Log-Levelには、INFO、WARN、およびERRORの3つの利用可能な引数があります。 INFOが最も詳細で、ERRORが最小です。 ロギングシステムは、ロギングレベルごとにファイルを生成し、syslogデーモンと同様の方法でローテーションします。
 
-**Persist-Web-Logins**
-Applies to:        Webserver
-Default Value:        `true`
-Example:        `Persist-Web-Logins=false`
-Description:        The Persist-Web-Logins parameter is used to inform the webserver that it should save user sessions on shutdown to non-volatile storage.  By default, if the webserver is shutdown or restarted, it will persist client sessions.  Setting the Persist-Web-Logins to false means sessions will be invalidated whenever the webserver is restarted.
+** Disable-Access-Log **
+適用対象：Webサーバー
+デフォルト値： `false`
+例： `Disable-Access-Log=true`
+説明：Disable-Access-Logパラメーターは、Webサーバーによって生成されたアクセスログを無効にするために使用されます。アクセスロギングインフラストラクチャは、個々のページアクセスを記録します。 Gravwellのアクセスを監査し、潜在的な問題をデバッグするためにこれらのアクセスログを保持することは通常重要ですが、多くのユーザーがいる環境ではアクセスログが大きくなる可能性があるため、無効にすることが望ましい場合があります。
 
-**Session-Timeout-Minutes**
-Applies to:        Webserver
-Default Value:        `60`
-Example:        `Session-Timeout-Minutes=1440`
-Description:        The Session-Timeout-Minutes parameter controls how long a client can be idle before the webserver destroys the session.  For example, if a client closes a browser without logging out, the system will wait for the specified time period before invalidating the session.  The installers set this value to 1 day by default.
+**永続的なWebログイン**
+適用対象：Webサーバー
+デフォルト値： `true`
+例： `Persist-Web-Logins=false`
+説明：Persist-Web-Loginsパラメーターは、シャットダウン時にユーザーセッションを不揮発性ストレージに保存する必要があることをWebサーバーに通知するために使用されます。デフォルトでは、ウェブサーバーがシャットダウンまたは再起動されると、クライアントセッションが保持されます。 Persist-Web-Loginsをfalseに設定すると、Webサーバーが再起動されるたびにセッションが無効になります。
 
-**Key-File**
-Applies to:        Indexer, Datastore, and Webserver
-Default Value:        `/opt/gravwell/etc/key.pem`
-Example:        `Key-File=/opt/gravwell/etc/privkey.pem`
-Description:        The Key-File parameter controls which file is used as a private key for the webserver, datastore, and indexer.  The private/public keys must be encoded in the PEM format.  The private key must be protected, and should be destroyed and reissued upon compromise.  For more information see http://www.tldp.org/HOWTO/SSL-Certificates-HOWTO/x64.html.
+**セッションタイムアウト分**
+適用対象：Webサーバー
+デフォルト値： `60`
+例： `Session-Timeout-Minutes=1440`
+説明：Session-Timeout-Minutesパラメーターは、Webサーバーがセッションを破棄する前にクライアントがアイドル状態でいられる時間を制御します。たとえば、クライアントがログアウトせずにブラウザを閉じた場合、システムはセッションを無効にする前に指定された期間待機します。インストーラーは、この値をデフォルトで1日に設定します。
 
-**Certificate-File**
-Applies to:        Indexer, Datastore, and Webserver
-Default Value:        `/opt/gravwell/etc/cert.pem`
-Example:        `Certificate-File=/opt/gravwell/etc/cert.pem`
-Description:        The Certificate-File parameter specifies the public key component of the public/private key pair used for TLS transport.  The public key will be delivered to every ingester and web client and is not considered sensitive.  Gravwell expects the public key to be encoded in the PEM format, and to only contain the public key portion.
+**キーファイル**
+適用対象：インデクサー、データストア、およびWebサーバー
+デフォルト値： `/opt/gravwell/etc/key.pem`
+例： `Key-File=/opt/gravwell/etc/privkey.pem`
+説明：Key-Fileパラメーターは、Webserver、データストア、およびインデクサーの秘密キーとして使用されるファイルを制御します。秘密/公開鍵はPEM形式でエンコードする必要があります。秘密鍵は保護する必要があり、侵害された場合は破棄して再発行する必要があります。詳細については、http：//www.tldp.org/HOWTO/SSL-Certificates-HOWTO/x64.htmlを参照してください。
 
-**Ingest-Auth**
-Applies to:        Indexer
-Default Value:        `IngestSecrets`
-Example:        `Ingest-Auth=abcdefghijklmnopqrstuvwxyzABCD`
-Description:        The Ingest-Auth parameter specifies the shared secret token that is used to authenticate ingesters to indexers.  This token can be of arbitrary length; Gravwell recommends a high entropy token of at least 24 characters.  By default the installers will generate a random token.
+**証明書ファイル**
+適用対象：インデクサー、データストア、およびWebサーバー
+デフォルト値： `/opt/gravwell/etc/cert.pem`
+例： `Certificate-File=/opt/gravwell/etc/cert.pem`
+説明：Certificate-Fileパラメーターは、TLSトランスポートに使用される公開/秘密キーペアの公開キーコンポーネントを指定します。公開鍵はすべてのInesterおよびWebクライアントに配信され、機密とはみなされません。 Gravwellは、公開鍵がPEM形式でエンコードされ、公開鍵部分のみが含まれることを期待しています。
 
-**Control-Auth**
-Applies to:        Indexer and Webserver
-Default Value:        `ControlSecrets`
-Example:        `Control-Auth=abcdefghijklmnopqrstuvwxyzABCD`
-Description:        The Control-Auth parameter specifies the shared secret token that is used to authenticate ingesters to webservers and vice versa.  This token can be of arbitrary length; Gravwell recommends a high entropy token of at least 24 characters.  By default the installers will generate a random token.
+** Ingest-Auth **
+適用対象：インデクサー
+デフォルト値： `IngestSecrets`
+例： `Ingest-Auth=abcdefghijklmnopqrstuvwxyzABCD`
+説明：Ingest-Authパラメーターは、インジェスターをインデクサーに対して認証するために使用される共有秘密トークンを指定します。このトークンの長さは任意です。 Gravwellでは、少なくとも24文字の高エントロピートークンを推奨しています。デフォルトでは、インストーラーはランダムトークンを生成します。
 
-**Search-Agent-Auth**
-Applies to:		Webserver
-Default Value:	
-Example:		`Search-Agent-Auth=abcdefghijklmnopqrstuvwxyzABCD`
-Description:	The Search-Agent-Auth parameter specifies the shared secret token that is used to authenticate the search agent to the webserver. The installers default to generating a random search agent token.
+** Control-Auth **
+適用対象：インデクサーとWebサーバー
+デフォルト値： `ControlSecrets`
+例： `Control-Auth=abcdefghijklmnopqrstuvwxyzABCD`
+説明：Control-Authパラメーターは、Webサーバーに対するインジェスターの認証、およびその逆の認証に使用される共有秘密トークンを指定します。このトークンの長さは任意です。 Gravwellでは、少なくとも24文字の高エントロピートークンを推奨しています。デフォルトでは、インストーラーはランダムトークンを生成します。
 
-**Web-Files-Path**
-Applies to:        Webserver
-Default Value:        `/opt/gravwell/www`
-Example:        `Web-Files-Path=/tmp/path/to/www`
-Description:        The Web-Files-Path specifies the path containing the frontend GUI files to be served by the webserver.  The web files contain all Gravwell code responsible for displaying the webpage and interacting with the Gravwell system via a web browser.
+** User-DB-Path **
+適用対象：Webサーバー
+デフォルト値：  `/opt/gravwell/etc/users.db`
+例： `User-DB-Path=/tmp/path/to/users.db`
+説明：User-DB-Pathパラメーターは、ユーザーデータベースファイルの場所を指定します。ユーザーデータベースファイルには、ユーザーとグループの構成が含まれています。ユーザーデータベースはbcryptハッシュアルゴリズムを使用してパスワードを保存および検証します。これは非常に堅牢であると考えられていますが、users.dbファイルは引き続き保護する必要があります。デフォルトでは、インストーラーはユーザーデータベースファイルのファイルシステムパーミッションをGravwellユーザーとグループのみが読み取り可能に設定します。
 
-**Tag-DB-Path**
-Applies to:		Indexer
-Default Value:	`/opt/gravwell/etc/tags.db`
-Example:		`Tag-DB-Path=/tmp/path/to/tags.db`
-Description:	The Tag-DB-Path parameter specifies the location of the tag database. This file maps the indexer's numeric tag IDs to tag name strings.
+** Datastore-User-DB-Path **
+適用対象：データストア
+デフォルト値： `/opt/gravwell/etc/datastore-users.db`
+例： `Datastore-User-DB-Path=/tmp/path/to/datastore-users.db`
+説明：Datastore-User-DB-Pathパラメーターは、データストアコンポーネントによって管理されるユーザーデータベースファイルの場所を指定します。これはUser-DB-Pathパラメーターで指定されたものと同じパスであってはなりません**。
 
-**User-DB-Path**
-Applies to:        Webserver
-Default Value:        `/opt/gravwell/etc/users.db`
-Example:        `User-DB-Path=/tmp/path/to/users.db`
-Description:        The User-DB-Path parameter specifies the location of the user database file.  The user database file contains user and group configurations.  The user database uses the bcrypt hash algorithm to store and validate passwords, which is considered very robust, but the users.db file should still be protected.  By default the installers set the filesystem permissions on the user database file to only be readable by the Gravwell user and group.
+** Web-Store-Path **
+適用対象：Webサーバー
+デフォルト値： `/opt/gravwell/etc/webstore.db`
+例： `Web-Store-Path=/tmp/path/to/webstore.db`
+説明：Web-Store-Pathは、検索履歴、ダッシュボード、ユーザー設定、ユーザーセッション、その他のさまざまなユーザーデータを保存するために使用されるデータベースファイルを指します。ウェブストアデータベースファイルにはユーザー認証情報は含まれていませんが、*ユーザーセッションCookieとCSRFトークンが含まれています。 GravwellはCookieとCSRFトークンをオリジンに結び付けているため、攻撃者が盗まれたCookieまたはトークンとして再利用するリスクは低いですが、データストアを保護する必要があります。インストーラーは、Gravwellユーザーによる読み取り/書き込みのみを許可するようにファイルシステムのアクセス許可を設定します。
 
-**Datastore-User-DB-Path**
-Applies to:		Datastore
-Default Value:	`/opt/gravwell/etc/datastore-users.db`
-Example:		`Datastore-User-DB-Path=/tmp/path/to/datastore-users.db`
-Description:	The Datastore-User-DB-Path parameter specifies the location of the user database file as managed by the datastore component. This **must not** be the same path as specified by the User-DB-Path parameter!
+** Datastore-Web-Store-Path **
+適用対象：データストア
+デフォルト値： `/opt/gravwell/etc/datastore-webstore.db`
+例： `Datastore-Web-Store-Path=/tmp/path/to/datastore-webstore.db`
+説明：Datastore-Web-Store-Pathパラメーターは、検索履歴、ダッシュボード、ユーザー設定を保存するためにデータストアが使用するデータベースファイルを指します。これは、Web-Store-Pathパラメーターで指定されたパスと同じであってはなりません**。
 
-**Web-Store-Path**
-Applies to:        Webserver
-Default Value:        `/opt/gravwell/etc/webstore.db`
-Example:        `Web-Store-Path=/tmp/path/to/webstore.db`
-Description:        The Web-Store-Path points to the database file used to store search history, dashboards, user settings, user sessions, and any other miscellaneous user data.  The webstore database file does not contain any user credentials, but *does* contain user session cookies and CSRF tokens.  Gravwell ties cookies and CSRF tokens to origins, so while the risk of an attacker reusing as stolen cookie or token is low the datastore should be protected.  Installers set the filesystem permissions to only allow read/write by the Gravwell user.
+** Web-Listen-Address **
+適用対象：Webサーバー
+デフォルト値：
+例： `Web-Listen-Address=10.0.0.1`
+説明：Web-Listen-Addressパラメーターは、Webサーバーがバインドしてサービスを提供するアドレスを指定します。デフォルトでは、パラメーターは空です。つまり、Webサーバーはすべてのインターフェイスとアドレスにバインドします。
 
-**Datastore-Web-Store-Path**
-Applies to:		Datastore
-Default Value:	`/opt/gravwell/etc/datastore-webstore.db`
-Example:		`Datastore-Web-Store-Path=/tmp/path/to/datastore-webstore.db`
-Description:	The Datastore-Web-Store-Path parameter points to the database file used by the datastore to store search history, dashboards, and user preferences. This **must not** be the same path as specified by the Web-Store-Path parameter!
+**ログイン失敗ロック数**
+適用対象：Webサーバー
+デフォルト値： `5`
+例： `Login-Fail-Lock-Count=10`
+説明：Login-Fail-Lock-Countパラメーターは、アカウントでブルートフォース保護が有効になる前に、ユーザーアカウントに対して連続して失敗するログインの回数を指定します。たとえば、値が4に設定され、ユーザーが不正なパスワードを連続して4回入力すると、追加のログイン試行が完了するまでに時間がかかり、攻撃者の速度が低下します。注：Gravwellは以前、特定の回数の失敗後にアカウントをロックしていました。現在では、より積極的なブルートフォース保護が行われていますが、従来の理由により、構成パラメーターは「ロック」名を保持しています。
 
-**Web-Listen-Address**
-Applies to:        Webserver
-Default Value:
-Example:        `Web-Listen-Address=10.0.0.1`
-Description:        The Web-Listen-Address parameter specifies the address the webserver should bind to and serve from.  By default the parameter is empty, meaning the webserver binds to all interfaces and addresses.
+**ログイン失敗ロック期間**
+適用対象：Webサーバー
+デフォルト値： `5`
+例： `Login-Fail-Lock-Duration=10`
+説明：Login-Fail-Lock-Durationパラメーターは、Login-Fail-Lock-Countを超えたかどうかを計算するときに使用されるウィンドウ（分単位）を指定します。注：Gravwellは以前、特定の回数の失敗後にアカウントをロックしていました。現在では、より積極的なブルートフォース保護が行われていますが、従来の理由により、構成パラメーターは「ロック」名を保持しています。
 
-**Login-Fail-Lock-Count**
-Applies to:        Webserver
-Default Value:        `5`
-Example:        `Login-Fail-Lock-Count=10`
-Description:        The Login-Fail-Lock-Count parameter specifies the number of sequential failed logins against a user account can occur before brute-force protection is enabled on the account.  For example, if the value is set to 4 and a user provides a bad password 4 times in a row, additional login attempts will take longer to complete, slowing down an attacker. Note: Gravwell previously locked an account after a specific number of failures; it now engages a less aggressive brute-force protection, but for legacy reasons the configuration parameter retains the 'Lock' name.
+**リモートインデクサー**
+適用対象：Webサーバー
+デフォルト値：  `net:10.0.0.1:9404`
+例：  `Remote-Indexers=net:10.0.0.1:9404`
+説明：Remote-Indexersパラメーターは、Webサーバーが接続して制御するリモートインデクサーのアドレスとポートを指定します。 Remote-Indexersはリストパラメーターです。つまり、複数のリモートインデクサーを提供するために何度も指定できます。 Gravwell Clusterエディションでは、クラスター内の各インデクサーを指定する必要があります。 「net：」プレフィックスは、ネットワークトランスポートを介してリモートインデクサーにアクセスできることを示します。 Gravwellの特別版では代替トランスポートを使用できますが、ほとんどの商用顧客は「net：」の使用を期待する必要があります。
 
-**Login-Fail-Lock-Duration**
-Applies to:        Webserver
-Default Value:        `5`
-Example:        `Login-Fail-Lock-Duration=10`
-Description:        The Login-Fail-Lock-Duration parameter specifies the window (in minutes) used when calculating if the Login-Fail-Lock-Count has been exceeded. Note: Gravwell previously locked an account after a specific number of failures; it now engages a less aggressive brute-force protection, but for legacy reasons the configuration parameter retains the 'Lock' name.
-
-**Remote-Indexers**
-Applies to:        Webserver
-Default Value:        `net:10.0.0.1:9404`
-Example:        `Remote-Indexers=net:10.0.0.1:9404`
-Description:        The Remote-Indexers parameter specifies the address and port of remote indexers that the webserver should connect to and control.  Remote-Indexers is a list parameter, meaning that it can be specified many times to provide multiple remote indexers. Gravwell Cluster editions will need to specify each indexer in the cluster.  The “net:” prefix indicates that the remote indexer is accessible via a network transport; special editions of Gravwell can use alternate transports, but most commercial customers should expect to use “net:”.
-
-**Search-Scratch**
-Applies to:        Indexer and Webserver
-Default Value:        `/opt/gravwell/scratch`
-Example:        `Search-Scratch=/tmp/path/to/scratch`
-Description:        The Search-Scratch parameter specifies a storage location that search modules can use for temporary storage during an active search.  Some search modules may need to use temporary storage due to memory constraints.  For example, the sort module may need to sort 5GB of data but the physical machine may only have 4GB of physical RAM.  The module can intelligently use the scratch space to sort the large dataset without invoking the host's swap (which would penalize all modules, not just sort).  At the end of each search, scratch space is destroyed.
-
-**Render-Store**
-Applies to:        Webserver
-Default Value:        `/opt/gravwell/render`
-Example:        `Render-Store=/tmp/path/to/render`
-Description:        The Render-Store parameter specifies where renderer modules store the results of a search.  Render-Store locations are temporary storage locations and typically represent reasonably small data sets.  When a search is actively running or dormant and interacting with a client, the Render-Store is where the renderer will store and retrieve its data set.  Render-Store should be on high speed storage such as flash-based or XPoint SSDs.  When a search is abandoned the Render-Store is deleted (unless the search is saved).
-
-**Saved-Store**
-Applies to:        Webserver
-Default Value:        `/opt/gravwell/saved`
-Example:        `Saved-Store=/path/to/saved/searches`
-Description:        The Saved-Store parameter specifies where saved searches will be stored.  Saved searches represent the output state of a search and can be useful for auditing and situations where users want to be able to consult search results again later without relaunching the search.  Saved searches must be explicitly deleted and the data is not subject to shard age out policies.  Saved searches are entirely atomic, which means that the underlying data for a saved search can be completely aged out and even deleted and users can still re-open and examine the saved search.  Saved searches can also be shared, meaning users can pack up and share saved searches with other instances of Gravwell.
-
-**Search-Pipeline-Buffer-Size**
-Applies to:        Indexer and Webserver
-Default Value:        `2`
-Example:        `Search-Pipeline-Buffer-Size=8`
-Description:        The Search-Pipeline-Buffer-Size specifies how many blocks can be in transit between each module during a search.  Larger sizes allow for better buffering and potentially higher throughput searches at the expense of resident memory usage.  Indexers are more sensitive to the pipeline size, but also use a shared memory technique whereby the system can evict and reinstantiate memory at will; the webserver typically keeps all entries resident when moving through the pipeline and relies on condensing modules to reduce the memory load.  If your system uses higher latency storage systems like spinning disks, it can be advantageous to increase this buffer size.
-Increasing this parameter may make searches perform better, but it will directly impact the number of running searches the system can handle at once!  If you know you are storing extremely large entries like video frames, PE executables, or audio files you may need to reduce the buffer size to limit resident memory usage. If you see your host kernel invoking the Out Of Memory (OOM) firing and killing the Gravwell process, this is the first knob to turn.
-
-**Search-Relay-Buffer-Size**
-Applies to:		Webserver
-Default Value:	`4`
-Example:		`Search-Relay-Buffer-Size=8`
-Description:	The Search-Relay-Buffer-Size parameter controls how many entry blocks the webserver will accept from each indexer while still waiting for outstanding blocks from another indexer. As search entries flow in temporally, it is possible that one indexer may still be processing older entries while another has moved ahead to more recent entries. Because the webserver must process entries in temporal order, it will buffer entries from the indexer which is "ahead" while waiting for the slower indexer to catch up. In general, the default value will help prevent memory problems while still providing acceptable performance. On systems with large amounts of memory, it may be useful to increase this value.
-
-**Max-Search-History**
-Applies to:        Webserver
-Default Value:        `100`
-Example:        `Max-Search-History=256`
-Description:        The Max-Search-History parameter controls how many searches are kept for a user.  Search history is useful to be able to go back and examine old searches, or see what other users in your group are searching.  A larger history allows for a greater tail of old search strings, but if too many searches are kept in the history it can cause some slowdowns when interacting with the GUI.
-
-**Prebuff-Block-Hint**
-Applies to:        Indexer
-Default Value:        `32`
-Example:        `Prebuff-Block-Hint=8`
-Description:        The Prebuff-Block-Hint specifies in megabytes a soft target that the indexer should shoot for when storing blocks of data.  Very high-throughput systems may want to push this value a little higher, where memory constrained systems may want to push this value lower.  This value is a soft target, and indexers will typically only engage it when ingest is occurring at high rates.
-
-**Prebuff-Max-Size**
-Applies to:        Indexer
-Default Value:        `32`
-Example:        `Prebuff-Max-Size=128`
-Description:        The Prebuff-Max-Size parameter controls the maximum data size in megabytes the prebuffer will hold before forcing entries to disk.  The prebuffer is used to help optimize storage of entries when source clocks may not be very well synchronized.  A larger prebuffer means that the indexer can better optimize ingesters that are providing wildly out of order values.  Each well has its own prebuffer, so if your installation has 4 wells defined and a Prebuff-Max-Size of 256, the indexer can consume up to 1GB of memory holding data.  The prebuffer max size will typically only engage in high-throughput systems, as the prebuffer is periodically evicting entries and pushing them to the storage media all the time.  This is the second knob to turn (after Search-Pipeline-Buffer-Size) if your host system's OOM killer is terminating the Gravwell processes.
-
-**Prebuff-Max-Set**
-Applies to:        Webserver
-Default Value:        `256`
-Example:        `Prebuff-Max-Set=256`
-Description:        The Prebuff-Max-Set specifies how many one-second blocks are allowed to be held in the prebuffer for optimization.  The more out of sync the timestamps are on entries provided by ingesters the larger this set should be.  For example, if you are consuming from sources that might have as much as a 2 hour swing in timestamps you might want to set this value to 7200, but if your data typically arrives with very tight timestamp tolerances you can shrink this value down as low as 10.  The Prebuff-Max-Size controls will still engage and force prebuffer evictions, so setting this value too high hurts less than setting it too low.
-
-**Prebuff-Tick-Interval**
-Applies to:        Webserver
-Default Value:        `3`
-Example:        `Prebuff-Tick-Interval=4`
-Description:        The Prebuff-Tick-Interval parameter specifies in seconds how often the prebuffer should engage an artificial eviction of entries located in the prebuffer.  The prebuffer is always evicting values to persistent storage when there is active ingestion, but in very low-throughput systems this value can be used to ensure that entries are forcibly pushed to persistent storage.  Gravwell will never allow data to be lost when it can help it; when gracefully shutting down indexers the prebuffer ensures all entries make it to the persistent storage.  However, if you don’t have a lot of faith in the stability of your hosts you may want to set this interval closer to 2 to ensure that system failures, or angry admins, can’t pull the rug out from under the indexers.
-
-**Prebuff-Sort-On-Consume**
-Applies to:        Indexer
-Default Value:        `false`
-Example:        `Prebuff-Sort-On-Consume=true`
-Description:        The Prebuff-Sort-On-Consume parameter tells the prebuffer to sort locks of data prior to pushing them to disk.  The sorting process is only applied to the individual block, and does NOT guarantee that data is sorted when entering the pipeline.  Sorting blocks prior to storage also incurs a significant performance penalty in ingestion.  Almost all installations should leave this value as false.
-
-**Max-Block-Size**
-Applies to:        Indexer
-Default Value:        `4`
-Example:        `Max-Block-Size=8`
-Description:        The Max-Block-Size specifies a value in megabytes and is used as a hint to tell indexers the maximum block size they can generate when pushing entries into the pipeline.  Larger blocks reduce pressure on the pipeline, but increase memory pressure.  Large memory and high throughput systems can increase this value to increase throughput, smaller memory systems can decrease this size to reduce memory pressure.  The Prebuff-Block-Hint and Max-Block-Size parameters intersect to provide two knobs that tune ingest and search throughput.  At Gravwell, on the 128GB nodes, the following is achieved: a clean 1GB/s of search throughput; a 1.25 million entry per second ingest with a Max-Block-Size of 16; and a Prebuff-Block-Hint of 8 is achieved
-
-**Render-Store-Limit**
-Applies to:		Webserver
-Default Value:	1024
-Example:		`Render-Store-Limit=512`
-Description:	The Render-Store-Limit parameter specifies how many megabytes a search renderer can store.
-
-**Search-Control-Script**
-Applies to:		Webserver
-Default Value:
-Example:		`Search-Control-Script=/opt/gravwell/etc/authscripts/limits.grv`
-Description:	The Search-Control-Script parameter is a list parameter which can specify scripts to be applied at search time. Being a list parameter, it can be specified multiple times to specify multiple scripts. These scripts can apply additional restrictions to searches executed by users. All scripts are executed for every search. Contact Gravwell for more information about search control scripts.
-
-**Webserver-Resource-Store**
-Applies to:		Webserver
-Default Value:	`/opt/gravwell/resources/webserver`
-Example:		`Webserver-Resource-Store=/tmp/path/to/resources/webserver`
-Description:	The Webserver-Resource-Store parameter specifies where the webserver should store its resources. This directory **must** be unused by any other process and cannot be specified as the resource location for the indexer or datastore.
-
-**Indexer-Resource-Store**
-Applies to:		Indexer
-Default Value:	`/opt/gravwell/resources/indexer`
-Example:		`Indexer-Resource-Store=/tmp/path/to/resources/indexer`
-Description:	The Indexer-Resource-Store parameter specifies where the indexer should store its resources. This directory **must** be unused by any other process and cannot be specified as the resource location for the webserver or datastore.
-
-**Datastore-Resource-Store**
-Applies to:		Datastore
-Default Value:	`/opt/gravwell/resources/datastore`
-Example:		`Datastore-Resource-Store=/tmp/path/to/resources/datastore`
-Description:	The Datastore-Resource-Store parameter specifies where the datastore should store its resources. This directory **must** be unused by any other process and cannot be specified as the resource location for the indexer or webserver.
-
-**Resource-Max-Size**
-Applies to:		Webserver, Datastore, and Indexer
-Default Value:	`134217728`
-Example:		`Resource-Max-Size=1000000000`
-Description:	The Resource-Max-Size parameter specifies the maximum size of resources in bytes.
-
-**Docker-Secrets**
-Applies to:		Webserver, Datastore, and Indexer
-Default Value:	`false`
-Example:		`Docker-Secrets=true`
-Description:	The Docker-Secrets parameter tells Gravwell that it should attempt to read the ingest, control, and search agent secrets from [Docker secrets](https://docs.docker.com/engine/swarm/secrets/). It expects the secrets to be named `ingest_secret`, `control_secret`, and `search_agent_secret`, respectively, and they should be accessible from within the VM in the `/run/secrets/` directory.
-
-**HTTP-Proxy***
-Applies to:		Webserver
-Default Value:
-Example:		`HTTP-Proxy=http://wwwproxy.example.com:8080/`
-Description:	The HTTP-Proxy parameter configures a proxy to be used for HTTP and HTTP requests by the webserver. It is effectively equivalent to setting the environment variable $http_proxy and allows the same syntax.
-
-**Webserver-Ingest-Groups**
-Applies to:		Webserver
-Default Value:
-Example:		`Webserver-Ingest-Groups=ingestUsers`
-Description:	The Webserver-Ingest-Groups parameter is a list parameter which specifies groups whose users are allowed to ingest entries directly via the Gravwell web API. As a list parameter, it can be specified multiple times to enable multiple groups to ingest via web API.
-
-**Autoextract-Definition-Path**
-Applies to:		Webserver and Indexer
-Default Value:	`/opt/gravwell/extractions` 
-Example:		`Autoextract-Definition-Path=/tmp/extractions`
-Description:	The Autoextract-Definition-Path parameter specifies a directory which will contain autoextractor definitions.
-
-**Disable-Update-Notification**
-Applies to:		Webserver
-Default Value:	`false`
-Example:		`Disable-Update-Notification=false`
-Description:	If Disable-Update-Notification is set to true, the web UI will not present a notification when a new version of Gravwell is available.
-
-**Temp-Dir**
-Applies to:		Webserver
-Default Value:	`/opt/gravwell/tmp`
-Example:		`Temp-Dir=/tmp/gravtmp`
-Description:	The Temp-Dir parameter specifies a directory which can be used for temporary Gravwell files without risk of interference from other processes. It is used to store uploaded kits before installation, among other uses.
-
-**Insecure-User-Unsigned-Kits-Allowed**
-Applies to:		Webserver
-Default Value:	`false`
-Example:		`Insecure-User-Unsigned-Kits-Allowed=true`
-Description:	This parameter, if set, allows all users to install unsigned kits. We strong recommend against enabling this option.
-
-**Disable-Search-Agent-Notifications**
-Applies to:		Webserver
-Default Value:	`false`
-Example:		`Disable-Search-Agent-Notifications=true`
-Description:	If set to true, this parameter prevents the web UI from displaying a notification if the search agent fails to check in. This is useful if you have disabled the search agent and do not want to see the notification.
-
-**Indexer-Storage-Notification-Threshold**
-Applies to:		Indexer
-Default Value:		`90`
-Example:		`Indexer-Storage-Notification-Threshold=98`
-Description:		A percentage value which determines when to warn about storage usage.  If the value is above 0, a notification will be thrown whenever a storage device that is used by the Indexer uses more than the specified storage percentage.  The value MUST be between 0 and 99.
-
-**Disable-Network-Script-Functions**
-Applies to:		Webserver
-Default Value:	`false`
-Example:		`Disable-Network-Script-Functions=true`
-Description:	By default, anko scripts in the pipeline are allowed to use network functions such as the net/http library and the ssh/sftp utilities. Setting this to 'true' will disable those functions.
-
-**Webserver-Enable-Frame-Embedding**
-Applies to:		Webserver
-Default Value:	`false`
-Example:		`Webserver-Enable-Frame-Embedding=true`
-Description:	By default, the webserver disallows Gravwell pages from being rendered within frames by setting the header X-Frame-Options: deny. Setting this configuration parameter to 'true' will eliminate that header, allowing the pages to be embedded within frames.
-
-**Webserver-Content-Security-Policy**
-Applies to:		Webserver
-Default Value:	``
-Example:		`Webserver-Content-Security-Policy="default-src https:"`
-Description:	This parameter allows the administrator to defined a Content-Security-Policy header which will be sent with all Gravwell pages. This is an important security option and should be set for your organization based on your deployment requirements, such as requiring https-only.
+**検索スクラッチ**
+適用対象：インデクサーとWebサーバー
+デフォルト値：  `/opt/gravwell/scratch`
+例： `Search-Scratch=/tmp/path/to/scratch`
+説明：Search-Scratchパラメーターは、アクティブな検索中に検索モジュールが一時ストレージに使用できるストレージの場所を指定します。一部の検索モジュールでは、メモリの制約により一時ストレージを使用する必要がある場合があります。たとえば、並べ替えモジュールでは5GBのデータを並べ替える必要がありますが、物理マシンには4GBの物理RAMしかありません。モジュールは、hoを呼び出さずにスクラッチスペースをインテリジェントに使用して大きなデータセットをソートできます。
