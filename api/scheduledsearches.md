@@ -1,54 +1,54 @@
-# Scheduled Searches API
+# Scheduled Searches
 
-This API allows for the creation and management of scheduled searches. Searches are referred to by a randomly-generated ID.
+このAPIはスケジュール検索の作成と管理を可能にします。検索は、ランダムに生成されたIDによって参照されます。
 
-## Scheduled search structure
+## スケジュール検索構造
 
-A scheduled search contains the following fields of interest:
+スケジュール検索には、次の関心分野が含まれています。
 
-* ID: the ID of the scheduled search
-* GUID: a unique ID for this particular search. If left blank at creation, a random GUID will be assigned (this should be the standard use case)
-* Owner: the uid of the search's owner
-* Groups: a list of groups which are allowed to see the results of this search
-* Name: the name of this scheduled search
-* Description: a textual description of the scheduled search
-* Schedule: a cron-compatible string specifying when to run
-* Permissions: a 64-bit integer used to store permission bits
-* Disabled: a boolean which, if set to true, will prevent the scheduled search from running.
-* OneShot: a boolean which, if set to true, will cause the scheduled search to run once as soon as possible, unless disabled.
-* LastRun: the time at which this scheduled search last ran
-* LastRunDuration: how long the last run took
-* LastSearchIDs: an array of strings containing the search IDs of the most recently performed searches from this scheduled search
-* LastError: any error resulting from the last run of this search
+* ID: スケジュール検索のID
+* GUID: この特定の検索のためのユニークなID。作成時に空白のままにすると、ランダムなGUIDが割り当てられます（これは標準的な使用例です）。
+* Owner: 検索の所有者のUID
+* Groups: この検索の結果を見ることを許可されているグループのリスト
+* Name: この予約検索の名前
+* Description: スケジュールされた検索の説明文
+* Schedule: いつ実行するかを指定するcron互換の文字列
+* Permissions: パーミッションビットを格納するために使用される64ビット整数
+* Disabled: trueに設定されている場合、スケジュールされた検索の実行を妨げるブール値。
+* OneShot: ブール値。trueに設定すると、無効にしない限り、スケジュール検索をできるだけ早く実行します。
+* LastRun: このスケジュール検索が最後に実行された時刻
+* LastRunDuration: 最後の実行にかかった時間
+* LastSearchIDs: このスケジュール検索から最後に実行された検索の検索IDを含むストリングの配列
+* LastError: この検索の最後の実行から発生したエラー
 
-If the search is a 'standard' scheduled search, it will also set these fields:
+検索が「標準」スケジュール検索の場合、これらのフィールドも設定されます。
 
-* SearchString: the Gravwell query to execute
-* Duration: a value in seconds specifying how far back to run the search. This must be a negative value.
-* SearchSinceLastRun: a boolean. If set, the Duration field will be ignored and the search will instead run from the LastRun time to the present.
+* SearchString: 実行するGravwellクエリ
+* Duration: 検索を実行するまでの時間を指定する秒単位の値。これは負の値でなければなりません。
+* SearchSinceLastRun: ブール値。設定されていると、Durationフィールドは無視され、代わりにLastRunから現在までの間に検索が実行されます。
 
-If the search is on the other hand a script, it will set the following field:
+一方、検索がスクリプトの場合は、次のフィールドが設定されます。
 
-* Script: a string containing an anko script
+* Script: ankoスクリプトを含む文字列
 
-## User commands
+## ユーザーコマンド
 
-The API commands in this section can be executed by any user.
+このセクションのAPIコマンドはどのユーザでも実行できます。
 
-### Listing scheduled searches
+### スケジュール検索の一覧表示
 
-To get a list of all scheduled searches visible to the user (either owned by the user or marked accessible to one of the user's groups), perform a GET on `/api/scheduledsearches`. The result will look like this:
+ユーザーに表示されている（ユーザーが所有しているか、ユーザーのグループの1つにアクセス可能とマークされている）すべてのスケジュールされた検索のリストを取得するには、GETを実行し/api/scheduledsearchesます。結果は次のようになります。
 
 ```
 [{"ID":1439174790,"GUID":"efd1813d-283f-447a-a056-729768326e7b","Groups":null,"Name":"count","Description":"count all entries","Owner":1,"Schedule":"* * * * *","Permissions":0,"Updated":"2019-05-21T16:01:01.036703243-06:00","Disabled":false,"OneShot":false,"Synced":true,"SearchString":"tag=* count","Duration":-3600,"SearchSinceLastRun":false,"Script":"","PersistentMaps":{},"LastRun":"2019-05-21T16:01:00.013062447-06:00","LastRunDuration":1015958622,"LastSearchIDs":["672586805"],"LastError":""}]
 
 ```
 
-This example shows a single scheduled search named "count", owned by UID 1 (admin). It runs every minute and executes the search `tag=* count` over the last hour hours.
+この例は、UID 1（admin）が所有する「count」という名前の単一のスケジュール検索を示しています。毎分実行さtag=* countれ、過去1時間の検索が実行されます。
 
-### Creating a scheduled search
+### スケジュール検索の作成
 
-To create a new scheduled search, perform a POST request on `/api/scheduledsearches` with a JSON structure containing information about the scheduled search. To create a standard search, be sure to populate the SearchString and Duration fields, as in this example which runs a search over the last 24 hours every day at 8 a.m.:
+新しいスケジュール検索を作成するに/api/scheduledsearchesは、スケジュール検索に関する情報を含むJSON構造でPOSTリクエストを実行します。標準検索を作成するには、この例のようにSearchStringフィールドとDurationフィールドを必ず入力します。この例では、毎日午前8時に過去24時間にわたって検索が実行されます。
 
 ```
 {
@@ -62,29 +62,27 @@ To create a new scheduled search, perform a POST request on `/api/scheduledsearc
 }
 ```
 
-Alternately, if the SearchSinceLastRun field is set to true, the search agent will ignore the Duration (except for the first run of this new search) and instead perform the search over the time of the last run to the present time.
+あるいは、SearchSinceLastRunフィールドがtrueに設定されている場合、検索エージェントはDuration（この新しい検索の最初の実行を除く）を無視し、代わりに最後の実行から現在までの時間にわたって検索を実行します。
 
-To create a scheduled search using a script, populate the "Script" field instead of the "SearchString" and "Duration" fields. If both are populated, the script will take precedence.
+スクリプトを使用してスケジュール検索を作成するには、[SearchString]および[Duration]フィールドの代わりに[Script]フィールドを入力します。両方が設定されている場合は、スクリプトが優先されます。
 
-A scheduled search may be created with the Disabled flag set to true to prevent it from running until the user is ready. It can also be created with the OneShot flag set to true, which will cause the search to run as soon as possible after creation.
+サーバーは新しいスケジュール検索のIDで応答します。
 
-The server will respond with the ID of the new scheduled search.
+### 特定のスケジュール検索を取得する
 
-### Fetching a specific scheduled search
-
-Information about a single scheduled search may be accessed with a GET on `/api/scheduledsearches/{id}`. For example, given a scheduled search ID of 1439174790, we would query `/api/scheduledsearches/1439174790` and receive the following:
+単一のスケジュールされた検索に関する情報は、GETをオンにしてアクセスできます/api/scheduledsearches/{id}。たとえば、1353491046というスケジュールされた検索IDがあるとする/api/scheduledsearches/1353491046と、次のクエリを実行して受信します。
 
 ```
 {"ID":1439174790,"GUID":"efd1813d-283f-447a-a056-729768326e7b","Groups":null,"Name":"count","Description":"count all entries","Owner":1,"Schedule":"* * * * *","Permissions":0,"Updated":"2019-05-21T16:01:01.036703243-06:00","Disabled":false,"OneShot":false,"Synced":true,"SearchString":"tag=* count","Duration":-3600,"SearchSinceLastRun":false,"Script":"","PersistentMaps":{},"LastRun":"2019-05-21T16:01:00.013062447-06:00","LastRunDuration":1015958622,"LastSearchIDs":["672586805"],"LastError":""}
 ```
 
-A scheduled search can also be fetched by GUID. Note that this requires more work for the webserver and should only be used when necessary. To fetch the scheduled search shown above, do a GET on `/api/scheduledsearches/cdf011ae-7e60-46ec-827e-9d9fcb0ae66d`.
+スケジュールされた検索はGUIDによっても取得できます。 これはWebサーバのためにより多くの作業を必要とし、必要なときにだけ使用されるべきであることに注意してください。 上記のスケジュール検索を取得するには、/ api / schedulesearches / cdf011ae-7e60-46ec-827e-9d9fcb0ae66dでGETを実行します。
 
-### Updating an existing search
+### 既存の検索を更新する
 
-To modify a scheduled search, do an HTTP PUT to `/api/scheduledsearches/{id}` containing an updated structure with the desired changes. Take care to push the unchanged fields too, or they will be overwritten with empty values.
+スケジュール検索を変更するには、HTTP PUTを実行/api/scheduledsearches/{id}して、必要な変更を含む更新された構造を含めるようにします。変更されていないフィールドもプッシュするように注意してください。そうしないと、空の値で上書きされます。
 
-The following fields can be updated:
+以下のフィールドを更新することができます。
 
 * Name
 * Description
@@ -97,30 +95,30 @@ The following fields can be updated:
 * Disabled
 * OneShot
 
-A script scheduled search can be changed to a standard scheduled search by pushing a SearchString and a Duration with the Script field empty. Likewise, a standard scheduled search can be converted to a script scheduled search by pushing a Script field and setting the SearchString empty.
+スクリプトフィールドを空にしてSearchStringとDurationを押すことで、スクリプトスケジュール検索を標準のスケジュール検索に変更できます。同様に、標準のスケジュール検索は、スクリプトフィールドをプッシュしてSearchStringを空に設定することでスクリプトスケジュール検索に変換できます。
 
-### Clearing a scheduled search error
+### スケジュールされた検索エラーを解決する
 
-The LastError field in the scheduled search structure will be set if an error is encountered and will not be cleared by subsequent successful executions. It can be cleared manually by a DELETE on `/api/scheduledsearches/{id}/error`
+スケジュールされた検索構造体のLastErrorフィールドは、エラーが発生した場合に設定され、その後の正常な実行によってクリアされることはありません。それはのDELETEによって手動でクリアすることができます/api/scheduledsearches/{id}/error
 
-### Deleting a scheduled search
+### スケジュール検索の削除
 
-An existing scheduled search can be removed by performing a DELETE on `/api/scheduledsearches/{id}`.
+既存のスケジュール検索は、DELETEを実行することで削除できます/api/scheduledsearches/{id}。
 
-## Admin commands
+## 管理コマンド
 
-The following commands are only available to admin users.
+次のコマンドは管理者ユーザーだけが利用できます。
 
-### Listing all searches
+### すべての検索を一覧表示する
 
-Admin users may occasionally need to view all scheduled searches on the system. An administrator user may obtain a global listing of all scheduled searches in the system with a GET request on `/api/scheduledsearches?admin=true`.
+管理ユーザーは、システム上のすべてのスケジュール検索を表示する必要がある場合があります。管理者ユーザーは、GETリクエストを使用して、システム内のすべてのスケジュールされた検索のグローバルリストを取得できます/api/scheduledsearches?admin=true。
 
-Because scheduled search IDs are unique across the system, the administrator may then modify/delete/retrieve any search without the need to specify `?admin=true`, although adding the parameter unecessarily will not cause an error.
+スケジュールされた検索IDはシステム全体で一意であるため、管理者は指定しなくても検索を変更、削除、取得できます?admin=trueが、パラメータを追加してもエラーにはなりません。
 
-### Fetching a specific user's searches
+### 特定のユーザーの検索を取得する
 
-Performing a GET on `/api/scheduledsearches/user/{uid}`, where `uid` is a numeric userid, will fetch an array of all searches belonging to that user.
+上/api/scheduledsearches/user/{uid}でGETを実行するuidと、数字のユーザーIDはそのユーザーに属するすべての検索の配列を取得します。
 
-### Deleting all of a specific user's searches
+### 特定のユーザーの検索をすべて削除する
 
-Performing a DELETE on `/api/scheduledsearches/user/{uid}` will delete all scheduled searches belonging to the specified user.
+DELETEを実行する/api/scheduledsearches/user/{uid}と、指定したユーザーに属するすべてのスケジュール検索が削除されます。
