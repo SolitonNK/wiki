@@ -1,16 +1,16 @@
 # Templates and Pivots API
 
-Templates and pivots have identical APIs. This document describes the template API; to manage pivots, simply replace `templates` in the URLs with `pivots`.
+テンプレートとピボットには同じAPIがあります。このドキュメントはテンプレートAPIについて説明します。ピボットを管理するには、単にtemplatesURLをに置き換えますpivots。
 
-Templates and pivots are referred to by GUID. Note that if a user installs a template or pivot with the same GUID as a global template, theirs will transparently override the global one, but only for themselves. If multiple templates or pivots exist with the same GUID, they are prioritized in the following order:
+テンプレートとピボットはGUIDによって参照されます。ユーザーがグローバルテンプレートと同じGUIDを使用してテンプレートまたはピボットをインストールすると、自分のものだけが透過的にグローバルテンプレートをオーバーライドします。同じGUIDを持つ複数のテンプレートまたはピボットが存在する場合、それらは次の順序で優先順位が付けられます。
 
-* Owned by the user
-* Shared with a group the user is a member of
-* Global
+* ユーザーが所有
+* ユーザーがメンバーになっているグループと共有
+* グローバル
 
-## Create a template
+## テンプレートを作成する
 
-To create a template, do a POST to `/api/templates`. The body should be a JSON structure with a 'Contents' field containing any valid JSON, and optionally a GUID, Name, and Descrption. The following are all valid:
+テンプレートを作成するには、にPOSTを実行し/api/templatesます。本体は、任意の有効なJSON、およびオプションでGUID、Name、Descrptionを含む 'Contents'フィールドを持つJSON構造にする必要があります。以下はすべて有効です。
 
 ```
 {"Contents": "foo"}
@@ -27,41 +27,41 @@ To create a template, do a POST to `/api/templates`. The body should be a JSON s
 ```
 {"GUID":"ce95b152-d47f-443f-884b-e0b506a215be","Contents": "foo","Name":"mytemplate"}
 ```
-The API will respond with the GUID of the newly-created template
+APIは、新しく作成されたテンプレートのGUIDで応答します
 
-## List templates
+## リストテンプレート
 
-To list all templates available to a user, do a GET on `/api/templates`. The result will be an array of templates:
+ユーザーが利用できるすべてのテンプレートを一覧表示するには、/api/templatesに対してGETを実行します。 結果はテンプレートの配列になります。
 
 [{"GUID":"a8fbdee6-9d92-4d5e-80ab-540532babd54","ThingUUID":"7a4de770-6c31-11e9-b1ef-54e1ad7c66cf","UID":1,"GIDs":[2,3],"Global":false,"Name":"blah","Description":"","Updated":"2019-03-29T10:55:40.127258032-06:00","Contents":"bar"}]
 
-## Fetch a single template
+## 単一のテンプレートを取得する
 
-To fetch a single template, do a GET on `/api/templates/<guid>`:
+単一のテンプレートを取得するには、GETを実行してください/api/templates/<guid>。
 
 {"GUID":"a8fbdee6-9d92-4d5e-80ab-540532babd54","ThingUUID":"7a4de770-6c31-11e9-b1ef-54e1ad7c66cf","UID":1,"GIDs":[2,3],"Global":false,"Name":"blah","Description":"","Updated":"2019-03-29T10:55:40.127258032-06:00","Contents":"bar"}
 
-## Update a template
+## テンプレートを更新する
 
-To update a template, do a PUT to `/api/templates/<guid>`. The request body should be identical to that returned by a GET on the same path, with any desired elements changed. Note that the GUID cannot be changed; only the following fields may be modified:
+テンプレートを更新するには、にPUTを実行し/api/templates/<guid>ます。要求本体は、同じパスでGETによって返されるものと同じで、必要な要素が変更されている必要があります。GUIDは変更できないことに注意してください。以下のフィールドのみを変更できます。
 
-* Contents: The actual body/contents of the template
-* Name: Change the name of the template
-* Description: Change the template's description
-* GIDs: May be set to an array of 32-bit integer group IDs, e.g. `"GIDs":[1,4]`
-* UID: (Admin only) Set to a 32-bit integer
-* Global: (Admin only) Set to a boolean true or false; Global templates are visible to all users.
+* Contents: テンプレートの実際の本体/内容
+* Name: テンプレートの名前を変更します
+* Description: テンプレートの説明を変更する
+* GIDs: 32ビット整数グループIDの配列に設定されるかもしれません、例えば "GIDs":[1,4]
+* UID:（管理者のみ）32ビット整数に設定
+* Global: （管理者のみ）ブール値のtrueまたはfalseに設定します。グローバルテンプレートはすべてのユーザーに表示されます。
 
-Note: Leaving any of these field blank will result in the template being updated with a null value for that field!
+注：これらのフィールドのいずれかを空白のままにすると、テンプレートはそのフィールドのNULL値で更新されます。
 
-## Delete a template
+## テンプレートを削除する
 
-To delete a template, send a DELETE request to `/api/templates/<guid>`.
+テンプレートを削除するには、にDELETEリクエストを送信してください/api/templates/<guid>。
 
-## Admin actions
+## 管理者アクション
 
-Admin users may occasionally need to view all templates/pivots on the system, modify them, or delete them. Because GUIDs are not necessarily unique, the admin API must refer instead to the unique UUID Gravwell uses internally to store the items. Note that the example template listings above include a field named "ThingUUID". This is the internal, unique identifier for that template.
+管理ユーザーは、システム上のすべてのテンプレート/ピボットを表示したり、それらを変更したり、削除したりする必要がある場合があります。GUIDは必ずしも一意ではないため、管理APIは代わりにGravwellがアイテムを格納するために内部で使用する一意のUUIDを参照する必要があります。上記のテンプレートリストの例には、 "ThingUUID"という名前のフィールドが含まれています。これはそのテンプレートの内部の一意の識別子です。
 
-An administrator user may obtain a global listing of all templates in the system with a GET request on `/api/templates?admin=true`.
+管理者ユーザーは、GET要求を使用してシステム内のすべてのテンプレートのグローバルリストを取得できます/api/templates?admin=true。
 
-The administrator may then update a particular template with a PUT to `/api/templates/<ThingUUID>?admin=true`, substituting in the ThingUUID value for the desired template. The same pattern applies to deletion.
+次に、管理者は、PUTを使用して特定のテンプレートを更新/api/templates/<ThingUUID>?admin=trueし、目的のテンプレートをThingUUID値に置き換えます。同じパターンが削除にも適用されます。
