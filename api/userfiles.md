@@ -1,27 +1,27 @@
-# User Files API
+# User Files
 
-The user files API is designed so kits can store small files for use as e.g. icons.
+ユーザーファイルAPIは、キットが小さなアイコンをアイコンとして使用するために保存できるように設計されています。
 
-User files are referred to by GUID. GUIDs are not necessarily unique across a system; this allows users to have e.g. a dashboard referring to a particular file by GUID, but with each user installing their own preferred file. If multiple templates or pivots exist with the same GUID, they are prioritized in the following order:
+ユーザーファイルはGUIDによって参照されます。GUIDはシステム全体で必ずしも一意ではありません。これにより、ユーザーはたとえばGUIDで特定のファイルを参照するダッシュボードを持つことができますが、各ユーザーは自分の好みのファイルをインストールできます。同じGUIDを持つ複数のテンプレートまたはピボットが存在する場合、それらは次の順序で優先順位が付けられます。
 
-* Owned by the user
-* Shared with a group the user is a member of
-* Global
+* ユーザー所有
+* ユーザーがメンバーになっているグループと共有
+* グローバル
 
- Each file *does* have a unique UUID used by Gravwell for storage; the admin API, documented below, allows administrators to manage user files by referring to their "ThingUUID".
+ 各ファイルには、Gravwellによってストレージに使用される固有のUUIDがあります。以下に記載されているadmin APIを使用すると、管理者は自分の "ThingUUID"を参照してユーザーファイルを管理できます。
 
-## Create a user file
+## ユーザーファイルを作成する
 
-User files can be created by POST request to `/api/files`. The request should be a multipart request with the following fields:
+ユーザーファイルはへのPOSTリクエストで作成できます/api/files。リクエストは、次のフィールドを持つマルチパートリクエストです。
 
-* `file`: the body of the file
-* `name`: the name of the file
-* `desc`: the description of the file
-* `guid`: (optional) the desired GUID for this file. If not set, one will be generated.
+* `file`: ファイルの本体
+* `name`: ファイルの名前
+* `desc`: ファイルの説明
+* `guid`: （オプション）このファイルに必要なGUID 設定されていない場合は、1が生成されます。
 
-## Listing files
+## ファイルのリスト
 
-User files may be listed by a GET on `/api/files`. The result is an array of structures containing file information:
+ユーザーファイルはGET onによって一覧表示され/api/filesます。結果はファイル情報を含む構造体の配列です。
 
 ```
 [
@@ -40,22 +40,22 @@ User files may be listed by a GET on `/api/files`. The result is an array of str
 ]
 ```
 
-## Reading a file's contents
+## ファイルの内容を読む
 
-The contents of a file may be read by a GET request on `/api/files/<uuid>`, e.g. to read the file in the listing above `/api/files/1945c39e-0bd1-40cf-b069-6da64d3f8afe`.
+ファイルの内容は/api/files/<uuid>、たとえば上記のリストのファイルを読み取るためのGET要求によって読み取ることができます/api/files/1945c39e-0bd1-40cf-b069-6da64d3f8afe。
 
-## Updating a file
+## ファイルを更新する
 
-A file's name, description, and contents can be changed via a POST request to `/api/files/<uuid>`. The request should be identical to one used to create a new file, with the `file`, `name`, and `desc` fields set to the desired values. Note that the `guid` field will be ignored.
+ファイルの名前、説明、および内容は、POSTリクエストを介してに変更できます/api/files/<uuid>。要求がで、新しいファイルを作成するために使用されるものと同一であるべきでfile、nameおよびdesc所望の値に設定するフィールド。このguidフィールドは無視されます。
 
-## Deleting a file
+## ファイルを削除する
 
-User files may be removed via a DELETE on `/api/files/<uuid>`
+ユーザーファイルは、DELETEによって削除されます。 /api/files/<uuid>
 
-## Admin actions
+## 管理者アクション
 
-Admin users may occasionally need to view all user files on the system, modify them, or delete them. Because GUIDs are not necessarily unique, the admin API must refer instead to the unique UUID Gravwell uses internally to store the items. Note that the example file listings above include a field named "ThingUUID". This is the internal, unique identifier for that user file.
+管理者ユーザーは、システム上のすべてのユーザーファイルを表示したり、変更したり、削除したりする必要がある場合があります。GUIDは必ずしも一意ではないため、管理APIは代わりにGravwellがアイテムを格納するために内部で使用する一意のUUIDを参照する必要があります。上記のファイルリストの例には、 "ThingUUID"という名前のフィールドが含まれています。これは、そのユーザーファイルの内部の一意の識別子です。
 
-An administrator user may obtain a global listing of all user files in the system with a GET request on `/api/templates?admin=true`.
+管理者ユーザーは、GET要求を使用してシステム内のすべてのユーザーファイルのグローバルリストを取得できます/api/templates?admin=true。
 
-The administrator may then delete a particular file with a DELETE message to `/api/files/<ThingUUID>?admin=true`, substituting in the ThingUUID value for the desired file. The same pattern applies to updating.
+管理者はDELETEメッセージを使用して特定のファイルを削除/api/files/<ThingUUID>?admin=trueし、目的のファイルのThingUUID値を代入することができます。同じパターンが更新にも適用されます。
