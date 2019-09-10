@@ -1,27 +1,27 @@
 # Notifications REST API
-A notification is basically a Message and potentially a Type.  The type is used so that something can continually send notifications without duplicating it.  E.g. The webserver can keep adding the notification (Indexer X is down) with Type 0xDEADBEEF.  The notification engine will just keep replacing the old notification that has the same Type.
+通知は基本的にメッセージであり、潜在的にはタイプです。このタイプは、何かを複製することなく継続的に通知を送信できるようにするために使用されます。たとえば、Webサーバーはタイプ0xDEADBEEFで通知を追加し続けることができます（インデクサXは停止しています）。通知エンジンは、同じTypeを持つ古い通知を置き換え続けるだけです。
 
-Notifications can come in two forms, targeted and broadcast.  Broadcast go to everyone, targeted only go to users with the appropriate UID or GID.  Broadcast notificatons inherently have no UID/GID (they will always be zero).
+通知には、ターゲット型とブロードキャスト型の2つの形式があります。ブロードキャストは、適切なUIDまたはGIDを持つユーザーのみを対象とし、全員に配信されます。ブロードキャスト通知には、UID / GIDが本質的にありません（これらは常にゼロになります）。
 
-Notifications will expire (deleted) at their Expires date.
+通知は有効期限日に期限切れ（削除）になります。
 
-Notifications with a IgnoreUntil date in the future won't come back on requests (hidden)
+将来のIgnoreUntil日付の通知はリクエストに戻ってこないでしょう（隠されています）
 
-If a notification is added with blank dates (Sent, Expires, IgnoreUntil) they are populated with default values.
+空白の日付（Sent、Expires、IgnoreUntil）を使用して通知が追加されると、それらにはデフォルト値が入力されます。
 
-Consider the following notification:
+次の通知を検討してください。
 
 ```
 {"UID":7,"GID":0,"Sender":7,"Type":1,"Broadcast":false,"Sent":"2019-04-22T21:44:01.776942432Z","Expires":"2019-04-23T03:44:01.776918756-06:00","IgnoreUntil":"0001-01-01T00:00:00Z","Msg":"foobar","Origin":"00000000-0000-0000-0000-000000000000"}
 ```
 
-This notification is targeted at the user with UID 7 and at no particular group. It was created by the same user. It has a Type of '1'. It is not a broadcast notification. It was sent at 21:44 UTC and will expire 12 hours later. The message is "foobar".
+この通知はUID 7のユーザーを対象としており、特定のグループを対象としていません。同じユーザーによって作成されました。タイプは '1'です。ブロードキャスト通知ではありません。それは21:44 UTCに送信され、12時間後に期限切れになります。メッセージは「foobar」です。
 
-All notifications are ephemeral.  If the webserver/frontend reboots, they are lost.
+すべての通知は一時的です。Webサーバ/フロントエンドが再起動すると、それらは失われます。
 
-All notifications have an ID, and each ID monotonically increases and is always represented as a base-10 uint64.
+すべての通知にはIDがあり、各IDは単調に増加し、常に10進数のuint64として表されます。
 
-The basic REST APIs URLs are:
+基本的なREST APIのURLは次のとおりです。
 ```
 /api/notifications/all/{id:[0-9]+}
 /api/notifications/{id:[0-9]+}
@@ -32,26 +32,26 @@ The basic REST APIs URLs are:
 /api/notifications/targeted/self
 ```
 
-Methods for requests
-GET - pull back notifications
-PUT - update a specific notification
-POST - add a new notification
-DELETE - remove a specific notification
+リクエストのメソッド
+GET - 通知を引き戻す
+PUT - 特定の通知を更新する
+POST - 新しい通知を追加する
+DELETE - 特定の通知を削除する
 
-### Notification rules
-* Only admins can add new notifications, except via the `/api/notifications/targeted/self` api.
-* Users can only update notifications that they explicitely own (UIDs match).  GID match isn't enough
-* Users cannot change the UID or GID associated with a notification
-* Users cannot delete notifications they don't own (UID does not match)
+### 通知ルール
+* /api/notifications/targeted/selfAPI を介して以外は管理者だけが新しい通知を追加できます。
+* ユーザーは、自分が明示的に所有している（UIDが一致する）通知のみを更新できます。GIDの一致が十分ではありません
+* ユーザーは通知に関連付けられたUIDまたはGIDを変更できません
+* 自分が所有していない通知をユーザーが削除することはできません（UIDが一致しません）
 
-## Adding a new notification
+## 新しい通知を追加する
 
-Administrators can create broadcast notifications by POSTing a Notification structure to `/api/notifications/broadcast` or create targeted notifications by POSTing to `/api/notifications/targeted`.
+管理者は、通知構造をPOSTすることによってブロードキャスト通知を作成し/api/notifications/broadcastたり、POSTによってターゲット通知を作成することができます/api/notifications/targeted。
 
-Non-admin users can create notifications with a POST to `/api/notifications/targeted/self`. Note that only the Type, Msg, and Expires fields are respected. These notifications default to a 12 hour expiration; if the Expires field is in the past or more than 24 hours in the future, it will be set to 12 hours from the current time.
+管理者以外のユーザーはPOSTを使って通知を作成できます/api/notifications/targeted/self。Type、Msg、およびExpiresフィールドのみが優先されることに注意してください。これらの通知はデフォルトで12時間の有効期限があります。[有効期限]フィールドが過去または過去24時間以上の場合は、現在時刻から12時間に設定されます。
 
-## Getting notifications
-Users can get all their notifications by hitting /api/notifications/{id}  with no id (e.g. /api/notifications/).  To get all notifications after a specific ID issue a GET on /api/notifications/{id}.  For example if you pull back notifications and the largest ID is 10, you can make a request for /api/notifications/10 and you will only get NEW notifications that the user has access to.
+## 通知を受け取る
+ユーザーは、/ api / notifications / {id}をIDなしで押すことで、すべての通知を受け取ることができます（例：/ api / notifications /）。特定のIDの後にすべての通知を受け取るには、/ api / notifications / {id}にGETを発行します。たとえば、通知を引き戻して最大のIDが10の場合、/ api / notifications / 10を要求すると、ユーザーがアクセスできる新しい通知のみが取得されます。
 
-### Admins requesting all notifications
-Admins can get all notifications (irrespective of UID or GID) by issuing a GET on /api/notifications/all/ with no id.
+### すべての通知を要求している管理者
+管理者は、/ api / notifications / all /にIDなしでGETを発行することで、すべての通知を取得できます（UIDまたはGIDに関係なく）。
