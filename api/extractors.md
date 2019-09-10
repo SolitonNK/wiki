@@ -1,10 +1,10 @@
 # Autoextractor API
 
-The extractor web API provides methods for accessing, modifying, adding, and deleting autoextractor definitions.  All users can retrieve the list of auto extractors and their definitions.  However, only admins may add, modify, delete, or sync auto extractor definitions.  As of version 3.0.2 the auto extractor API is available only when operating in non-distributed mode.  If you are operating a Gravwell cluster in a distributed frontend configuration the autoextractors must be pre-installed and managed manually.  For more information about autoextractors and their configuration, see the [Auto-Extractors](/#!configuration/autoextractors.md) section.
+エクストラクタWeb APIは、オートエクストラクタ定義にアクセス、変更、追加、および削除するためのメソッドを提供します。 すべてのユーザーは、自動抽出のリストとその定義を取得できます。 ただし、自動抽出の定義を追加、変更、削除、または同期できるのは管理者のみです。 バージョン3.0.2以降、自動抽出APIは、非分散モードで動作している場合にのみ使用できます。 分散フロントエンド構成でGravwellクラスターを運用している場合、自動抽出機能を事前にインストールして、手動で管理する必要があります。 自動抽出とその構成の詳細については、[自動抽出]（/＃！configuration / autoextractors.md）セクションを参照してください。
 
-## Definition Structure
+## 定義構造
 
-Auto-Extractors are defined using the following JSON structure (the `module` and `tag` parameters must be populated):
+自動抽出は、次のJSON構造を使用して定義されます（ `module`および` tag`パラメーターを設定する必要があります）：
 
 ```
 {
@@ -17,9 +17,9 @@ Auto-Extractors are defined using the following JSON structure (the `module` and
 }
 ```
 
-## Listing
+## リスティング
 
-Listing autoextractors is done by performing a GET on `/api/autoextractors`.  The webserver will return a list of JSON structures that represent the set of installed auto-extractors on the webserver.  An example response is:
+autoextractorsをリストするには、 `/api/autoextractors`でGETを実行します。 Webサーバーは、Webサーバーにインストールされた一連の自動抽出プログラムを表すJSON構造のリストを返します。 応答の例は次のとおりです。
 
 ```
 [
@@ -39,11 +39,11 @@ Listing autoextractors is done by performing a GET on `/api/autoextractors`.  Th
 ]
 ```
 
-## Syncing
+## 同期中
 
-Any operation that changes the installed set of auto-extractors will also invoke a sync operation.  A sync operation causes the webserver to push changes to each of the attached indexers.  For example, if you are running a Gravwell cluster with 10 indexers, after adding a new auto-extractor the webserver will push the configured auto-extractor set to each of the indexers.  However, failures can happen whether it be due to network connectivity issues, or because an indexer is down when the change occurs.  The Sync API allows for manually invoking a sync operation so that all attached indexers are forced into the same state.  When managing a large Gravwell cluster the Sync operation can be used to intialize auto-extractor definitions after a new Indexer is brought online or restored.
+自動抽出プログラムのインストール済みセットを変更する操作も、同期操作を呼び出します。 同期操作により、Webサーバーは接続された各インデクサーに変更をプッシュします。 たとえば、10個のインデクサーを使用してGravwellクラスターを実行している場合、新しい自動抽出機能を追加した後、Webサーバーは設定された自動抽出機能セットを各インデクサーにプッシュします。 ただし、ネットワーク接続の問題が原因であるか、変更が発生したときにインデクサーがダウンしている場合でも、障害が発生する可能性があります。 Sync APIを使用すると、手動で同期操作を呼び出して、接続されているすべてのインデクサーを強制的に同じ状態にすることができます。 大規模なGravwellクラスターを管理する場合、新しいインデクサーをオンラインまたは復元した後、同期操作を使用して自動抽出の定義を初期化できます。
 
-A sync is performed by issuing a PUT request to `/api/autoextractors/sync`.  The webserver will ruturn a 200 response on success and non-200 on failure.  In the event of a partial success (not all indexers were successfully synced) a warning structure is returned in the body of the response.  The warning structure is a list of indexer names and errors, here is an example response when an indexer is down:
+同期は、PUTリクエストを `/api/autoextractors/sync`に発行することにより実行されます。 Webサーバーは、成功すると200応答を返し、失敗すると200以外の応答を返します。 部分的に成功した場合（すべてのインデクサーが正常に同期されたわけではありません）、応答の本文に警告構造が返されます。 警告構造は、インデクサー名とエラーのリストです。インデクサーがダウンした場合の応答の例を次に示します。
 
 ```
 [
@@ -58,9 +58,9 @@ A sync is performed by issuing a PUT request to `/api/autoextractors/sync`.  The
 ]
 ```
 
-## Adding
+## 追加中
 
-Adding an autoextractor is performed by issuing a POST to `/api/autoextractors` with a valid definition JSON structure in the request body.  The structure must be valid and there cannot be an existing auto-extractor that is assigned to the tag.  An example POST JSON structure that adds a new auto-extractor:
+オートエクストラクターの追加は、リクエスト本文に有効な定義JSON構造を指定してPOSTを `/api/autoextractors`に発行することにより実行されます。 構造は有効である必要があり、タグに割り当てられている既存の自動抽出プログラムは存在できません。 新しい自動抽出機能を追加するPOST JSON構造の例：
 
 ```
 {
@@ -72,37 +72,37 @@ Adding an autoextractor is performed by issuing a POST to `/api/autoextractors` 
 }
 ```
 
-If an error occurs when adding an auto-extractor the webserver will return a list of errors.
+自動抽出機能の追加時にエラーが発生した場合、ウェブサーバーはエラーのリストを返します。
 
-## Upating
+## 更新中
 
-Updating an autoextractor is performed by issuing a PUT request to `/api/autoextractors` with a valid definition JSON structure in the request boyd.  The structure must be valid and there must be an existing auto-extractor that is assigned to the same tag.  The tag associated with an updated auto-extractor cannot be changed via the update API.  To change the tag associated with an existing auto-extractor, the definition must be deleted then added again.  The data structure is identical to the add API.  If the definition is invalid a non-200 response with an error message in the body is returned.  If the structure is valid but an error occurs in distributing the updated definition a list of errors is returned in the body.
+オートボイラーの更新は、リクエストボイドの有効な定義JSON構造を使用して、 `/api/autoextractors`にPUTリクエストを発行することで実行されます。 構造は有効でなければならず、同じタグに割り当てられている既存の自動抽出機能が存在する必要があります。 更新された自動抽出機能に関連付けられたタグは、更新APIを介して変更できません。 既存の自動抽出機能に関連付けられているタグを変更するには、定義を削除してから再度追加する必要があります。 データ構造は、追加APIと同じです。 定義が無効な場合、本文にエラーメッセージを含む200以外の応答が返されます。 構造は有効ですが、更新された定義の配布中にエラーが発生した場合、エラーのリストが本文に返されます。
 
-## Testing Extractor Syntax
+## 抽出構文のテスト
 
-Before adding or updating an autoextractor, it may be useful to validate the syntax. Doing a POST request to `/api/autoextractors/test` will validate the request.If there is a problem with the definition, an error will be returned:
+オートエクストラクタを追加または更新する前に、構文を検証すると役立つ場合があります。 `/api/autoextractors/test`に対してPOSTリクエストを行うと、リクエストが検証されます。定義に問題がある場合は、エラーが返されます。
 
 ```
 {"Error":"asdf is not a supported engine"}
 ```
 
-When adding a new auto-extractor, it is important that the new extractor does not conflict with an existing extraction on the same tag. When updating an existing extraction, this is not a concern. If an extraction already exists for the specified tag, the test API will set the 'TagExists' field in the returned structure:
+新しい自動抽出を追加する場合、新しい抽出が同じタグの既存の抽出と競合しないことが重要です。 既存の抽出を更新する場合、これは問題になりません。 指定されたタグの抽出が既に存在する場合、テストAPIは返された構造に「TagExists」フィールドを設定します。
 
 ```
 {"TagExists":true,"FileExists":true,"Error":""}
 ```
 
-If `TagExists` is true, it should be treated as an error if you intend to create a new extractor, and ignored if updating an existing extractor.
+「TagExists」がtrueの場合、新しい抽出プログラムを作成する場合はエラーとして扱われ、既存の抽出プログラムを更新する場合は無視されます。
 
-The `FileExists` flag indicates that the proposed extraction would overwrite an existing extraction on disk; typically it will only be set when 'TagExists' is set. It should be treated as an error when creating a new extractor and ignored when updating.
+`FileExists`フラグは、提案された抽出がディスク上の既存の抽出を上書きすることを示します。 通常、「TagExists」が設定されている場合にのみ設定されます。 新しいエクストラクターの作成時にはエラーとして扱われ、更新時には無視されます。
 
-## Deleting
+## 削除中
 
-Deleting an existing auto-extractor is performed by issuing a DELETE request to `/api/autoextractors/{id}` where id is the tag associated with the auto-extractor.  For example, to delete the auto-extractor associated with the tag "syslog" the request would go to `/api/autoextractors/syslog`.  If the auto-extractor does not exist or there is an error removing it, the webserver will respond with a non-200 response and error in the response body.  If an error occurs when distributing the deletion to indexers there will be a 200 response and a list of warnings.
+既存の自動抽出の削除は、DELETEリクエストを `/api/autoextractors/{id}`に発行することで実行されます。idは自動抽出に関連付けられたタグです。 たとえば、タグ「syslog」に関連付けられている自動抽出を削除するには、リクエストは `/api/autoextractors/syslog`に移動します。 自動抽出プログラムが存在しないか、それを削除するエラーがある場合、Webサーバーは応答本文に200以外の応答とエラーを返します。 削除をインデクサーに配布するときにエラーが発生すると、200の応答と警告のリストが表示されます。
 
-## Listing Modules
+## モジュールのリスト
 
-Auto-extractor definitions must specify a valid module.  The API to get a list of supported modules is performed by issuing a GET request to `/api/autoextractors/engines`.  The resulting set is a list of strings:
+自動抽出の定義では、有効なモジュールを指定する必要があります。 サポートされているモジュールのリストを取得するAPIは、 `/api/autoextractors/engines`にGETリクエストを発行することで実行されます。 結果のセットは文字列のリストです：
 
 ```
 [
