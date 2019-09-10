@@ -1,31 +1,29 @@
-# Ingesting Entries via the Webserver API
+# Ingesting Entries
 
-The webserver provides an API for ingesting entries directly. This is useful when running automated scripts or to allow users to import files.
+Webサーバーはエントリを直接取り込むためのAPIを提供します。これは自動化されたスクリプトを実行したり、ユーザーがファイルをインポートできるようにする場合に便利です。
 
-## Ingesting JSON-formatted entries
+## JSON形式のエントリの取り込み
 
-Automated scripts construct their own entries and ship them as a JSON array of structs. This has the advantage of allowing arbitrary bytes in the Data fields. The essential fields of each entry are:
+自動スクリプトは独自のエントリーを作成し、それらをJSONの一連の構造体として出荷します。これには、Dataフィールドで任意のバイトを許可するという利点があります。各エントリの必須フィールドは次のとおりです。
 
-* TS: a timestamp (e.g. "2018-02-12T11:06:44.215431364-07:00")
-* Tag: the string tag to be used (e.g. "syslog")
-* Data: base64-encoded bytes (e.g. "Zm9vCg==")
+* TS: タイムスタンプ（例： "2018-02-12T11：06：44.215431364-07：00"）
+* Tag: 使用される文字列タグ（例 "syslog"）
+* Data: base64エンコードバイト（例 "Zm9vCg =="）
 
-Thus to ship two entries, one containing "foo" and one containing "test", to the tag `mytag`, do a PUT to `/api/ingest/json` with the following data:
+したがって、 "foo"を含むエントリと "test"を含むエントリの2つのエントリをタグmytagに/api/ingest/json送信するには、次のデータを使用してPUTを実行します。
 
 ```
 [ { "TS": "2018-02-12T11:06:44.215431364-07:00", "Tag": "mytag", "Data": "Zm9v" }, { "TS": "2018-02-12T11:06:45.215431364-07:00", "Tag": "mytag", "Data": "dGVzdA==" } ]
 ```
 
-The server will return the number of entries ingested.
+サーバーは取り込まれたエントリー数を戻します。
 
-## Ingesting line-delimited files
+## 行区切りファイルの取り込み
 
-To ingest user-provided data, the line-delimited file API is the simplest option. It consists of doing a multipart POST to `/api/ingest/lines` with the following form parts:
+ユーザー提供のデータを取り込むには、行区切りファイルAPIが最も簡単なオプションです。これは/api/ingest/lines、以下のフォームパーツを使ってマルチパートPOSTを実行することで構成されています。
 
-* A file part named `file` containing the user-provided file
-* A field named `tag` containing the desired ingest tag
-* An optional field `noparsetimestamp`; setting this to "true" will force entries to be ingested with the current timestamp rather than attempting to parse one from each entry.
-* An optional field `assumelocaltimezone`; setting this to "true" means timestamps extracted from entries will assume to be in the local timezone (instead of UTC) if the timezone is not explicitly specified.
-
-The uploaded file will be split by newlines. Each line will be ingested as an individual entry.
- 
+fileユーザー提供ファイルを含むという名前のファイル部分
+tag希望する取り込みタグを含むという名前のフィールド
+オプションのフィールドnoparsetimestamp。これを "true"に設定すると、エントリは各エントリから1つ解析するのではなく、現在のタイムスタンプで強制的に取り込まれます。
+オプションのフィールドassumelocaltimezone。これを "true"に設定すると、タイムゾーンが明示的に指定されていない場合、エントリから抽出されたタイムスタンプは（UTCではなく）ローカルタイムゾーンにあると見なされます。
+アップロードされたファイルは改行で分割されます。各行は個別のエントリとして取り込まれます。
