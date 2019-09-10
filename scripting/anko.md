@@ -1,42 +1,42 @@
-# The anko module
+# anko
 
-As introduced in [the search modules documentation](#!search/searchmodules.md#Anko), Gravwell's anko module is a general-purpose scripting tool within the search pipeline. It allows extremely flexible manipulations of search entries, at the cost of complexity for the script creator. Once a script is created, though, it can be easily shared with other users.
+[検索モジュールのドキュメント](#!search/searchmodules.md#Anko)で紹介されているように、Gravwellのankoモジュールは、検索パイプライン内の汎用スクリプトツールです。 スクリプト作成者の複雑さを犠牲にして、検索エントリの非常に柔軟な操作を可能にします。 ただし、スクリプトを作成したら、他のユーザーと簡単に共有できます。
 
-See the generic description of the scripting languaged used in [the Anko scripting language documentation](scripting.md) for more details about the language itself.
+言語自体の詳細については、[Ankoスクリプト言語のドキュメント](scripting.md) で使用されているスクリプト言語の一般的な説明を参照してください。
 
-## Managing anko scripts
+## ankoスクリプトの管理
 
-In order to run an anko script in a search, the text file containing the script must be uploaded as a resource. See the [resources section](#!resources/resources.md) for information on how to create and upload a resource.
+検索でankoスクリプトを実行するには、スクリプトを含むテキストファイルをリソースとしてアップロードする必要があります。 リソースを作成およびアップロードする方法については、[リソースセクション](#!resources/resources.md)を参照してください。
 
-At this time, to make a change to a script you must edit the script in the original text file, then re-upload the file to the resource. Future versions of Gravwell will include an integrated text editor to make scripting simpler.
+この時点で、スクリプトを変更するには、元のテキストファイルのスクリプトを編集してから、ファイルをリソースに再アップロードする必要があります。 Gravwellの将来のバージョンには、スクリプト作成を簡単にする統合テキストエディタが含まれます。
 
-## Running an anko script
+## ankoスクリプトを実行する
 
-To run a script, simply specify "anko", followed by the name of the script, followed by any arguments intended for the script. For example, to run a script named "foo" which takes two numbers as arguments, type `anko foo 1 3` in the pipeline.
+スクリプトを実行するには、単に「anko」を指定し、その後にスクリプト名、スクリプト用の引数を指定します。 たとえば、引数として2つの数値を受け取る「foo」という名前のスクリプトを実行するには、パイプラインで「anko foo 1 3」と入力します。
 
-## Writing anko scripts
+## ankoスクリプトの作成
 
-Anko scripts use the same syntax as eval commands; refer to examples below and in the eval module section.
+Ankoスクリプトは、evalコマンドと同じ構文を使用します。 以下の例とevalモジュールのセクションを参照してください。
 
-### Essential function definitions
+### 必須機能の定義
 
-An anko script **must** contain either a function named `Process` or a function named `Main`. These functions do not take arguments. These two functions represent two different options for processing search entries.
+ankoスクリプトには、「Process」という名前の関数または「Main」という名前の関数のいずれかを含める必要があります。 これらの関数は引数を取りません。 これら2つの関数は、検索エントリを処理するための2つの異なるオプションを表します。
 
-If a `Process` function is defined, it will be called once per search entry; enumerated values on the entry may be treated as local variables, and the return value of the `Process` function determines if the entry is allowed to continue down the pipeline (true) or not (false).
+`Process`関数が定義されている場合、検索エントリごとに1回呼び出されます。 エントリの列挙値はローカル変数として扱われ、 `Process`関数の戻り値は、エントリがパイプラインを続行できるか（true）、否か（false）を決定します。
 
-If a `Main` function is defined, it will be called only once; the programmer must therefore call the `readEntry` and `writeEntry` functions to fetch each search entry and pass it down the line after operating on it.
+`Main`関数が定義されている場合、一度だけ呼び出されます。 そのため、プログラマは、「readEntry」および「writeEntry」関数を呼び出して、各検索エントリを取得し、操作後に行に渡す必要があります。
 
-We strongly recommend writing scripts with `Process` instead of `Main` whenever possible, because it is conceptually much simpler.
+概念的にははるかに単純なので、可能な限り「Main」ではなく「Process」でスクリプトを書くことを強くお勧めします。
 
-The script may also contain functions named `Parse` and `Finalize`.
+スクリプトには、「Parse」および「Finalize」という名前の関数も含まれる場合があります。
 
-The `Parse` function is called before `Process` or `Main` and is given the command line arguments as an array of arguments. The `Parse` function indicates that the arguments have been successfully processed by returning nil; any non-nil return is treated as an error and presented to the user. See the sample script below for a sample of how to parse script arguments.
+「Parse」関数は「Process」または「Main」の前に呼び出され、引数の配列としてコマンドライン引数が与えられます。 `Parse`関数は、nilを返すことで引数が正常に処理されたことを示します。 ゼロ以外の戻り値はエラーとして扱われ、ユーザーに表示されます。 スクリプトの引数を解析する方法のサンプルについては、以下のサンプルスクリプトを参照してください。
 
-The `Finalize` function is called after `Process` or `Main` have completed. It is the last code executed in the script; this is a good place to create resources if desired.
+「Finalize」関数は、「Process」または「Main」が完了した後に呼び出されます。 スクリプトで最後に実行されたコードです。 これは、必要に応じてリソースを作成するのに適した場所です。
 
-### Sample script using Process() function
+### Process（）関数を使用したサンプルスクリプト
 
-This example script operates in two modes, specified as an argument to the script. In 'build' mode, it takes the "SrcIP" field extracted from the packet module and builds a list of IP addresses seen in the current search, then stores that list as a resource. In 'apply' mode, it takes the previously-built table and drops any entries which contain a previously-seen "SrcIP" field. This script was used to look for new devices on a network, although the `lookup` module now provides the same functionality with more flexibility.
+このサンプルスクリプトは、スクリプトの引数として指定された2つのモードで動作します。 「ビルド」モードでは、パケットモジュールから抽出された「SrcIP」フィールドを使用して、現在の検索で見つかったIPアドレスのリストを作成し、そのリストをリソースとして保存します。 「適用」モードでは、以前に作成されたテーブルを取得し、以前に表示された「SrcIP」フィールドを含むすべてのエントリを削除します。 このスクリプトは、ネットワーク上の新しいデバイスを探すために使用されていましたが、「lookup」モジュールは同じ機能をより柔軟に提供するようになりました。
 
 ```
 table = make(map[string]interface)
@@ -89,16 +89,16 @@ func Finalize() {
 }
 ```
 
-Observe that the "SrcIP" enumerated value may be **read** like any other variable inside the `Process` function, but in order to set an enumerated value we must use the `setEnum` function to make the action explicit.
+「SrcIP」列挙値は、「Process」関数内の他の変数と同じように**読み取り**される可能性がありますが、列挙値を設定するには、アクションを明示するために `setEnum`関数を使用する必要があります。
 
-Note that the `table` and `task` variables are declared outside the function definitions. The built-in json encoding library is also imported prior to the function definitions. A full list of available libraries is provided below.
+`table`と` task`変数は関数定義の外で宣言されていることに注意してください。 組み込みのjsonエンコーディングライブラリも、関数定義の前にインポートされます。 利用可能なライブラリの完全なリストを以下に示します。
 
 
-### Sample script using Main() function
+### Main（）関数を使用したサンプルスクリプト
 
-Although writing scripts using a `Main` function is more challenging, it is necessary if you need to duplicate entries. The following script reads in an entry containing a Modbus message; if the message is a request of type 0x10 ("Write multiple registers"), the script duplicates the original entry once for each of the registers being written and to each entry attaches "RegAddr" and "RegValue" enumerated values containing a single register address + register value.
+`Main`関数を使用してスクリプトを記述することはより困難ですが、エントリを複製する必要がある場合は必要です。 次のスクリプトは、Modbusメッセージを含むエントリを読み取ります。 メッセージがタイプ0x10（「複数のレジスタを書き込む」）の要求である場合、スクリプトは書き込まれるレジスタごとに元のエントリを1回複製し、各エントリに単一のレジスタアドレスを含む「RegAddr」および「RegValue」列挙値を付加します +レジスタ値。
 
-Note: This script will not function on its own; as written, it was intended to consume the output of another anko script earlier in the pipeline, which would populate enumerated values such as "Request" and "WriteAddr".
+注：このスクリプトは単独では機能しません。 書かれているように、パイプラインの早い段階で別のankoスクリプトの出力を消費することを意図しており、「Request」や「WriteAddr」などの列挙値を入力します。
 
 ```
 func Main() {
@@ -162,89 +162,89 @@ func Main() {
 }
 ```
 
-Note the use of the `readEntry`, `cloneEntry`, and `writeEntry` functions; this explicit management of search entries is not necessary in scripts using `Process` functions. Note also the use of `getEntryEnum` and `setEntryEnum` functions to read enumerated values rather than treating them as variables.
+「readEntry」、「cloneEntry」、および「writeEntry」関数の使用に注意してください。 この検索エントリの明示的な管理は、「プロセス」関数を使用するスクリプトでは必要ありません。 また、列挙値を変数として扱うのではなく、列挙値を読み取るための「getEntryEnum」および「setEntryEnum」関数の使用にも注意してください。
 
-## Utility functions
+## ユーティリティ関数
 
-Anko provides built-in utility functions, listed below in the format `functionName(<functionArgs>) <returnValues>`. The following functions can be used in any anko script:
+Ankoは、 `functionName(<functionArgs>) <returnValues>`の形式で以下にリストされている組み込みユーティリティ関数を提供します。 次の関数は、ankoスクリプトで使用できます。
 
-* `getResource(name) []byte, error` returns the slice of bytes is the content of the specified resource, while the error is any error encountered while fetching the resource.
-* `setResource(name, value) error` creates (if necessary) and updates a resource named `name` with the contents of `value`, returning an error if one arises.
-* `len(val) int` returns the length of val, which can be a string, slice, etc.
-* `toIP(string) IP` converts string to an IP, suitable for comparing against IPs generated by e.g. the packet module.
-* `toMAC(string) MAC` converts string to a MAC address.
-* `toString(val) string` converts val to a string.
-* `toInt(val) int64` converts val to an integer if possible. Returns 0 if no conversion is possible.
-* `toFloat(val) float64` converts val to a floating point number if possible. Returns 0.0 if no conversion is possible.
-* `toBool(val) bool` attempts to convert val to a boolean. Returns false if no conversion is possible. Non-zero numbers and the strings “y”, “yes”, and “true” will return true.
-* `typeOf(val) type` returns the type of val as a string, e.g. “string”, “bool”.
+* `getResource(name) []byte, error`は、指定されたリソースのコンテンツであるバイトのスライスを返しますが、エラーはリソースの取得中に発生したエラーです。
+* `setResource(name, value) error`は（必要な場合）`name`という名前のリソースを作成し、 `value`の内容で更新し、エラーが発生した場合にエラーを返します。
+* `len(val) int`はvalの長さを返します。valには文字列、スライスなどを指定できます。
+* `toIP(string) IP`は、stringをIPに変換します。パケットモジュール。
+* `toMAC(string) MAC`はstringをMACアドレスに変換します。
+* `toString(val) string`はvalを文字列に変換します。
+* `toInt(val) int64`は、可能であればvalを整数に変換します。変換できない場合は0を返します。
+* `toFloat(val) float64`は、可能であればvalを浮動小数点数に変換します。変換できない場合は0.0を返します。
+* `toBool(val) bool`はvalをブール値に変換しようとします。変換できない場合はfalseを返します。ゼロ以外の数字と文字列「y」、「yes」、「true」はtrueを返します。
+* `typeOf(val) type`はvalのタイプを文字列として返します。 「string」、「bool」。
 
-The following functions are only available in scripts implementing the `Process` function:
+次の関数は、「Process」関数を実装するスクリプトでのみ使用できます。
 
-* `setEnum(key, value) error` creates an enumerated value on the current entry named `key` containing `value`.
-* `getEnum(key) value, error` returns the enumerated value specified by `key`
-* `delEnum(key)` deletes an enumerated value named `key` from the current entry.
-* `hasEnum(key) bool` returns whether the current entry has the enumerated value.
+* `setEnum（key、value）error`は、`value`を含む `key`という名前の現在のエントリに列挙値を作成します。
+* `getEnum（key）value、error`は、`key`で指定された列挙値を返します
+* `delEnum（key）`は、現在のエントリから `key`という名前の列挙値を削除します。
+* `hasEnum（key）bool`は、現在のエントリに列挙値があるかどうかを返します。
 
-The following functions are only available in scripts implementing the `Main` function:
+次の関数は、 `Main`関数を実装するスクリプトでのみ利用可能です：
 
-* `readEntry() entry, error` returns the next entry and an error (if any). It will return an error when no entries remain.
-* `writeEntry(ent) error` writes out the given entry down the pipeline, returning an error if any.
-* `cloneEntry(ent) entry` returns a copy of the specified entry.
-* `setEntryEnum(ent, key, value)` sets an enumerated value on the specified entry.
-* `getEntryEnum(ent, key) value, error` reads an enumerated value from the specified entry.
-* `hasEntryEnum(ent, key) bool` returns whether the entry contains the enumerated value.
-* `delEntryEnum(ent, key)` deletes the specified enumerated value from the given entry.
-* `setEntryData(ent, value)` sets the data portion of an entry.
+* `readEntry（）entry、error`は次のエントリとエラー（存在する場合）を返します。エントリが残っていない場合、エラーを返します。
+* `writeEntry（ent）error`は与えられたエントリをパイプラインに書き出し、エラーがあればそれを返します。
+* `cloneEntry（ent）entry`は、指定されたエントリのコピーを返します。
+* `setEntryEnum（ent、key、value）`は、指定されたエントリに列挙値を設定します。
+* `getEntryEnum（ent、key）value、error`は、指定されたエントリから列挙値を読み取ります。
+* `hasEntryEnum（ent、key）bool`は、エントリに列挙値が含まれているかどうかを返します。
+* `delEntryEnum（ent、key）`は、指定された列挙値を特定のエントリから削除します。
+* `setEntryData（ent、value）`はエントリのデータ部分を設定します。
 
-Note: The `setEnum`, `hasEnum`, and `delEnum` functions differ for scripts using `Process` functions vs. `Main` functions, because the `Process` function is implicitly operating on a particular entry.
+注： `Process`関数は特定のエントリで暗黙的に動作するため、` Process`関数と `Main`関数を使用するスクリプトでは、` setEnum`、 `hasEnum`、および` delEnum`関数は異なります。
 
-## Available packages
+## 利用可能なパッケージ
 
-It is possible to import anko wrappers for certain Go libraries with syntax similar to the following:
+特定のGoライブラリのankoラッパーは、次のような構文でインポートできます。
 
 ```
 var json = import("encoding/json")
 ```
 
-For security reasons, the anko module does not allow access to *all* packages included with the full Anko scripting language. The following packages are available for use in anko scripts:
+セキュリティ上の理由から、ankoモジュールは完全なAnkoスクリプト言語に含まれる*すべて*パッケージへのアクセスを許可しません。 次のパッケージは、ankoスクリプトで使用できます。
 
-* `bytes`: work with byte slices
-* `crypto/md5`, `crypto/sha1`, `crypto/sha256`, `crypto/sha512`: cryptographic hashing
-* `encoding/csv`: encode and decode CSV data
-* `encoding/json`: encode and decode json data
-* `errors`: handle Go errors
-* `flag`: handle command-line arguments
-* `fmt`: printing & formatting strings
-* `math`: mathematical functions
-* `math/big`: bignums
-* `math/rand`: random numbers
-* `net/http`: limited HTTP functionality (client only)
-* `net/url`: URLs
-* `path`: paths
-* `path/filepath`: path functions specific to files
-* `regexp`: regular expressions
-* `sort`: sorting
-* `strings`: string processing functions
-* `time`: time processing functions
-* `github.com/ziutek/telnet`: telnet client functions (the Dial, DialTimeout, and NewConn functions are available, see [https://godoc.org/github.com/ziutek/telnet](https://godoc.org/github.com/ziutek/telnet) for documentation.
+* `bytes`：バイトスライスを使用
+* `crypto / md5`、` crypto / sha1`、 `crypto / sha256`、` crypto / sha512`：暗号ハッシュ
+* `encoding / csv`：CSVデータのエンコードとデコード
+* `encoding / json`：JSONデータのエンコードとデコード
+* `errors`：Goエラーを処理する
+* `flag`：コマンドライン引数を処理します
+* `fmt`：文字列の印刷とフォーマット
+* `math`：数学関数
+* `math / big`：bignums
+* `math / rand`：乱数
+* `net / http`：制限されたHTTP機能（クライアントのみ）
+* `net / url`：URL
+* `path`：パス
+* `path / filepath`：ファイル固有のパス関数
+* `regexp`：正規表現
+* `sort`：ソート
+* `strings`：文字列処理関数
+* `time`：時間処理関数
+* `github.com/ziutek/telnet`：telnetクライアント関数（Dial、DialTimeout、およびNewConn関数が使用可能です。[https://godoc.org/github.com/ziutek/telnet](https://godoc.org/github.com/ziutek/telnet) を参照してください。
 
-An exhaustive description of every package is not possible in this document; you can view the available functions exported for each package at [the official anko repository](https://github.com/mattn/anko/tree/master/packages). Some specific packages are described further below, as they do not offer the complete functionality exported by the official anko repository.
+このドキュメントでは、すべてのパッケージを網羅的に説明することはできません。 [公式ankoリポジトリ](https://github.com/mattn/anko/tree/master/packages)で各パッケージにエクスポートされた使用可能な関数を表示できます。 いくつかの特定のパッケージは、公式のankoリポジトリによってエクスポートされる完全な機能を提供しないため、以下でさらに説明されます。
 
-### The `net/http` package
+### `net / http`パッケージ
 
-`net/http` exports a subset of functions, types, and variables for performing HTTP *requests*. The types `Client`, `Cookie`, `Request`, and `Response` are exported; see [the Go documentation](https://golang.org/pkg/net/http/) for a description of these types.
+`net/http`はHTTP *リクエスト*を実行するための関数、型、変数のサブセットをエクスポートします。 タイプ「Client」、「Cookie」、「Request」、および「Response」がエクスポートされます。 これらのタイプの説明については、[Goドキュメント]（https://golang.org/pkg/net/http/）を参照してください。
 
-The function `NewRequest(operation, url, body) (Request, error)` prepares a new http.Request with the given operation ("PUT", "POST", "GET", "DELETE") on the specified URL string. The body is an optional parameter for use with PUT and POST requests; it should be set to either 'nil' or an io.Reader.
+関数 `NewRequest（operation、url、body）（Request、error）`は、指定されたURL文字列で指定された操作（ "PUT"、 "POST"、 "GET"、 "DELETE"）で新しいhttp.Requestを準備します。 本文は、PUTおよびPOST要求で使用するオプションのパラメーターです。 「nil」またはio.Readerに設定する必要があります。
 
-For most purposes, you will create a Request with the NewRequest function, then use http.DefaultClient to execute that request:
+ほとんどの場合、NewRequest関数を使用してリクエストを作成し、http.DefaultClientを使用してそのリクエストを実行します。
 
 ```
 req, _ = http.NewRequest("GET", "http://example.org/foo", nil)
 http.DefaultClient.Do(req)
 ```
 
-Additional headers or cookies can be set on the request before sending:
+追加のヘッダーまたはCookieは、送信前にリクエストで設定できます。
 
 ```
 req, _ = http.NewRequest("GET", "http://example.org/foo", nil)
