@@ -1,10 +1,11 @@
 # Gravwell CLI
 
-The Gravwell command line client can be used to remotely manage Gravwell and perform searches (with limited renderer support).  Administrators can manage users and monitor cluster health without the need for a full web browser.  Users can perform searches and easily export results to files for additional analysis with other tools.
+Gravwellコマンドラインクライアントを使用すると、Gravwellをリモートで管理し、検索を実行できます（レンダラーのサポートは限られています）。管理者は、フルWebブラウザを使用せずにユーザーを管理し、クラスタの状態を監視できます。ユーザーは検索を実行し、他のツールを使用して追加の分析のために結果をファイルに簡単にエクスポートすることができます。
 
-The command line client is slightly limited in that it cannot render some search results (e.g. the CLI cannot draw a chart in a terminal, so it will refuse to render a search that uses the chart module).  However, the CLI does have access to all renderer modules when issuing backgrounded searches, which may be useful if an advanced user wanted to login remotely and start a few very large searches that will be ready for viewing on a full browser once they get on-site.
+コマンドラインクライアントは、検索結果をレンダリングできないという点でわずかに制限があります（たとえば、CLIは端末にチャートを描画できないため、chartモジュールを使用する検索のレンダリングを拒否します）。ただし、バックグラウンド検索を発行する場合、CLIはすべてのレンダラーモジュールにアクセスできます。上級ユーザーがリモートログインして、大規模な検索を開始してフルブラウザで表示できるようにする場合に便利です。サイト。
 
-On a typical installation, the CLI tool will be installed as `/usr/sbin/gravwell`; passing the `-h` flag will give you an idea on where to start.  By default the Gravwell client expects the webserver to be listening on the local machine, specify the `-s` flag to point it at other webservers or a remote Gravwell instance.
+通常のインストールでは、CLIツールは/usr/sbin/gravwellとしてインストールされます。 -hフラグを渡すと、どこから始めればよいかがわかります。デフォルトでは、GravwellクライアントはWebサーバーがローカルマシン上で待機していると想定し、-sフラグを指定して他のWebサーバーまたはリモートGravwellインスタンスを指すようにします。
+
 
 ```
 gravwell options
@@ -68,15 +69,15 @@ MODIFIERS:
 EXAMPLE: gravwell -s=localhost state
 ```
 
-The Gravwell client is also a great way to perform searches on Gravwell and feed the output to other tools.  For instance if you have a custom program for processing security data, but prefer to store your log entries in Gravwell, you can run a background query using the CLI client to extract the entries, then save the results to a file for the custom program to read.
+GravwellクライアントはGravwellで検索を実行し、その出力を他のツールにフィードするための優れた方法でもあります。たとえば、セキュリティデータを処理するためのカスタムプログラムがあるが、ログエントリをGravwellに格納したい場合は、CLIクライアントを使用してバックグラウンドクエリを実行してエントリを抽出し、その結果をカスタムプログラム用のファイルに保存します。読む。
 
-## Using the CLI interactively.
+## 対話的にCLIを使う
 
-The Gravwell CLI client provides an interactive shell similar to those found on commercial switches. It has different "menu" levels; for example, from the top level menu one might select the 'dashboards' sub-menu, which contains commands for managing dashboards. This section will describe the basics of using the client interactively.
+Gravwell CLIクライアントは、商用スイッチに見られるものと同様の対話式シェルを提供します。それは異なる「メニュー」レベルを持っています。たとえば、トップレベルのメニューから、ダッシュボードを管理するためのコマンドを含む「ダッシュボード」サブメニューを選択できます。このセクションでは、クライアントを対話的に使用するための基本について説明します。
 
-### Connecting & Logging In
+### 接続とログイン
 
-By default, the client will assume the Gravwell webserver is listening on `localhost:443`. If this is correct, you can connect by simply running the command `gravwell`. The client will prompt for your username and password, then display a prompt:
+デフォルトでは、クライアントはGravwell Webサーバーがlocalhost：443をリッスンしていると想定します。これが正しい場合は、単にgravwellコマンドを実行して接続できます。クライアントはあなたのユーザ名とパスワードの入力を促し、それからプロンプトを表示します。
 
 ```
 $ gravwell
@@ -85,15 +86,15 @@ Password:  changeme
 #> 
 ```
 
-If your webserver is on a different host, use the `-s` flag to specify the hostname and port, e.g. `gravwell -s webserver.example.com:4443`.
+Webサーバが別のホストにある場合は、-sフラグを使用してホスト名とポートを指定します。 gravwell -s webserver.example.com:4443
 
-If your webserver has self-signed TLS certificates installed, you will need to add the `-insecure` flag to disable TLS verification but still use HTTPS.
+Webサーバーに自己署名TLS証明書がインストールされている場合は、TLS検証を無効にしてもHTTPSを使用するために-insecureフラグを追加する必要があります。
 
-If your webserver does not have TLS certificates installed, add the `-insecure-no-https` flag to use HTTP-only mode. Note that this is insecure: your password will be sent to the server in plain text.
+WebサーバーにTLS証明書がインストールされていない場合は、HTTP専用モードを使用するために-insecure-no-httpsフラグを追加してください。 これは安全ではありません。パスワードはプレーンテキストでサーバーに送信されます。
 
-### Listing Available Commands
+### 利用可能なコマンドの一覧表示
 
-The `help` command will list the commands available at the current menu level. Immediately after launching the client, it will be at the top level:
+helpコマンドは現在のメニューレベルで利用可能なコマンドをリストします。 クライアントを起動した直後は、最上位レベルになります。
 
 ```
 #>  help
@@ -128,7 +129,7 @@ script               Run a script
 help                 Display available commands
 ```
 
-Some of the items listed are commands:
+リストされている項目のいくつかはコマンドです。
 
 ```
 #>  state
@@ -141,7 +142,7 @@ Some of the items listed are commands:
 +----------------------+----------+
 ```
 
-Others are menus which will contain their own commands. In the example below, we select the 'dashboards' menu, list the available commands, and run the 'list' command:
+他のものはそれら自身のコマンドを含むメニューです。 以下の例では、 'ダッシュボード'メニューを選択し、利用可能なコマンドを一覧表示して、 'list'コマンドを実行します。
 
 ```
 #>  dashboards
@@ -159,9 +160,9 @@ dashboards>  list
 dashboards>  
 ```
 
-## Searching via CLI
+## CLIによる検索
 
-The `search` command runs a search in the foreground:
+searchコマンドはフォアグラウンドで検索を実行します。
 
 ```
 #>  search
@@ -176,7 +177,7 @@ Total Items: 1
 count 100.00/1.00 61.66 KB/616 B 8.109585ms
 ```
 
-If you wish to save the results of a search, we can run the client with the '-b' flag, which specifies that searches should be run in the background, then use the `search` and `download` commands to run a search and save the results:
+検索の結果を保存したい場合は、検索をバックグラウンドで実行するように指定する '-b'フラグを指定してクライアントを実行し、次にsearchおよびdownloadコマンドを使用して検索を実行し、結果を保存します：
 
 ```
 $ gravwell -b
@@ -202,9 +203,9 @@ Saving to  /tmp/nm.txt
 ```
 
 
-## Admin
+## 管理者
 
-The Gravwell client implements many commands for managing the system in the admin sub-menu:
+Gravwellクライアントはadminサブメニューでシステムを管理するための多くのコマンドを実装しています。
 
 ```
 #>  admin
@@ -250,12 +251,12 @@ update_extraction   Update an installed autoextractor
 sync_extractions    Force a sync of installed autoextractors to indexers
 ```
 
-In addition to user/group management, the admin menu also provides tools to manage dashboards, kits, and other objects belonging to other users on the system.
+ユーザー/グループ管理に加えて、管理メニューにはダッシュボード、キット、およびシステム上の他のユーザーに属する他のオブジェクトを管理するためのツールもあります。
 
 
-## CLI examples
+## CLIの例
 
-### Check On Indexer Health
+### インデクサーの健全性チェック
 
 ```
 $ gravwell state
@@ -270,7 +271,7 @@ $ gravwell state
 +----------------------+----------+
 ```
 
-Output of every command can be set to “raw” with no tables or formatting.  The raw output can be easier to digest if you are passing Gravwell data to other tools or scripts.
+すべてのコマンドの出力は、テーブルやフォーマットなしで「raw」に設定できます。 Gravwellのデータを他のツールやスクリプトに渡すと、生の出力を要約しやすくなります。
 
 ```
 $ gravwell -r state
@@ -279,7 +280,7 @@ webserver     OK
 10.0.0.2:9404 OK
 ```
 
-### View Indexer Wells and Storage Size
+### インデクサーウェルとストレージサイズの表示
 
 ```
 $ gravwell -r indexes
@@ -299,7 +300,7 @@ $ gravwell -r indexes
 10.0.0.3:9404 bench /mnt/storage/gravwell/bench 136.5 GB 658.69 M
 ```
 
-### View Remote Ingesters
+### リモートインジェスターを表示する
 
 ```
 $ gravwell -r ingesters
@@ -313,7 +314,7 @@ $ gravwell -r ingesters
         tcp://192.210.192.202:43368 34m51.9s [kernel] 1.33 K 141.57 KB
 ```
 
-### Run a script
+### スクリプトを実行する
 
 ```
 $ gravwell script
