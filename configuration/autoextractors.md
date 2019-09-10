@@ -1,38 +1,36 @@
-# Gravwell Auto-Extractors
+# 自動抽出
 
-Gravwell enables per-tag extraction definitions that can ease the complexity of interacting with unstructured data and data formats that are not self-describing.  Unstructured data often requires complicated regular expressions to extract desired data fields, which can be time consuming to produce and prone to errors.
+Gravwellはタグごとの抽出定義を可能にし、自己記述的ではない非構造化データおよびデータフォーマットと対話することの複雑さを緩和します。非構造化データでは、目的のデータフィールドを抽出するために複雑な正規表現が必要になることが多く、作成に時間がかかり、エラーが発生する可能性があります。
 
-Auto-extractors are simply definitions that can be applied to tags and describe how to correctly extract fields from the data in a given tag. The "ax" module then automatically invokes the appropriate functionality of other modules.  The auto-extractor system supports the following extraction methods:
+自動抽出機能は、タグに適用することができ、指定されたタグ内のデータからフィールドを正しく抽出する方法を説明するための単なる定義です。"ax"モジュールは自動的に他のモジュールの適切な機能を呼び出します。自動抽出システムは、以下の抽出方法をサポートしています。
 
 * [CSV](../search/csv/csv.md)
-* [Fields](../search/fields/fields.md)
-* [Regex](../search/regex/regex.md)
-* [Slice](../search/slice/slice.md)
+* [フィールド](../search/fields/fields.md)
+* [正規表現](../search/regex/regex.md)
+* [スライス](../search/slice/slice.md)
 
-Auto-extractor definitions are used by the [AX](../search/ax/ax.md) module which transparently references the correct extraction based on tags.
+自動抽出機能の定義は、タグに基づいて正しい抽出を透過的に参照する [AX](../search/ax/ax.md) モジュールによって使用されます。
 
-## Auto-Extractor Configuration
+## 自動抽出機能の設定
 
-Auto-extractors are defined by creating ax files and installing them in the "extractions" directory of each Gravwell node. The filenames used do not matter; any file placed in the extractions directory with an extension of "ax" will be parsed as an auto-extractor file. By default the extractions directory is `/opt/gravwell/extractions` but it can be configured by setting/modifying the "Autoextract-Definition-Path" configuration variable in your `gravwell.conf` file.  Gravwell services must be restarted after changes to any auto-extractor "ax" files.
+自動抽出機能は、axファイルを作成して各Gravwellノードの「extractions」ディレクトリにインストールすることで定義されます。 使用されるファイル名は関係ありません。 抽出ディレクトリに配置されたファイルはすべて、「ax」ファイルとして解析されます。デフォルトでは、抽出ディレクトリは `/opt/gravwell/extractions`ですが、`gravwell.conf`ファイルの "Autoextract-Definition-Path"設定変数を設定/変更することで設定できます。 Gravwellサービスは、自動抽出「ax」ファイルを変更した後に再起動する必要があります。
 
-Auto-extractor files follow the [TOML V4](https://github.com/toml-lang/toml) format which allows comments using the "#" character.  Each "ax" file can contain multiple auto-extraction definitions and there can be multiple files in the extractions directory.
+自動抽出ファイルは、[＃]文字を使用したコメントを許可する[TOML V4](https://github.com/toml-lang/toml) 形式に従います。 各「ax」ファイルには、複数の自動抽出定義を含めることができ、抽出ディレクトリには複数のファイルを含めることができます。
 
-Note: Only a single extraction can be defined per tag
+<span style="color: red; ">注：タグごとに定義できる抽出は1つだけです。</span>
 
-Note: Auto-extractors always operate on the full underlying data of an entry.  They cannot be used to perform extractions on Enumerated Values (the "-e" argument is disallowed)
+<span style="color: red; ">注：自動抽出機能は、エントリーの基礎データ全体を常に操作します。列挙値の抽出には使用できません（ "-e"引数は許可されていません）。</span>
 
-Note: The auto-extractor file extension is "ax", only files that have the ".ax" suffix will be read as auto-extractor definitions.
+各抽出機能には、ヘッダーと以下のパラメーターが含まれています。
 
-Each extractor contains a header and the following parameters:
+* tag - 抽出に関連したタグ
+* name - 抽出用の人間に優しい名前
+* desc - 抽出を説明する人間に優しい文字列
+* module - 抽出に使用される処理モジュール（regex、slice、csv、fieldsなど）
+* args - extractonモジュールの振る舞いを変更するために使用されるモジュール固有の引数
+* params - 抽出定義
 
-* tag - The tag associated with the extraction
-* name - A human-friendly name for the extraction
-* desc - A human-friendly string that describes the extraction
-* module - The processing module used for extraction (regex, slice, csv, fields, etc.)
-* args - Module-specific arguments used to change the behavior of the extracton module
-* params - The extraction definition
-
-Here is a sample auto-extraction file designed to pull some basic data from an Apache 2.0 access log using the regex module:
+以下はregexモジュールを使ってApache 2.0アクセスログからいくつかの基本的なデータを引き出すように設計されたサンプル自動抽出ファイルです。
 
 ```
 #Simple extraction to pull ip, method, url, proto, and status from apache access logs
@@ -45,17 +43,17 @@ Here is a sample auto-extraction file designed to pull some basic data from an A
 	params='^(?P<ip>\d+\.\d+\.\d+\.\d+)[^\"]+\"(?P<method>\S+)\s(?P<url>\S+)\s(?P<proto>\S+)\"\s(?P<status>\d+)'
 ```
 
-There are a few important notes about how the extraction parameters are defined.
+抽出パラメータの定義方法に関する重要な注意事項がいくつかあります。
 
-1. Each extraction parameter's value must be defined as a string and double or single quoted.
-2. Double quoted strings are subject to string escape rules (pay attention when using regex).
-  a.  "\b" would be the backspace command (character 0x08) not the literal "\b".
-3. Single quoted strings are raw and not subjected to string escape rules.
-  a. '\b' is literally the backslash character followed by the 'b' character, not a backspace.
+1. 各抽出パラメータの値は、文字列として定義し、二重引用符または一重引用符で囲む必要があります。
+2. 二重引用符で囲まれた文字列は文字列エスケープ規則に従います（regexを使うときは注意してください）。
+  a。"\ b"は、文字 "\ b"ではなく、バックスペースコマンド（文字0x08）になります。
+3. 一重引用符で囲まれた文字列は生であり、文字列エスケープ規則に従いません。
+ a。'\ b'は文字通りバックスラッシュ文字で、その後に 'b'文字が続きます。バックスペースではありません。
 
-The ability to ignore string escape rules is especially handy for the "regex" processor as it makes heavy use of backslash.
+文字列エスケープルールを無視する機能は、バックスラッシュを多用するため、 "regex"プロセッサにとって特に便利です。
 
-Multiple extractions can be specified in a single file by simply establishing a new "[[extraction]]" header and a new specification.  Here is an example with two extractions in a single file:
+新しい[extraction]ヘッダと新しい指定を設定するだけで、単一のファイルに複数の抽出を指定できます。これは、単一のファイルに2つの抽出がある例です。
 
 ```
 #Simple extraction to pull ip, method, url, proto, and status from apache access logs
@@ -76,55 +74,55 @@ Multiple extractions can be specified in a single file by simply establishing a 
 	params="date, name, country, city, hash, a comma ,\"field with comma,\""
 ```
 
-The second extraction for the "locs" tag demonstrates the ommission of non-essential parameters (here we don't specify args) and using backslashes to allow double quotes in strings.  Extractions only have 3 essential parameters:
+"locs"タグの2回目の抽出では、必須ではないパラメーター（ここではargsを指定しない）を省略し、バックスラッシュを使用してストリング内で二重引用符を使用できるようにしています。抽出には3つの必須パラメーターしかありません。
 
-* module
-* params
-* tag
+* モジュール
+* パラーム
+* タグ
 
-## Filtering
+## フィルタリング
 
-The AX module supports integrated filtering at time of *search*.  Filtering cannot, however, be applied to any auto-extracton *definition*.
+AXモジュールは検索時に統合フィルタリングをサポートします。ただし、フィルタリングは、自動抽出定義には適用できません。
 
-#### Filtering Operators
+#### フィルタリング演算子
 
-| Operator | Name | Description |
+| オペレーター | 名 | 説明|
 |----------|------|-------------|
-| == | Equal | Field must be equal
-| != | Not equal | Field must not be equal
-| ~  | Subset | Field contains the value
-| !~ | Not Subset | Field does NOT contain the value
+| == | 等しい | フィールドは等しくなければなりません
+| != | 等しくない | フィールドは等しくてはいけません
+| ~  | サブセット | フィールドに値が含まれています
+| !~ | サブセットではない | フィールドに値が含まれていません
 
-#### Filtering Examples
+#### フィルタリング例
 
 ```
 ax foo=="bar" baz~"stuff"
 ax foo != bar baz !~ "stuff and things"
 ```
 
-## Processor Examples
+## プロセッサの例
 
-We will demonstrate a few auto-extraction definitions and compare and contrast queries which accomplish the same task with and without auto-extractors.  We will also show how to use filters within AX.
+いくつかの自動抽出定義を示し、自動抽出機能の有無にかかわらず同じタスクを実行するクエリを比較対照します。また、AX内でフィルタを使用する方法も示します。
 
 ### CSV
 
-CSV or "Comma Separated Values" can be a relatively efficient text transport and storage system.  However, CSV data is not self-describing, meaning that if all we have is a bunch fo CSV data it can be difficult to tell what columns actually are.  Auto-extractors can be used to predefine column names and make it dramatically easier to work with CSV data.
+CSVまたは「カンマ区切り値」は、比較的効率的なテキスト転送および保存システムです。ただし、CSVデータは自己記述型ではないため、CSVデータをすべてまとめただけでは、実際にどの列になっているのかを判断するのは困難になります。自動抽出機能を使用して列名を事前定義し、CSVデータでの作業を劇的に簡単にすることができます。
 
-Here is an example data entry that is encoded using CSV:
+CSVを使用してエンコードされたデータエントリの例を次に示します。
 
 ```
 2019-02-07T10:52:49.741926-07:00,fuschia,275,68d04d32-6ea1-453f-886b-fe87d3d0e0fe,174.74.125.81,58579,191.17.155.8,1406,"It is no doubt an optimistic enterprise. But it is good for awhile to be free from the carping note that must needs be audible when we discuss our present imperfections, to release ourselves from practical difficulties and the tangle of ways and means. It is good to stop by the track for a space, put aside the knapsack, wipe the brows, and talk a little of the upper slopes of the mountain we think we are climbing, would but the trees let us see it Benjamin", "TL",Bury,396632323a643862633a653733343a643166383a643762333a373032353a653839633a62333361
 ```
 
-There is a lot of data in there with no indication of which fields are what.  To make matters worse, CSV data can contain commas and surrounding spaces which makes identifying columns with the naked eye very difficult.  Auto-extractors allow us to identify column names and types *once*, then transparently leverage them using the "ax" module.
+そこにはたくさんのデータがあり、どのフィールドが何であるかを示すものはありません。さらに悪いことに、CSVデータにはコンマとその周囲のスペースが含まれているため、裸眼による列の識別が非常に困難になります。自動抽出機能を使用すると、列名と型を一度識別してから、 "ax"モジュールを使用してそれらを透過的に活用できます。
 
-If we were to manually extract and name each element, our query would be the following:
+各要素を手動で抽出して名前を付けると、クエリは次のようになります。
 
 ```
 tag=csvdata csv [0] as ts [1] as name [2] as id [3] as guid [4] as src [5] as srcport [6] as dst [7] as dstport [8] as data [9] as country [10] as city [11] as hash | table
 ```
 
-With the following auto-extractor configuration declaration:
+次のような自動抽出設定の宣言があります。
 
 ```
 [[extraction]]
@@ -135,35 +133,33 @@ With the following auto-extractor configuration declaration:
 	params="ts, name, id, guid, src, srcport, dst, dstport, data, country, city, hash"
 ```
 
-That same query becomes:
+同じクエリは次のようになります。
 
 ```
 tag=csvdata ax | table
 ```
 
-Note: The CSV auto-extraction processor does not support any arguments
+<span style="color: red; ">注：CSV自動抽出プロセッサーは引数をサポートしていません</span>
 
-Note: The position of the names in the `params` variable indicates the field name. Treat it as a CSV header
+<span style="color: red; ">注：params変数内の名前の位置はフィールド名を示します。CSVヘッダとして扱う</span>
 
-### Fields
+### フィールド
+fieldsモジュールは非常に柔軟な処理モジュールで、データを抽出するために任意の区切り文字とフィールドルールを定義することができます。Bro / Zeekのような一般的なセキュリティアプリケーションの多くは、データのエクスポートにTSV（タブ区切り値）をデフォルトとしています。他のカスタムアプリケーションは "|"のような変なセパレータを使うかもしれません または "//"のような一連のバイト。フィールドエクストラクタを使えば、それをすべて扱うことができます。自動エクストラクタと組み合わせると、データフォーマットの詳細について心配する必要はありません。
 
-The fields module is an extremely flexible processing module that allows us to define arbitrary delimiters and field rules in order to extract data.  Many popular security applications like Bro/Zeek default to TSV (tab seperated values) for data export.  Other custom applications may use weird separators like "|" or a series of bytes like "//".  With the fields extractor you can handle it all, and when combined with auto-extractors users don't have to worry about the details of the data format.
+他の自動抽出プロセッサとは異なり、fieldsモジュールにはさまざまな設定引数があります。引数のリストは[fieldsモジュールのドキュメント](/#!search/fields/fields.md)に完全に文書化されています。"-e"フラグのみがサポートされていません。
 
-Unlike other auto-extractor processors, the fields module has a variety of configuration arguments.  The list of arguments is fully documented in the [fields module documentation](/#!search/fields/fields.md).  Only the "-e" flag is unsupported.
-
-Let's start with some tab delimited data:
+タブ区切りのデータから始めましょう。
 
 ```
 2019-02-07T11:27:14.308769-07:00	green	21.41.53.11	1212	57.27.200.146	40348	Have I come to Utopia to hear this sort of thing?
 ```
 
-Using the fields module to extract each data item our query would be:
-
+fieldsモジュールを使用して各データ項目を抽出するためには、次のようになります。
 ```
 tag=tabfields fields -d "\t" [0] as ts [1] as app [2] as src [3] as srcport [4] as dst [5] as dstport [6] as data | table
 ```
 
-An auto-extraction configuration to accomplish the same thing is:
+同じことを実行するための自動抽出構成は次のとおりです。
 
 ```
 [[extraction]]
@@ -174,28 +170,26 @@ An auto-extraction configuration to accomplish the same thing is:
 	args='-d "\t"'
 	params="ts, app, src, srcport, dst, dstport, data"
 ```
-
-Using the ax module and the configuration above, the query becomes:
+axモジュールと上記の設定を使用すると、クエリは次のようになります。
 
 ```
 tag=tagfields ax | table
 ```
 
-Lets look at some data with a slightly stranger delimiter "|":
+少し変な区切り文字 "|"を使っていくつかのデータを見てみましょう：
 
 ```
 2019-02-07T11:57:24.230578-07:00|brave|164.5.0.239|1212|179.15.183.3|40348|"In C the OR operator is ||."
 ```
 
-Note that the last field contains the delimiter. The system that generated this data knew that it needed to include the delimiter in a data item, so it encapsulated that data item in double quotes.  The fields module knows how to deal with quoted data; specifying the "-q" flag will make the module respect quoted fields.  The quotes are kept on the extracted data unless the "-clean" flag is also specified.
+最後のフィールドには区切り文字が含まれています。このデータを生成したシステムは、データ項目に区切り文字を含める必要があることを知っていたため、そのデータ項目を二重引用符で囲みました。fieldsモジュールはクォートされたデータをどのように扱うかを知っています。"-q"フラグを指定すると、モジュールは引用符付きフィールドを尊重します。"-clean"フラグも指定されていない限り、引用符は抽出されたデータに保持されます。
 
-Using the fields module our query would be:
-
+fieldsモジュールを使うと、クエリは次のようになります。
 ```
 tag=barfields fields -d "|" -q -clean [0] as ts [1] as app [2] as src [3] as srcport [4] as dst [5] as dstport [6] as data 
 ```
 
-But with an appropriate auto-extraction configuration (shown below) the query can still be the extremely simple `tag=barfields ax | table`:
+しかし、適切な自動抽出設定（下記参照）があれば、クエリは非常に単純なものになる可能性がありますtag=barfields ax | table。
 
 ```
 [[extraction]]
@@ -207,34 +201,34 @@ But with an appropriate auto-extraction configuration (shown below) the query ca
 	params="ts, app, src, srcport, dst, dstport, data"
 ```
 
-The results are properly cleaned with quotes removed:
+結果は引用符が削除されて正しくクリーニングされます。
 
 ![Fields Results](fieldsax.png)
 
-### Regex
+### 正規表現(regex)
 
-Regex may be the most common use for auto-extractors.  Regular expressions are hard to get right, easy to mistype, and difficult to optimize.  If you have a regular expression guru available, they can help you build a blazing fast regular expression that does all manner of efficient and flexible extractions, then you can simply deploy it in an auto-extraction and forget all about it.
+正規表現は、自動抽出プログラムの最も一般的な用途です。正規表現は、理解するのが難しく、タイプミスがしやすく、そして最適化が困難です。正規表現の第一人者がいる場合は、あらゆる方法で効率的かつ柔軟な抽出を実行する、非常に高速な正規表現を作成するのに役立ちます。その後、単純に自動抽出に展開して、それをすべて忘れることができます。
 
-Here is an example entry set that is frankly a mess (which is not uncommon in custom application logs):
+これは率直に言って混乱しているエントリセットの例です（これはカスタムアプリケーションログでは珍しいことではありません）。
 
 ```
 2019-02-06T16:57:52.826388-07:00 [fir] <6f21dc22-9fd6-41ee-ae72-a4a6ea8df767> 783b:926c:f019:5de1:b4e0:9b1a:c777:7bea 4462 c34c:2e88:e508:55bf:553b:daa8:59b9:2715 557 /White/Alexander/Abigail/leg.en-BZ Mozilla/5.0 (Linux; Android 8.0.0; Pixel XL Build/OPR6.170623.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.107 Mobile Safari/537.36 {natalieanderson001@test.org}
 ```
 
-The data is a really ugly access log for some custom application. We are trying to get at a few fields which we will name as follows:
+データはいくつかのカスタムアプリケーションにとって本当に醜いアクセスログです。次のようにいくつかのフィールドにアクセスしようとしています。
 
-* ts - the timestamp at the beginning of each entry
-* app - a string representing the handling application
-* uuid - a unique identifier
-* src - source address, both IPv4 and IPv6
-* srcport - source port
-* dst - destination address, both IPv4 and IPv6
-* dstport - destination port
-* path - URL like path
+* ts - 各エントリの先頭のタイムスタンプ
+* app - 処理アプリケーションを表す文字列
+* uuid - 一意の識別子
+* src - 送信元アドレス、IPv4とIPv6の両方
+* srcport - 送信元ポート
+* dst -  宛先アドレス、IPv4とIPv6の両方
+* dstport - 宛先ポート
+* path - パスのようなURL
 * useragent - useragent
-* email - email address associated with the request
+* email - リクエストに関連付けられているメールアドレス
 
-Here is our example extractor definition:
+これが私たちの抽出器定義の例です：
 
 ```
 [[extraction]]
@@ -243,69 +237,68 @@ Here is our example extractor definition:
 	params='(?P<ts>\S+)\s\[(?P<app>\S+)\]\s<(?P<uuid>\S+)>\s(?P<src>\S+)\s(?P<srcport>\d+)\s(?P<dst>\S+)\s(?P<dstport>\d+)\s(?P<path>\S+)\s(?P<useragent>.+)\s\{(?P<email>\S+)\}$'
 ```
 
-Lets assume we want to extract every single data item and put them into a table.
+すべてのデータ項目を1つ抽出してそれらを表に入れたいとしましょう。
 
-If we were to use regex, our query would be:
+正規表現を使用すると、クエリは次のようになります。
 
 ```
 tag=test regex "(?P<ts>\S+)\s\[(?P<app>\S+)\]\s<(?P<uuid>\S+)>\s(?P<src>\S+)\s(?P<srcport>\d+)\s(?P<dst>\S+)\s(?P<dstport>\d+)\s(?P<path>\S+)\s(?P<useragent>.+)\s\{(?P<email>\S+)\}$" | table
 ```
 
-However, with the auto-extractor and the ax module it can be:
+ただし、自動抽出機能とaxモジュールを使用すると、次のようになります。
 
 ```
 tag=test ax | table
 ```
 
-The results are the same:
+結果は同じです。
 
 ![Regex Results](regexax.png)
 
-If we want to filter on a field using the ax module, we can simply attach a filter directive to the named field on the ax module.  In this example we want to show all entries that have "test.org" in the email address while still rendering a table with all extracted fields.
+axモジュールを使ってフィールドをフィルタリングしたい場合は、axモジュールの名前付きフィールドに単純にfilterディレクティブを付けることができます。この例では、抽出されたすべてのフィールドを含むテーブルをレンダリングしながら、電子メールアドレスに "test.org"を含むすべてのエントリを表示します。
 
 ```
 tag=test ax email~"test.org" | table
 ```
 
-If we only want specific fields, we can specify those fields which directs the ax module to only extract those specific fields, rather than extracting all fields by default.
+特定のフィールドのみが必要な場合は、デフォルトですべてのフィールドを抽出するのではなく、axモジュールに特定のフィールドのみを抽出するように指示するフィールドを指定できます。
 
 ```
 tag=test ax email~"test.org" app path | table
 ```
 
-### Slice
+### スライス(Slice)
+[スライスモジュール](/search/slice/slice.md) は、バイナリデータストリームから直接データを抽出することができる強力なバイナリ・スライス方式です。Gravwellのエンジニアはスライスモジュール以外の何も使用しないでプロトコルディセクタ全体を開発しました。しかし、データのバイナリストリームを切り取ってデータを解釈することは、心の弱い人には向いていません。独自のデータストリームをスライスしてさいの目に切るような美しいクエリを作成したら、覚えたりコピーしたりすることはできません。
 
-The [Slice](/search/slice/slice.md) module is a powerful binary-slicing system that can extract data directly from binary data streams.  Gravwell engineers have developed entire protocol dissectors using nothing but the slice module.  However, cutting up binary streams of data and interpreting the data is not for the faint of heart, and once you have built up a beautiful query that slices and dices a proprietary data stream no one wants to remember it or even copy & paste it.
+テキスト形式でバイナリデータを表示するのは難しいので、このドキュメントではデータを16進エンコーディングで表示します。我々は、醸造システム内の正確な温度制御を維持するために冷媒圧縮機を調整する小さな制御システムから来るバイナリデータストリームを切り出す予定です。制御システムは、文字列、整数、およびいくつかの浮動小数点値を出荷します。制御システムの場合と同様に、すべてのデータは[ビッグエンディアン](https://en.wikipedia.org/wiki/Endianness)順になっています。
 
-Showing binary data in text form is difficult, so in this document we will show the data in hex encoding.  We will be cutting up a binary data stream coming from a small control system that regulates a refrigerant compressor to maintain precise temperature control in a brewing system.  The control system ships strings, integers, and some floating point values, and as is often the case in control systems all the data is in [Big Endian](https://en.wikipedia.org/wiki/Endianness) order.
+注：スライスAXプロセッサは引数をサポートしていません（例： "-e"は使用不可）
 
-Note: The slice AX processor does not support any arguments (e.g. no "-e" allowed)
+#### フィルタリング
 
-#### Filtering
+スライスAXプロセッサは、データを特定のタイプにキャストするように設計されています。そのため、そのフィルタリングオプションは他のモジュールよりも少し微妙です。抽出された各値には、そのタイプに基づいて特定のフィルター演算子のセットがあります。フィルタ演算子と型の詳細については、[スライスモジュールのドキュメント](../search/slice/slice.md)を参照してください。
 
-The slice AX processor is designed to cast data to specific types.  As such its filtering options are a little more nuanced than other modules.  Each extracted value has a specific set of filter operators based on its type.  For a full description of filtering operators and types, see the [slice module documentation](../search/slice/slice.md).
+#### 例
 
-#### Examples
-
-To start, lets look at our data in hex format using the [hexlify](#!search/hexlify/hexlify.md) module:
+まずは、[hexlify](#!search/hexlify/hexlify.md)モジュールを使って、16進数のデータを見てみましょう。
 
 ```
 tag=keg hexlify
 ```
 
-Which results in entries that look like this:
+これは、次のようなエントリになります。
 
 ```
 12000000000ed3ee7d4300000000014de536401800004b65672031
 ```
 
-With some sleuthing we were able to identify that the packed binary structure contains the following:
+ちょっとしたことで、パックされたバイナリ構造体が次のものを含んでいることを確認することができました。
 
-| ID | Timestamp Seconds | Timestamp Nanoseconds | Temperature as 32bit float | ASCII name |
+| ID | タイムスタンプ秒| タイムスタンプナノ秒 | 32ビットフロートとしての温度 | ASCII name |
 |----|-------------------|-----------------------|----------------------------|------------|
 |bits 0:2 | bits 2:10              | bits 10:18                 | bits 18:22                      | bits 22:        |
 
-Which we were able to use to generate the following slice query to extract each data item:
+各データ項目を抽出するために次のスライスクエリを生成するために使用できました。
 
 ```
 tag=keg slice uint16be([0:2]) as id int64be([2:10]) as sec uint64be([10:18]) as nsec float32be([18:22]) as temp [22:] as name | table
@@ -313,7 +306,7 @@ tag=keg slice uint16be([0:2]) as id int64be([2:10]) as sec uint64be([10:18]) as 
 
 ![Slice Table](sliceres.png)
 
-From our manual query we can then generate the following auto-extraction configuration:
+手動クエリから、次の自動抽出設定を生成できます。
 
 ```
 [[extraction]]
@@ -324,13 +317,13 @@ From our manual query we can then generate the following auto-extraction configu
 	params="uint16be([0:2]) as id int64be([2:10]) as sec uint64be([10:18]) as nsec float32be([18:22]) as temp [22:] as name"
 ```
 
-The complicated slice query now becomes:
+複雑なスライスクエリは次のようになります。
 
 ```
 tag=keg ax | table
 ```
 
-Using filtering and some math modules we can take it a step further and generate a cool graph showing the maximum temperature for each of the probes:
+フィルタリングといくつかの数学モジュールを使用して、さらに一歩進めて、各プローブの最高温度を示すクールグラフを生成できます。
 
 ```
 tag=keg ax id==0x1200 temp name | max temp by name | chart max by name
@@ -338,7 +331,7 @@ tag=keg ax id==0x1200 temp name | max temp by name | chart max by name
 
 ![Probe Temperature](temps.png)
 
-We can use additional filtering to select only the keg temperatures and examine the temperature variance to see how well the control system is maintaining a constant temperature:
+追加のフィルタリングを使用して樽温度のみを選択し、温度変動を調べて制御システムが一定の温度をどの程度維持しているかを確認できます。
 
 ```
 tag=keg ax id==0x1200 temp name~Keg | stddev temp by name | chart stddev by name
@@ -346,4 +339,4 @@ tag=keg ax id==0x1200 temp name~Keg | stddev temp by name | chart stddev by name
 
 ![Probe Stddev](tempstddev.png)
 
-Using our auto-extractor and some basic math we can dissect the binary data and clearly see a periodic engagement of the compressor, which causes an oscillation of temperature over time.  If we were running a brewery we might call the head brewer and suggest that the control system logic be tweaked to tighten the temperature tolerances, or we might use this data to figure out the best time to pour a frosty beverage.
+自動抽出機能といくつかの基本的な数学を使用して、バイナリデータを分析し、コンプレッサの周期的な関与を明確に確認できます。これにより、時間の経過とともに温度が変動します。私たちが醸造所を経営しているのなら、私たちは醸造所と呼んで温度許容度を厳しくするために制御システムロジックを微調整することを提案するかもしれません。
