@@ -1,20 +1,21 @@
-# Ingesters
+# Ingesters設定
 
-This section contains more detailed instruction for configuring and running Gravwell ingesters.
+このセクションには、Gravwellインジェスターを構成および実行するための詳細な手順が含まれています。
 
-The Gravwell-created ingesters are released under the BSD open source license and can be found on [Github](https://github.com/gravwell/ingesters). The ingest API is also open source, so you can create your own ingesters for unique data sources, performing additional normalization or pre-processing, or any other manner of things. The ingest API code [is located here](https://github.com/gravwell/ingest).
+Gravwellが作成したインジェスターはBSDオープンソースライセンスの下でリリースされており、[Github](https://github.com/gravwell/ingesters)にあります。 インジェストAPIはオープンソースでもあるため、独自のデータソース用に独自のインジェスターを作成したり、追加の正規化や前処理を実行したり、その他の方法で実行することができます。 INGEST APIコードは[ここにあります](https://github.com/gravwell/ingest)。
 
-In general, for an ingester to send data to Gravwell, the ingester will need to know the “Ingest Secret” of the Gravwell instance, for authentication. This can be found by viewing the `/opt/gravwell/etc/gravwell.conf` file on the Gravwell server and finding the entry for `Ingest-Auth`. If the ingester is running on the same system as Gravwell itself, the installer will usually be able to detect this value and set it automatically.
+一般に、インジェスターがGravwellにデータを送信するには、インジェスターは認証のためにGravwellインスタンスの「Ingest Secret」を知っている必要があります。これ/opt/gravwell/etc/gravwell.confはGravwellサーバー上のファイルを表示してのエントリを見つけることで見つけることができますIngest-Auth。インジェスターがGravwell自体と同じシステム上で実行されている場合、インストーラーは通常この値を検出して自動的に設定することができます。
 
-The Gravwell GUI has an Ingesters page (under the System menu category) which can be used to easily identify which remote ingesters are actively connected, for how long they have been connected, and how much data they have pushed.
+Gravwell GUIにはIngestersページ（Systemメニューカテゴリの下）があり、どのリモートインジェスタがアクティブに接続されているか、接続されている期間、およびプッシュされたデータ量を簡単に識別できます。
 
 ![](remote-ingesters.png)
 
-Attention: The [replication system](#!configuration/replication.md) does not replicate entries larger than 999MB. Larger entries can still be ingested and searched as usual, but they are omitted from replication. This is not a concern for 99.9% of use cases, as all the ingesters detailed in this page tend to create entries no larger than a few kilobytes.
+<span style="color: red;">重要：複製システムは999MBを超えるエントリーを複製しません。より大きいエントリは通常どおりに取り込まれて検索されますが、複製から除外されます。このページで詳述されているすべてのインジェスターが数キロバイト以下のエントリを作成する傾向があるため、これは99.9％のユースケースには関係ありません。</span>
 
-## Global Configuration Parameters
+## グローバル設定パラメータ
 
-Most of the core ingesters support a common set of global configuration parameters.  The shared Global configuration parameters are implemented using the [ingest config](https://godoc.org/github.com/gravwell/ingest/config#IngestConfig) package.  Global configuration parameters should be specified in the Global section of each Gravwell ingester config file.  The following Global ingester paramters are available:
+コアインジェスターのほとんどは、共通のグローバル構成パラメーターのセットをサポートしています。共有グローバル設定パラメータは、[ingest設定](https://godoc.org/github.com/gravwell/ingest/config#IngestConfig)パッケージを使って実装されます。グローバル設定パラメータは、各Gravwell ingester設定ファイルのGlobalセクションで指定する必要があります。以下のグローバルインジェスタパラメータが利用可能です。
+
 
 * Ingest-Secret
 * Connection-Timeout
@@ -30,13 +31,13 @@ Most of the core ingesters support a common set of global configuration paramete
 
 ### Ingest-Secret
 
-The Ingest-Secret parameter specifies the token to be used for ingest authentication.  The token specified here MUST match the Ingest-Auth parameter for Gravwell indexers.
+Ingest-Secretパラメーターは、取り込み認証に使用されるトークンを指定します。ここで指定されたトークンは、GravwellインデクサーのIngest-Authパラメーターと一致しなければなりません。
 
 ### Connection-Timeout
 
-The Connection-Timeout parameter specifies how long we want to wait to connect to an indexer before giving up.  An empty timeout means that the ingester will wait forever to start.  Timeouts should be specified in durations of minutes, seconds, or hours.
+Connection-Timeoutパラメーターは、あきらめる前にインデクサーに接続するのを待つ時間を指定します。空のタイムアウトは、インジェスターが起動するまで永遠に待機することを意味します。タイムアウトは、分、秒、または時間単位で指定する必要があります。
 
-#### Examples
+#### 例
 ```
 Connection-Timeout=30s
 Connection-Timeout=5m
@@ -45,9 +46,9 @@ Connection-Timeout=1h
 
 ### Insecure-Skip-TLS-Verify
 
-The Insecure-Skip-TLS-Verify token tells the ingester to ignore bad certificates when connecting over encrypted TLS tunnels. As the name suggests, any and all authentication provided by TLS is thrown out the window and attackers can easily Man-in-the-Middle TLS connections.  The ingest connections will still be encrypted, but the connection is by no means secure.  By default TLS certificates are validated and the connections will fail if the certificate validation fails.
+Insecure-Skip-TLS-Verifyトークンは、暗号化されたTLSトンネルを介して接続するときに不正な証明書を無視するように取り込み側に指示します。その名前が示すように、TLSによって提供されるすべての認証はウィンドウから放り出され、攻撃者は中間者TLS接続を簡単に行うことができます。取り込み接続は依然として暗号化されますが、接続は決して安全ではありません。デフォルトではTLS証明書が検証され、証明書の検証に失敗すると接続は失敗します。
 
-#### Examples
+#### 例
 ```
 Insecure-Skip-TLS-Verify=true
 Insecure-Skip-TLS-Verify=false
@@ -55,9 +56,9 @@ Insecure-Skip-TLS-Verify=false
 
 ### Cleartext-Backend-Target
 
-Cleartext-Backend-Target specifies the host and port of a Gravwell indexer.  The ingester will connect to the indexer using a cleartext TCP connection.  If no port is specified the default port 4023 is used.  Cleartext connections support both IPv6 and IPv4 destinations.  **Multiple Cleartext-Backend-Targets can be specified to load balance an ingester across multiple indexers.**
+Cleartext-Backend-Targetは、Gravwellインデクサーのホストとポートを指定します。インジェスターは、平文のTCP接続を使用してインデクサーに接続します。ポートが指定されていない場合は、デフォルトのポート4023が使用されます。平文接続は、IPv6とIPv4の両方の宛先をサポートします。 複数のクリアテキスト - バックエンド - ターゲットを指定して、複数のインデクサーにわたってインジェスターをロードバランスすることができます。
 
-#### Examples
+#### 例
 ```
 Cleartext-Backend-Target=192.168.1.1
 Cleartext-Backend-Target=192.168.1.1:4023
@@ -67,9 +68,9 @@ Cleartext-Backend-Target=[DEAD::BEEF]:4023
 
 ### Encrypted-Backend-Target
 
-Encrypted-Backend-Target specifies the host and port of a Gravwell indexer. The ingester will connect to the indexer via TCP and perform a full TLS handshake/certificate validation.  If no port is specified the default port of 4024 is used.  Encrypted connections support both IPv6 and IPv4 destinations.  **Multiple Encrypted-Backend-Targets can be specified to load balance an ingester across multiple indexers.**
+Encrypted-Backend-Targetは、Gravwellインデクサーのホストとポートを指定します。インジェスターはTCPを介してインデクサーに接続し、完全なTLSハンドシェイク/証明書検証を実行します。ポートが指定されていない場合は、デフォルトポートの4024が使用されます。暗号化接続はIPv6とIPv4の両方の宛先をサポートします。 複数のインデクサー間でインジェスターの負荷を分散するために、複数の暗号化バックエンドターゲットを指定できます。
 
-#### Examples
+#### 例
 ```
 Encrypted-Backend-Target=192.168.1.1
 Encrypted-Backend-Target=192.168.1.1:4023
@@ -79,9 +80,9 @@ Encrypted-Backend-Target=[DEAD::BEEF]:4023
 
 ### Pipe-Backend-Target
 
-Pip-Backend-Target specifies a Unix named socket via a full path.  Unix named sockets are ideal for ingesters that are co-resident with indexers as they are extremely fast and incur little overhead.  Only a single Pipe-Backend-Target is supported per ingester, but pipes can be multiplexed alongside cleartext and encrypted connections.
+Pip-Backend-Targetは、フルパスでUnixという名前のsocketを指定します。Unix名前付きソケットは、インデクサーと非常に高速でオーバーヘッドがほとんどないため、インデクサーと共存するインジェスターにとって理想的です。インジェスタごとにサポートされるPipe-Backend-Targetは1つだけですが、クリアテキストおよび暗号化された接続と共にパイプを多重化することができます。
 
-#### Examples
+#### 例
 ```
 Pipe-Backend-Target=/opt/gravwell/comms/pipe
 Pipe-Backend-Target=/tmp/gravwellpipe
@@ -89,11 +90,11 @@ Pipe-Backend-Target=/tmp/gravwellpipe
 
 ### Ingest-Cache-Path
 
-The Ingest-Cache-Path enables a local cache for ingested data.  When enabled, ingesters can cache locally when they cannot forward entries to indexers.  The ingest cache can help ensure you don't lose data when links go down or if you need to take a Gravwell cluster offline momentarily.  Be sure to specify a Max-Ingest-Cache value so that a long-term network failure won't cause an ingester to fill the host disk.  The local ingest cache is not as fast as ingesting directly to indexers, so don't expect the ingest cache to handle 2 million entries per second the way the indexers can.
+Ingest-Cache-Pathは、取り込まれたデータのローカルキャッシュを有効にします。有効にすると、インジェスタはエントリをインデクサに転送できないときにローカルにキャッシュできます。取り込みキャッシュは、リンクがダウンしたときや、Gravwellクラスターを一時的にオフラインにする必要があるときに、データが失われないようにするのに役立ちます。長期間のネットワーク障害によってインジェスターがホストディスクをいっぱいにしないように、必ずMax-Ingest-Cache値を指定してください。ローカルインジェストキャッシュは、インデクサーに直接インジェストするほど高速ではないため、インジェストキャッシュが1秒間に200万件のエントリーをインデクサーで処理できるとは思わないでください。
 
-Attention: The ingest cache should **not** be enabled for the File Follower ingester. Because this ingester reads directly from files on the disk and tracks its position within each file, it does not need a cache.
+<span style="color: red; ">重要：File Followerインジェスターではインジェストキャッシュを有効にしないでください。このインジェスターはディスク上のファイルから直接読み取り、各ファイル内の位置を追跡するため、キャッシュは不要です。</span>
 
-#### Examples
+#### 例
 ```
 Ingest-Cache-Path=/opt/gravwell/cache/simplerelay.cache
 Ingest-Cache-Path=/mnt/storage/networklog.cache
@@ -101,9 +102,9 @@ Ingest-Cache-Path=/mnt/storage/networklog.cache
 
 ### Max-Ingest-Cache
 
-Max-Ingest-Cache limits the amount of storage space an ingester will consume when the cache is engaged.  The maximum cache value is specified in megabytes; a value of 1024 means that the ingester can consume 1GB of storage before it will stop accepting new entries.  The cache system will NOT overwrite old entries when the cache fills up. This is by design, so that an attacker can't disrupt a network connection and cause an ingester to overwrite potentially critical data at the point the disruption happened.
+Max-Ingest-Cacheは、キャッシュが使用されているときにインジェスタが消費するストレージ容量を制限します。最大キャッシュ値はメガバイト単位で指定されます。1024の値は、インジェスタが新しいエントリの受け入れを停止するまでに1 GBのストレージを消費できることを意味します。キャッシュがいっぱいになっても、キャッシュシステムは古いエントリを上書きしません。これは仕様によるもので、攻撃者がネットワーク接続を中断して、中断が発生した時点で潜在的に重要なデータをインジェスターに上書きさせることはできません。
 
-#### Examples
+#### 例
 ```
 Max-Ingest-Cache=32
 Max-Ingest-Cache=1024
@@ -112,23 +113,23 @@ Max-Ingest-Cache=10240
 
 ### Log-File
 
-Ingesters can log errors and debug information to log files to assist in debugging installation and configuration problems.  An empty Log-File parameter disables file logging.
+インジェスターは、インストールおよび構成の問題のデバッグに役立つように、エラーおよびデバッグ情報をログファイルに記録できます。Log-Fileパラメータが空の場合、ファイルロギングは無効になります。
 
-#### Examples
+#### 例
 ```
 Log-File=/opt/gravwell/log/ingester.log
 ```
 
 ### Log-Level
 
-The Log-Level parameter controls the logging system in each ingester for both log files and metadata that is sent to indexers under the "gravwell" tag.  Setting the log level to INFO will tell the ingester to log in great detail, such as when the File Follower follows a new file or Simple Relay receives a new TCP connection. On the other end of the spectrum, setting the level to ERROR means only the most critical errors will be logged. The WARN level is appropriate in most cases. The following levels are supported:
+Log-Levelパラメータは、ログファイルと、 "gravwell"タグの下でインデクサに送信されるメタデータの両方について、各インジェスタのログ記録システムを制御します。ログレベルをINFOに設定すると、ファイルフォロアが新しいファイルをフォローしたり、シンプルリレーが新しいTCP接続を受信した場合など、詳細にログインするようにインジェスタに指示します。一方、レベルをERRORに設定すると、最も重大なエラーのみがログに記録されます。ほとんどの場合、WARNレベルは適切です。以下のレベルがサポートされています。
 
 * OFF
 * INFO
 * WARN
 * ERROR
 
-#### Examples
+#### 例
 ```
 Log-Level=Off
 Log-Level=INFO
@@ -138,64 +139,64 @@ Log-Level=ERROR
 
 ### Source-Override
 
-The Source-Override parameter will override the SRC data item that is attached to each entry.  The SRC item is either an IPv6 or IPv4 address and is normally the external IP address of the machine on which the ingester is running.
+Source-Overrideパラメータは、各エントリに添付されているSRCデータ項目を上書きします。SRC項目はIPv6またはIPv4アドレスのいずれかであり、通常はインジェスターが実行されているマシンの外部IPアドレスです。
 
-#### Examples
+#### 例
 ```
 Source-Override=10.0.0.1
 Source-Override=0.0.0.0
 Source-Override=DEAD:BEEF::FEED:FEBE
 ```
 
-## Simple Relay
+## シンプルリレー
 
-[Complete Configuration and Documentation](#!ingesters/simple_relay.md).
+[完全な構成とドキュメント](#!ingesters/simple_relay.md).
 
-Simple Relay is a text ingester which is capable of listening on multiple TCP or UDP ports.  Each port can be assigned a tag as well as an ingest standard (e.g. parse RFC5424 or simple newline delimited entries).  Simple Relay is the go-to ingester for ingesting remote syslog entries or consuming from any data source that can throw text logs over a network connection.
+シンプルリレーは、複数のTCPまたはUDPポートでリッスンできるテキストingesterです。 各ポートには、タグと取り込み標準（RFC5424の解析や単純な改行区切りのエントリなど）を割り当てることができます。 シンプルリレーは、リモートsyslogエントリを取得したり、ネットワーク接続を介してテキストログを投げることができるデータソースから消費したりするための重要な手段です。
 
-### Installation
+### 設定
 
-If you're using the Gravwell Debian repository, installation is just a single apt command:
+Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
 
 ```
 apt-get install gravwell-simple-relay
 ```
 
-Otherwise, download the installer from the [Downloads page](#!quickstart/downloads.md). Issue the following command as a superuser (e.g. via the `sudo` command) to install the ingester:
+それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 スーパーユーザーとして次のコマンドを発行し（例： `sudo`コマンドを使用）、ingesterをインストールします。
 
 ```
 root@gravserver ~ # bash gravwell_simple_relay_installer.sh
 ```
 
-If the Gravwell services are present on the same machine, the installation script will automatically extract and configure the `Ingest-Auth` parameter and set it appropriately. However, if your ingester is not resident on the same machine as a pre-existing Gravwell backend, the installer will prompt for the authentication token and the IP address of the Gravwell indexer. You can set these values during installation or leave them blank and modify the configuration file in `/opt/gravwell/etc/simple_relay.conf` manually.
+Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的に `Ingest-Auth`パラメーターを抽出して設定し、適切に設定します。 ただし、ご使用のコンピューターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスの入力を求めます。 インストール時にこれらの値を設定するか、空白のままにして、 `/opt/gravwell/etc/simple_relay.conf`の設定ファイルを手動で変更できます。
 
-## File Follower
+## ファイルフォロワー
 
-The File Follower ingester is designed to watch files on the local system, capturing logs from sources that cannot natively integrate with Gravwell or are incapable of sending logs via a network connection.  The File Follower comes in both Linux and Windows flavors and can follow any line-delimited text file.  It is compatible with file rotation and employs a powerful pattern matching system to deal with applications that may name their logfiles inconsistently.
+File Follower ingesterは、ローカルシステム上のファイルを監視し、Gravwellとネイティブに統合できないソースまたはネットワーク接続を介してログを送信できないソースからログをキャプチャするように設計されています。 ファイルフォロワーは、LinuxとWindowsの両方のフレーバーで提供され、任意の行区切りテキストファイルを追跡できます。 ファイルのローテーションと互換性があり、強力なパターンマッチングシステムを使用して、ログファイルに一貫性のない名前を付ける可能性のあるアプリケーションを処理します。
 
-### Installation
+### 設定
 
-If you're using the Gravwell Debian repository, installation is just a single apt command:
+Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
 
 ```
 apt-get install gravwell-file-follow
 ```
 
-Otherwise, download the installer from the [Downloads page](#!quickstart/downloads.md). On a Windows system, run the downloaded executable and follow the installer's prompts. On Linux, issue the following command as a superuser (e.g. via the `sudo` command) to install the ingester:
+それ以外の場合は、[ダウンロードページ](＃！quickstart / downloads.md)からインストーラーをダウンロードします。 Windowsシステムで、ダウンロードした実行可能ファイルを実行し、インストーラーのプロンプトに従います。 Linuxでは、スーパーユーザーとして次のコマンドを発行して（たとえば、 `sudo`コマンドを使用して）、ingesterをインストールします：
 
 ```
 root@gravserver ~ # bash gravwell_file_follow_installer.sh
 ```
 
-If the Gravwell services are present on the same machine, the installation script will automatically extract and configure the `Ingest-Auth` parameter and set it appropriately. However, if your ingester is not resident on the same machine as a pre-existing Gravwell backend, the installer will prompt for the authentication token and the IP address of the Gravwell indexer. You can set these values during installation or leave them blank and modify the configuration file in `/opt/gravwell/etc/file_follow.conf` manually.
+Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的にIngest-Authパラメータを抽出して設定し、それを適切に設定します。ただし、インジェスターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスを要求します。インストール中にこれらの値を設定することも、空白のままにして/opt/gravwell/etc/file_follow.conf内の構成ファイルを手動で変更することもできます。
 
-### Example Configurations
+### 設定例
 
-The file follower configuration is nearly identical for both the Windows and Linux variants. More detailed configuration information is available [in the File Follower ingest documentation](file_follow.md)
+ファイルフォロワーの構成は、WindowsとLinuxの両方でほぼ同じです。 より詳細な構成情報[ファイルフロー](file_follow.md)が利用可能です。
 
 #### Windows
 
-The Windows configuration file is located at `C:\Program Files\gravwell\file_follow.cfg` by default.  The Windows File Follower runs as a Windows service.  Its status can be queried by issuing `sc query GravwellFileFollow` in a command prompt.  An example configuration which tracks the Windows CBS log files looks like this:
+Windows構成ファイルは、デフォルトでC：¥Program Files¥gravwell¥file_follow.cfgにあります。 Windows File FollowerはWindowsサービスとして動作します。その状況は、コマンドプロンプトでsc query GravwellFileFollowを発行することによって照会できます。 Windows CBSログファイルを追跡する設定例はこのようになります：
 
 ```
 [Global]
@@ -217,7 +218,7 @@ Log-Level=ERROR #options are OFF INFO WARN ERROR
 
 #### Linux
 
-The linux configuration file is located at `/opt/gravwell/etc/file_follow.conf` by default.  An example configuration which watches kernel, dmesg, and debian installation logs might look like the following:
+Linux設定ファイルはデフォルトで/opt/gravwell/etc/file_follow.confにあります。 kernel、dmesg、およびdebianのインストールログを監視する設定例は次のようになります。
 
 ```
 [Global]
@@ -261,33 +262,33 @@ Max-Files-Watched=64
         Ignore-Timestamps=true
 ```
 
-## HTTP POST
+## HTTP
 
-The HTTP POST ingester sets up HTTP listeners on one or more paths. If an HTTP POST request is sent to one of those paths, the request's Body will be ingested as a single entry.
+HTTPインジェスターは、1つ以上のパスにHTTPリスナーを設定します。 HTTPリクエストがこれらのパスの1つに送信されると、リクエストのBodyは単一のエントリとして取り込まれます。
 
-This is an extremely convenient method for scriptable data ingest, since the `curl` command makes it easy to do a POST request using standard input as the body.
+curlコマンドを使用すると、標準入力を本文として使用してPOST要求を簡単に実行できるため、これはスクリプト可能なデータ取り込みに非常に便利な方法です。
 
-### Installation
+### 設定
 
-If you're using the Gravwell Debian repository, installation is just a single apt command:
+Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです:
 
 ```
 apt-get install gravwell-http-ingester
 ```
 
-Otherwise, download the installer from the [Downloads page](#!quickstart/downloads.md). Using a terminal on the Gravwell server, issue the following command as a superuser (e.g. via the `sudo` command) to install the ingester:
+それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上のターミナルを使用して、次のコマンドをスーパーユーザーとして（たとえば、「sudo」コマンド経由で）発行して、ingesterをインストールします。
 
 ```
 root@gravserver ~ # bash gravwell_http_ingester_installer_3.0.0.sh
 ```
 
-If the Gravwell services are present on the same machine, the installation script will automatically extract and configure the `Ingest-Auth` parameter and set it appropriately. However, if your ingester is not resident on the same machine as a pre-existing Gravwell backend, the installer will prompt for the authentication token and the IP address of the Gravwell indexer. You can set these values during installation or leave them blank and modify the configuration file in `/opt/gravwell/etc/gravwell_http_ingester.conf` manually.
+Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的にIngest-Authパラメータを抽出して設定し、それを適切に設定します。 ただし、インジェスターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスを要求します。 インストール中にこれらの値を設定することも、空白のままにして/opt/gravwell/etc/gravwell_http_ingester.conf内の構成ファイルを手動で変更することもできます。
 
-### Example Configuration
+### 設定例
 
-In addition to the universal configuration parameters used by all ingesters, the HTTP POST ingester has two additional global configuration parameters that control the behavior of the embedded webserver.  The first configuration parameter is the `Bind` option, which specifies the interface and port that the webserver listens on.  The second is the `Max-Body` parameter, which controls how large of a POST the webserver will allow.  The Max-Body parameter is a good safety net to prevent rogue processes from attempting to upload very large files into your Gravwell instance as a single entry.  Gravwell can support up to 2GB as a single entry, but we wouldn't recommend it.
+すべてのインジェスターが使用するユニバーサル構成パラメーターに加えて、HTTP POSTインジェスターには、組み込みWebサーバーの動作を制御する2つの追加のグローバル構成パラメーターがあります。 最初の設定パラメータはBindオプションで、これはWebサーバが待機するインタフェースとポートを指定します。 2番目はMax-Bodyパラメータです。これはWebサーバが許可するPOSTの大きさを制御します。 Max-Bodyパラメータは、不正なプロセスが巨大なファイルを1つのエントリとしてGravwellインスタンスにアップロードしようとするのを防ぐための優れたセーフティネットです。 Gravwellは1エントリとして最大2GBまでサポートできますが、お勧めできません。
 
-Multiple "Listener" definitions can be defined allowing specific URLs to send entries to specific tags.  In the example configuration we define two listeners which accept data from a weather IOT device and a smart thermostat.
+特定のURLが特定のタグにエントリを送信できるように、複数の「リスナー」定義を定義できます。 この設定例では、天気予報IOTデバイスとスマートサーモスタットからデータを受け取る2つのリスナーを定義します。
 
 ```
 [Listener "weather"]
@@ -300,30 +301,30 @@ Multiple "Listener" definitions can be defined allowing specific URLs to send en
 	Tag-Name=thermostat
 ```
 
-Any data that is sent in the body of a POST request sent to "/weather" or "/smarthome/thermostat" will be tagged with the "weather" and "thermostat" tags respectively.  The current timestamp will be attached to each entry at the time of the POST.
+"/ weather"または "/ smarthome / thermostat"に送信されたPOSTリクエストの本文に送信されたデータは、それぞれ "weather"および "thermostat"タグでタグ付けされます。 現在のタイムスタンプはPOSTの時点で各エントリに添付されます。
 
-You can test that a listener is working with a simple curl command:
+リスナーが単純なcurlコマンドで動作していることをテストできます。
 
 ```
 curl -d "its hot outside bro" -X POST http://10.0.0.1:8080/weather
 ```
 
-If you have an API key for OpenWeatherMap.org, you can set up a cron job to automatically pull down weather conditions and push them into Gravwell with a command like this:
+OpenWeatherMap.orgのAPIキーがある場合は、次のようなコマンドを使用して、気象条件を自動的に解除してGravwellにプッシュするようにcronジョブを設定できます。
 
 ```
 curl "http://api.openweathermap.org/data/2.5/weather?q=Spokane&APPID=YOUR_APP_ID" | curl http://10.0.0.1:8088/weather -X POST -d @-
 ```
 
-## Mass File Ingester
+## 大量ファイルインジェスター
 
-The Mass File ingester is a very powerful but specialized tool for ingesting an archive of many logs from many sources.
+Mass File ingesterは、多くのソースから多数のログのアーカイブを取り込むための非常に強力ですが、専用のツールです。
 
-### Example use case
-Gravwell users have used this tool when investigating a potential network breach. The user had Apache logs from over 50 different servers and needed to search them all. Ingesting them one after another causes poor temporal indexing performance. This tool was created to ingest the files while preserving the temporal nature of the log entries and ensuring solid performance.  The massfile ingester works best when the ingesting machine has enough space (storage and memory) to optimized the source logs prior to ingesting.  The optimization phase helps relieve pressure on the Gravwell storage system at ingest and during search, ensuring that incident responders can move quickly and get performant access to their log data in short order.
+### ユースケースの例
+Gravwellユーザーは、潜在的なネットワーク侵害を調査するときにこのツールを使用しています。 ユーザーは50を超えるさまざまなサーバーからApacheログを取得しており、それらすべてを検索する必要がありました。 それらを次々に摂取すると、一時的なインデックス作成のパフォーマンスが低下します。 このツールは、ログエントリの一時的な性質を維持し、確実なパフォーマンスを確保しながら、ファイルを取り込むために作成されました。 マスファイルingesterは、取り込み前にソースログを最適化するために取り込みマシンに十分なスペース（ストレージとメモリ）がある場合に最適に機能します。 最適化フェーズは、取り込み時および検索時のGravwellストレージシステムへの圧力を軽減するのに役立ち、インシデントレスポンダーが迅速に移動して、ログデータへのパフォーマンスの高いアクセスを短時間で取得できるようにします。
 
-### Notes
+### ノート
 
-The mass file ingester is driven via command line parameters and is not designed to run as a service.  The code is available on [Github](https://github.com/gravwell/ingesters).
+大量ファイルingesterはコマンドラインパラメーターを介して駆動され、サービスとして実行するようには設計されていません。 コードは[Github](https://github.com/gravwell/ingesters)で入手できます。
 
 ```
 Usage of ./massFile:
@@ -355,32 +356,32 @@ Usage of ./massFile:
         Working directory for optimization
 ```
 
-## Windows Event Service
+## Windowsイベントサービス
 
-The Gravwell Windows events ingester runs as a service on a windows machine and sends Windows events to the Gravwell indexer.
+Gravwell Windowsイベントingesterは、Windowsマシン上のサービスとして実行され、WindowsイベントをGravwellインデクサーに送信します。
 
-### Installation
+### 設定
 
-Download the Gravwell Windows ingester installer from the [Downloads page](#!quickstart/downloads.md).
+[ダウンロードページ](＃！quickstart / downloads.md)からGravwell Windows ingesterインストーラーをダウンロードします。
 
-Run the .msi installation wizard to install the Gravwell events service.
+.msiインストールウィザードを実行してGravwellイベントサービスをインストールします。
 
-Future versions of the wizard will prompt for Gravwell configuration options directly, but for now, the config file located at `C:\Program Files\gravwell\config.cfg` needs to be manually configured.
+ウィザードの将来のバージョンではGravwell構成オプションを直接入力するよう求められますが、現時点では、 `C:\Program Files\gravwell\config.cfg`にある構成ファイルを手動で構成する必要があります。
 
-Change the connection ip address to the IP of your Gravwell server and set the Ingest-Secret value
+接続IPアドレスをGravwellサーバーのIPに変更し、Ingest-Secret値を設定します。
 
 ```
 Ingest-Secret=YourSecretGoesHere
 Encrypted-Backend-target=ip.addr.goes.here:port
 ```
 
-Once configured, this file can be copied to any other Windows system from which you would like to collect events.
+構成が完了すると、このファイルは、イベントを収集する他のWindowsシステムにコピーできます。
 
-### Optional Sysmon Integration
+### オプションのSysmon統合
 
-The Sysmon utility, part of the sysinternals suite, is an effective and popular tool for monitoring Windows systems. There are plenty of resources with examples of good sysmon configuration files. At Gravwell, we like to use the config created by infosec Twitter personality @InfosecTaylorSwift.
+sysinternalsスイートの一部であるSysmonユーティリティは、Windowsシステムを監視するための効果的で一般的なツールです。 適切なsysmon構成ファイルの例については、多くのリソースがあります。 Gravwellでは、infosec Twitterパーソナリティ@InfosecTaylorSwiftによって作成された構成を使用しています。
 
-Edit the Gravwell Windows agent config file located at `C:\Program Files\gravwell\config.cfg` and add the following lines:
+`C:\Program Files\gravwell\config.cfg`にあるGravwell Windowsエージェント設定ファイルを編集し、次の行を追加します。
 
 ```
 [EventChannel "Sysmon"]
@@ -389,21 +390,21 @@ Edit the Gravwell Windows agent config file located at `C:\Program Files\gravwel
         Channel=Microsoft-Windows-Sysmon/Operational
 ```
 
-[Download the excellent sysmon configuration file by SwiftOnSecurity](https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml)
+[SwiftOnSecurityによる優れたsysmon構成ファイルをダウンロードします](https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml)
 
-[Download sysmon](https://technet.microsoft.com/en-us/sysinternals/sysmon)
+[sysmonをダウンロードする](https://technet.microsoft.com/en-us/sysinternals/sysmon)
 
-Put sysmon and that config in `C:\Program Files\gravwell`
+sysmonとその設定を入れます `C:\Program Files\gravwell`
 
-In an admin powershell run:
+管理者のPowerShellで実行：
 
 ```
 sysmon.exe -accepteula -i sysmonconfig-export.xml
 ```
 
-Restart the Gravwell service via standard windows service management.
+標準のWindowsサービス管理を介してGravwellサービスを再起動します。
 
-#### Example Configuration with Sysmon
+#### Sysmonを使用した構成例
 
 ```
 [EventChannel "system"]
@@ -428,43 +429,43 @@ Restart the Gravwell service via standard windows service management.
         Channel=Microsoft-Windows-Sysmon/Operational
 ```
 
-### Troubleshooting
+### トラブルシューティング
 
-You can verify the Windows ingester connectivity by navigating to the Ingester page on the web interface.  If the Windows ingester is not present, check the status of the service either via the windows GUI or by running `sc query GravwellEvents` at the command line.
+Webインターフェイスの[Ingester]ページに移動して、Windows ingesterの接続を確認できます。 Windows ingesterが存在しない場合は、Windows GUIを使用するか、コマンドラインで「sc query GravwellEvents」を実行して、サービスのステータスを確認します。
 
 ![](querystatus.png)
 
 ![](querystatusgui.png)
 
-### Example Windows Searches
+### Windows検索の例
 
-Assuming the default tag names are used, to see ALL sysmon entries in their entirety run this search:
+デフォルトのタグ名が使用されていると仮定して、すべてのsysmonエントリ全体を表示するには、次の検索を実行します。
 
 ```
 tag=sysmon
 ```
 
-To see ALL Windows events in their entirety run:
+すべてのWindowsイベントをすべて実行するには、次を実行します。
 
 ```
 tag=windows
 ```
 
-For the following searches, I took the Windows results and threw them in a regex validator [regex101.com](regex101.com) to build the regex. Anything you "name" with a `(<?P<foo>.*)` style regex is something you can chart by adding `| count by foo | chart count by foo`. See documentation about the search modules for more information on regex extractions.
+次の検索では、Windowsの結果を取得し、それらを正規表現検証ツール[regex101.com](regex101.com)に投げて、正規表現を作成しました。 `（<？P <foo>。*）`スタイルの正規表現を使用して「名前を付ける」ものはすべて、 `| fooでカウント| foo`によるチャートカウント。 正規表現の抽出の詳細については、検索モジュールに関するドキュメントを参照してください。
 
-To see all network creation by non-standard processes:
+非標準プロセスによるすべてのネットワーク作成を表示するには：
 
 ```
 tag=sysmon regex ".*EventID>3.*'Image'>(?P<exe>\S*)<\/Data>.*SourceHostname'>(?P<src>\S*)<\/Data>.*DestinationIp'>(?P<dst>[0-9]+.[0-9]+.[0-9]+.[0-9]+).*DestinationPort'>(?P<dport>[0-9]*)"
 ```
 
-To chart network creation by source host:
+送信元ホストごとにネットワーク作成をグラフ化するには：
 
 ```
 tag=sysmon regex ".*EventID>3.*'Image'>(?P<exe>\S*)<\/Data>.*SourceHostname'>(?P<src>\S*)<\/Data>.*DestinationIp'>(?P<dst>[0-9]+.[0-9]+.[0-9]+.[0-9]+).*DestinationPort'>(?P<dport>[0-9]*)" | count by src | chart count by src limit 10
 ```
 
-To see suspicious file creation:
+疑わしいファイルの作成を確認するには：
 
 ```
 tag=sysmon regex ".*EventID>11.*Image'>(?P<process>.*)<\/Data>.*TargetFilename'>(?P<file>[\-:\.\ _\a-zA-z]*)<\/Data><Data Name='"
@@ -475,21 +476,21 @@ tag=sysmon regex ".*EventID>11.*Image'>(?P<process>.*)<\/Data>.*TargetFilename'>
 
 ## Netflow Ingester
 
-The Netflow ingester acts as a Netflow collector (see [the wikipedia article](https://en.wikipedia.org/wiki/NetFlow) for a full description of Netflow roles), gathering records created by Netflow exporters and capturing them as Gravwell entries for later analysis. These entries can then be analyzed using the [netflow](#!search/netflow/netflow.md) search module.
+Netflowインジェスターは、Netflowコレクターとして機能し（Netflowロールの詳細については、[Wikipediaの記事](https://en.wikipedia.org/wiki/NetFlow) を参照）、Netflowエクスポーターによって作成されたレコードを収集し、後で分析するためにGravwellエントリーとしてそれらをキャプチャーします。 これらのエントリは、[netflow](#!search/netflow/netflow.md)検索モジュールを使用して分析できます。
 
-If you're using the Gravwell Debian repository, installation is just a single apt command:
+Gravwell Debianリポジトリを使用している場合、インストールは単なるaptコマンドです。
 
 ```
 apt-get install gravwell-netflow-capture
 ```
 
-Otherwise, download the installer from the [Downloads page](#!quickstart/downloads.md). To install the Netflow ingester, simply run the installer as root (the actual file name will typically include a version number):
+それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラをダウンロードしてください。 Netflowインジェスタをインストールするには、単にインストーラをrootとして実行します（実際のファイル名には通常、バージョン番号が含まれます）。
 
 ```
 root@gravserver ~ # bash gravwell_netflow_capture_installer.sh
 ```
 
-If there is no Gravwell indexer on the local machine, the installer will prompt for an Ingest-Secret value and an IP address for an indexer (or a Federator). Otherwise, it will pull the appropriate values from the existing Gravwell configuration. In any case, review the configuration file in `/opt/gravwell/etc/netflow_capture.conf` after installation. A straightforward example which listens on UDP port 2055 might look like this:
+ローカルマシンにGravwellインデクサーがない場合、インストーラーはインジェクターシークレット値とインデクサー（またはフェデレーター）のIPアドレスの入力を求めます。 それ以外の場合は、既存のGravwell構成から適切な値を取得します。 いずれにせよ、インストール後に `/opt/gravwell/etc/netflow_capture.conf`の設定ファイルを確認してください。 UDPポート2055でリッスンする簡単な例は、次のようになります。
 
 ```
 [Global]
@@ -504,34 +505,33 @@ Log-Level=INFO
 	Tag-Name=netflow
 ```
 
-Note that this configuration sends entries to a local indexer via `/opt/gravwell/comms/pipe`. Entries are tagged 'netflow'.
+この設定は、 `/opt/gravwell/comms/pipe`を介してローカルインデクサーにエントリを送信することに注意してください。 エントリには「netflow」というタグが付けられます。
 
-You can configure any number of `Collector` entries listening on different ports with different tags; this can help organize the data more clearly.
+異なるポートで異なるタグをリッスンする「Collector」エントリをいくつでも設定できます。 これにより、データをより明確に整理できます。
 
-Note: At this time, the ingester only supports Netflow v5; keep this in mind when configuring Netflow exporters.
+注：現時点では、ingesterはNetflow v5のみをサポートしています。 Netflowエクスポーターを構成するときは、このことに留意してください。
 
 ## Network Ingester
 
-A primary strength of Gravwell is the ability to ingest binary data. The network ingester allows you to capture full packets from the network for later analysis; this provides much better flexibility than simply storing netflow or other condensed traffic information.
+Gravwellの主な強みは、バイナリデータを取り込む機能です。 ネットワークingesterを使用すると、後で分析するためにネットワークから完全なパケットをキャプチャできます。 これは、単にネットフローまたは他の凝縮されたトラフィック情報を保存するよりもはるかに優れた柔軟性を提供します。
 
-If you're using the Gravwell Debian repository, installation is just a single apt command:
+Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
 
 ```
 apt-get install libpcap0.8 gravwell-network-capture
 ```
 
-Otherwise, download the installer from the [Downloads page](#!quickstart/downloads.md). To install the network ingester, simply run the installer as root (the file name may differ slightly):
+それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 ネットワークingesterをインストールするには、rootとしてインストーラーを実行するだけです（ファイル名は若干異なる場合があります）。
 
 ```
 root@gravserver ~ # bash gravwell_network_capture_installer.sh
 ```
 
-Note: You must have libpcap installed for the ingester to work.
+注：ingesterが機能するには、libpcapがインストールされている必要があります。
 
-It is highly advised to co-locate the network ingester with an indexer when possible and use a `pipe-conn` link to send data, rather than a `clear-conn` or `tls-conn` link.  If the network ingester is capturing from the same link it is using to push entries, a feedback loop can be created which will rapidly saturate the link (e.g. capturing from eth0 while also sending entries to the ingester via eth0). You can use the `BPF-Filter` option to alleviate this.
+ネットワークingesterを可能な場合はインデクサーと同じ場所に配置し、データを送信するために「clear-conn」または「tls-conn」リンクではなく、「pipe-conn」リンクを使用することを強くお勧めします。 ネットワークingesterがエントリをプッシュするために使用しているのと同じリンクからキャプチャしている場合、リンクを急速に飽和させるフィードバックループを作成できます（たとえば、eth0からキャプチャし、eth0を介してingesterにエントリを送信します）。 これを軽減するには、 `BPF-Filter`オプションを使用できます。
 
-If the ingester is on a machine with a Gravwell backend already installed, the installer should automatically pick up the correct `Ingest-Secrets` value and populate the config file with it. Otherwise, it will prompt for the indexer's IP address and the ingest secret. In any case, review the configuration file in `/opt/gravwell/etc/network_capture.conf` before running. An example which captures traffic from eth0 might look like this:
-
+Gravwellバックエンドがすでにインストールされているマシン上で感染している場合、インストーラーは自動的に正しい「Ingest-Secrets」値を取得し、それを設定ファイルに追加する必要があります。 それ以外の場合、インデクサーのIPアドレスとインジェストシークレットの入力を求められます。 いずれにしても、実行する前に `/opt/gravwell/etc/network_capture.conf`の設定ファイルを確認してください。 eth0からトラフィックをキャプチャする例は次のようになります。
 ```
 [Global]
 Ingest-Secret = IngestSecrets
@@ -553,13 +553,13 @@ Ingest-Cache-Path=/opt/gravwell/cache/network_capture.cache
 	#Promisc=true
 ```
 
-You can configure any number of `Sniffer` entries in order to capture from different interfaces.
+異なるインターフェイスからキャプチャするために、任意の数の「Sniffer」エントリを設定できます。
 
-If disk space is a concern, you may wish to change the `Snap-Len` parameter to capture only packet metadata. A value of 96 is usually sufficient to capture only headers.
+ディスク容量が問題になる場合は、 `Snap-Len`パラメータを変更して、パケットメタデータのみをキャプチャすることができます。 通常、値96は、ヘッダーのみをキャプチャするのに十分です。
 
-Due to the potential for very high bandwidth links it is also advisable to assign the network capture data to its own well; this requires configuration on the indexer to define a separate well for the packet capture tags.
+非常に高い帯域幅のリンクの可能性があるため、ネットワークキャプチャデータを独自のウェルに割り当てることをお勧めします。 これには、パケットキャプチャタグ用に別のウェルを定義するインデクサーの構成が必要です。
 
-The NetworkCapture ingester also supports native BPF filtering using the `BPF-Filter` parameter, which adheres to the libpcap syntax.  To ignore all traffic on port 22, one could configure a sniffer like this:
+NetworkCapture ingesterは、libpcap構文に準拠する `BPF-Filter`パラメーターを使用したネイティブBPFフィルタリングもサポートします。 ポート22のすべてのトラフィックを無視するには、次のようなスニファーを構成できます。
 
 ```
 [Sniffer "no-ssh"]
@@ -569,11 +569,11 @@ The NetworkCapture ingester also supports native BPF filtering using the `BPF-Fi
 	BPF-Filter="not port 22"
 ```
 
-If the ingester is on a different system than the indexer, meaning entries must traverse the network to be ingested, you should set `BPF-Filter` to "not port 4023" (if using cleartext) or "not port 4024" (if using TLS).
+ingesterがインデクサーとは異なるシステムにある場合、つまり、エントリを取り込むにはネットワークを横断する必要があるため、「BPF-Filter」を「not port 4023」（クリアテキストを使用する場合）または「not port 4024」（使用する場合） TLS）。
 
-### Example Network Searches
+### ネットワーク検索の例
 
-The following search looks for TCP packets with the RST flag set which do not originate from the IP 10.0.0.0/24 class C subnet and then graphs them by IP.  This query can be used to rapidly identify outbound port scans from a network.
+次の検索では、IP 10.0.0.0/24クラスCサブネットから発信されたRSTフラグが設定されたTCPパケットを探し、それらをIPごとにグラフ化します。 このクエリを使用して、ネットワークからの送信ポートスキャンを迅速に識別することができます。
 
 ```
 tag=pcap packet tcp.RST==TRUE ipv4.SrcIP !~ 10.0.0.0/24 | count by SrcIP | chart count by SrcIP limit 10
@@ -581,13 +581,13 @@ tag=pcap packet tcp.RST==TRUE ipv4.SrcIP !~ 10.0.0.0/24 | count by SrcIP | chart
 
 ![](portscan.png)
 
-The following search looks for IPv6 traffic and extracts the FlowLabel, which is passed on to a math operation.  This allows per-flow traffic accounting by summing the lengths of packets and passing them into the chart renderer.
+次の検索では、IPv6トラフィックを検索し、算術演算に渡されるFlowLabelを抽出します。 これにより、パケットの長さを合計してチャートレンダラーに渡すことで、フローごとのトラフィックアカウンティングが可能になります。
 
 ```
 tag=pcap packet ipv6.Length ipv6.FlowLabel | sum Length by FlowLabel | chart sum by FlowLabel limit 10
 ```
 
-To identify the languages in use in TCP payloads, we can filter network data and pass it to the langfind module.  This query is looking for outbound HTTP requests and handing the TCP payload data to the langfind module, which passes the identified languages to count and then chart.  This produces a chart of human languages used in outbound HTTP queries.
+TCPペイロードで使用されている言語を識別するために、ネットワークデータをフィルター処理して、langfindモジュールに渡すことができます。 このクエリは、アウトバウンドHTTPリクエストを探し、TCPペイロードデータをlangfindモジュールに渡します。langfindモジュールは、識別された言語をカウントしてからチャートに渡します。 これにより、アウトバウンドHTTPクエリで使用される人間の言語のチャートが生成されます。
 
 ```
 tag=pcap packet ipv4.DstIP != 10.0.0.100 tcp.DstPort == 80 tcp.Payload | langfind -e Payload | count by lang | chart count by lang
@@ -595,19 +595,18 @@ tag=pcap packet ipv4.DstIP != 10.0.0.100 tcp.DstPort == 80 tcp.Payload | langfin
 
 ![](langfind.png)
 
-Traffic accounting can also be performed at layer 2. This is accomplished by extracting the packet length from the Ethernet header and summing the length by the destination MAC address and sorting by traffic count.  This allows us to rapidly identify physical devices on an Ethernet network that might be particularly chatty:
-
+トラフィックアカウンティングは、レイヤー2でも実行できます。これは、イーサネットヘッダーからパケット長を抽出し、宛先MACアドレスで長さを合計し、トラフィックカウントでソートすることで実現されます。 これにより、特におしゃべりする可能性のあるイーサネットネットワーク上の物理デバイスを迅速に識別できます。
 ```
 tag=pcap packet eth.DstMAC eth.Length > 0 | sum Length by DstMAC | sort by sum desc | table DstMAC sum
 ```
 
-A similar query can identify chatty devices via packet counts. For example, a device may be aggressively broadcasting small Ethernet packets which stress a switch but do not amount to large amounts of traffic.
+同様のクエリは、パケットカウントを介してチャットデバイスを識別できます。 たとえば、デバイスはスイッチに負荷をかけますが大量のトラフィックにはならない小さなイーサネットパケットを積極的にブロードキャストしている場合があります。
 
 ```
 tag=pcap packet eth.DstMAC eth.Length > 0 | count by DstMAC | sort by count desc | table DstMAC count
 ```
 
-It may be desirable to identify HTTP traffic operating on non-standard HTTP ports.  This can be achieved by exercising the filtering options and passing payloads to other modules.  For example, looking for outbound traffic that is not TCP port 80 and is originating from a specific subnet and then looking for HTTP requests in the ppacket payload allows us to identify abnormal HTTP traffic:
+非標準のHTTPポートで動作するHTTPトラフィックを識別することが望ましい場合があります。 これは、フィルタリングオプションを実行し、ペイロードを他のモジュールに渡すことで実現できます。 たとえば、TCPポート80ではなく、特定のサブネットから発信されているアウトバウンドトラフィックを検索し、ppacketペイロードでHTTP要求を検索すると、異常なHTTPトラフィックを特定できます。
 
 ```
 tag=pcap packet ipv4.SrcIP ipv4.DstIP tcp.DstPort !=80 ipv4.SrcIP ~ 10.0.0.0/24 tcp.Payload | regex -e Payload "(?P<method>[A-Z]+)\s+(?P<url>[^\s]+)\s+HTTP/\d.\d" | table method url SrcIP DstIP DstPort
@@ -615,33 +614,32 @@ tag=pcap packet ipv4.SrcIP ipv4.DstIP tcp.DstPort !=80 ipv4.SrcIP ~ 10.0.0.0/24 
 
 ![](nonstandardhttp.png)
 
-## collectd Ingester
+## 収集されたIngester
 
-The collectd ingester is a fully standalone [collectd](https://collectd.org/) collection agent which can directly ship collectd samples to Gravwell.  The ingester supports multiple collectors which can be configured with different tags, security controls, and plugin-to-tag overrides.
+収集されたingesterは完全にスタンドアロンの [collectd](https://collectd.org/) 収集エージェントであり、収集されたサンプルをGravwellに直接出荷できます。 ingesterは、異なるタグ、セキュリティコントロール、およびプラグインからタグへのオーバーライドで構成できる複数のコレクターをサポートします。
 
-If you're using the Gravwell Debian repository, installation is just a single apt command:
+Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
 
 ```
 apt-get install gravwell-collectd
 ```
 
-Otherwise, download the installer from the [Downloads page](#!quickstart/downloads.md). Using a terminal on the Gravwell server, issue the following command as a superuser (e.g. via the `sudo` command) to install the ingester:
+それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上のターミナルを使用して、次のコマンドをスーパーユーザーとして（たとえば、「sudo」コマンド経由で）発行して、ingesterをインストールします。
 
 ```
 root@gravserver ~ # bash gravwell_collectd_installer.sh
 ```
 
-If the Gravwell services are present on the same machine, the installation script will automatically extract and configure the `Ingest-Auth` parameter and set it appropriately.  However, if your ingester is not resident on the same machine as a pre-existing Gravwell backend, the installer will prompt for the authentication token and the IP address of the Gravwell indexer. You can set these values during installation or leave them blank and modify the configuration file in `/opt/gravwell/etc/collectd.conf` manually.
+Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的に `Ingest-Auth`パラメーターを抽出して設定し、適切に設定します。 ただし、ご使用のコンピューターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスの入力を求めます。 インストール時にこれらの値を設定するか、空白のままにして、 `/opt/gravwell/etc/collectd.conf`の設定ファイルを手動で変更できます。
+### 構成
 
-### Configuration
+収集されたingesterは、他のすべてのインジェスターと同じグローバル構成システムに依存しています。 Globalセクションは、インデクサー接続、認証、およびローカルキャッシュコントロールを定義するために使用されます。
 
-The collectd ingester relies on the same Global configuration system as all other ingesters.  The Global section is used for defining indexer connections, authentication, and local cache controls.
+コレクター構成ブロックは、収集されたサンプルを受け入れることができるリスニングコレクターを定義するために使用されます。 各コレクタ構成には、一意のセキュリティレベル、認証、タグ、ソースオーバーライド、ネットワークバインド、およびタグオーバーライドを設定できます。 複数のコレクター構成を使用して、単一の収集されたingesterは複数のインターフェースでリッスンし、複数のネットワーク飛び地から入ってくる収集されたサンプルに固有のタグを適用できます。
 
-Collector configuration blocks are used to define listening collectors which can accept collectd samples.  Each collector configuration can have a unique Security-Level, authentication, tag, source override, network bind, and tag overrides.  Using multiple collector configurations, a single collectd ingester can listen on multiple interfaces and apply unique tags to collectd samples coming in from mutiple network enclaves.
+デフォルトでは、収集されたingesterは/opt/gravwell/etc/collectd.conf.にある構成ファイルを読み取ります。
 
-By default the collectd ingester reads a configuration file located at _/opt/gravwell/etc/collectd.conf_.
-
-#### Example Configuration
+#### 設定例
 
 ```
 [Global]
@@ -664,15 +662,15 @@ By default the collectd ingester reads a configuration file located at _/opt/gra
 	Tag-Plugin-Override=cpu:collectdcpu
 ```
 
-#### Collector Configuration Options
+#### コレクター構成オプション
 
-Each Collector block must contain a unique name and non-overlapping Bind-Strings.  You cannot have multiple Collectors that are bound to the same interface on the same port.
+コレクタ構成オプション各コレクタブロックには、一意の名前と重複しないバインド文字列が含まれている必要があります。 同じポート上の同じインターフェースにバインドされた複数のコレクターを持つことはできません。
 
 ##### Bind-String
 
-Bind-String controls the address and port which the Collector uses to listen for incoming collectd samples.  A valid Bind-String must contain either an IPv4 or IPv6 address and a port.  To listen on all interfaces use the "0.0.0.0" wildcard address.
+Bind-Stringは、コレクターが着信収集サンプルをリッスンするために使用するアドレスとポートを制御します。 有効なバインド文字列には、IPv4またはIPv6アドレスとポートのいずれかが含まれている必要があります。 すべてのインターフェイスでリッスンするには、「0.0.0.0」ワイルドカードアドレスを使用します。
 
-###### Example Bind-String
+###### Bind-Stringの例
 ```
 Bind-String=0.0.0.0:25826
 Bind-String=127.0.0.1:25826
@@ -680,15 +678,15 @@ Bind-String=127.0.0.1:12345
 Bind-String=[fe80::1]:25826
 ```
 
-##### Tag-Name
+##### Tag-name
 
-Tag-Name defines the tag that collectd samples will be assigned unless a Tag-Plugin-Override applies.
+Tag-Nameは、Tag-Plugin-Overrideが適用されない限り、収集されたサンプルが割り当てられるタグを定義します。
 
 ##### Source-Override
 
-The Source-Override directive is used to override the source value applied to entries when they are sent to Gravwell.  By default the ingester applies the Source of the ingester, but it may be desirable to apply a specific source value to a Collector block in order to apply segmentation or filtering at search time.  A Source-Override is any valid IPv4 or IPv6 address.
+Source-Overrideディレクティブは、エントリがGravwellに送信されるときにエントリに適用されるソース値をオーバーライドするために使用されます。 デフォルトでは、ingesterはingesterのSourceを適用しますが、検索時にセグメンテーションまたはフィルタリングを適用するには、特定のソース値をCollectorブロックに適用することが望ましい場合があります。 Source-Overrideは、有効なIPv4またはIPv6アドレスです。
 
-##### Example Source-Override
+##### Source-Overrideの例
 ```
 Source-Override=192.168.1.1
 Source-Override=[DEAD::BEEF]
@@ -697,9 +695,9 @@ Source-Override=[fe80::1:1]
 
 ##### Security-Level
 
-The Security-Level directive controls how the Collector authenticates collectd packets.  Available options are: encrypt, sign, none.  By default a Collector uses the "encrypt" Security-Level and requires that both a User and Password are specified.  If "none" is used, no User or Password is required.
+Security-Levelディレクティブは、Collectorが収集したパケットを認証する方法を制御します。 利用可能なオプションは、暗号化、署名、なしです。 デフォルトでは、コレクタは「暗号化」セキュリティレベルを使用し、ユーザーとパスワードの両方を指定する必要があります。 「none」を使用する場合、ユーザーまたはパスワードは不要です。
 
-##### Example Security-Level
+##### Security-Levelの例
 ```
 Security-Level=none
 Security-Level=encrypt
@@ -707,11 +705,11 @@ Security-Level = sign
 Security-Level = SIGN
 ```
 
-##### User and Password
+##### ユーザーとパスワード
 
-When the Security-Level is set as "sign" or "encrypt" a username and password must be provided that match the values set in endpoints.  The default values are "user" and "secret" to match the default values shipped with collectd.  These values should be changed when collectd data might contain sensative information.
+Security-Levelが「sign」または「encrypt」として設定されている場合、エンドポイントで設定された値と一致するユーザー名とパスワードを提供する必要があります。 デフォルト値は、collectdに付属のデフォルト値と一致する「user」および「secret」です。 これらの値は、収集されたデータに機密情報が含まれる可能性がある場合に変更する必要があります。
 
-###### User and Password Examples
+###### ユーザーとパスワードの例
 ```
 User=username
 Password=password
@@ -719,11 +717,11 @@ User = "username with spaces in it"
 Password = "Password with spaces and other characters @$@#@()*$#W)("
 ```
 
-##### Encoder
+##### エンコーダー
 
-The default collectd encoder is JSON, but a simple text encoder is also available.  Options are "JSON" or "text"
+デフォルトの収集されたエンコーダーはJSONですが、シンプルなテキストエンコーダーも利用できます。 オプションは「JSON」または「テキスト」です
 
-An example entry using the JSON encoder:
+JSONエンコーダーを使用したエントリの例：
 
 ```
 {"host":"build","plugin":"memory","type":"memory","type_instance":"used","value":727789568,"dsname":"value","time":"2018-07-10T16:37:47.034562831-06:00","interval":10000000000}
@@ -731,11 +729,11 @@ An example entry using the JSON encoder:
 
 ### Tag Plugin Overrides
 
-Each Collector block supports N number of Tag-Plugin-Override declarations which are used to apply a unique tag to a collectd sample based on the plugin that generated it.  Tag-Plugin-Overrides can be useful when you want to store data coming from different plugins in different wells and apply different ageout rules.  For example, it may be valuable to store collectd records about disk usage for 9 months, but CPU usage records can expire out at 14 days.  The Tag-Plugin-Override system makes this easy.
+各コレクターブロックは、N個のTag-Plugin-Override宣言をサポートします。これは、生成されたプラグインに基づいて、収集されたサンプルに一意のタグを適用するために使用されます。 Tag-Plugin-Overridesは、異なるプラグインからのデータを異なるウェルに保存し、異なるエージアウトルールを適用する場合に役立ちます。 たとえば、ディスク使用量に関する収集されたレコードを9か月間保存することは有益ですが、CPU使用量レコードは14日で期限切れになる場合があります。 Tag-Plugin-Overrideシステムはこれを簡単にします。
 
-The Tag-Plugin-Override format is comprised of two strings seperated by the ":" character.  The string on the left represents the name of the plugin and the string on the right represents the name of the desired tag.  All the usual rules about tags apply.  A single plugin cannot be mapped to mutiple tags, but multiple plugins CAN be mapped to the same tag.
+Tag-Plugin-Override形式は、「：」文字で区切られた2つの文字列で構成されています。 左側の文字列はプラグインの名前を表し、右側の文字列は目的のタグの名前を表します。 タグに関するすべての通常のルールが適用されます。 単一のプラグインを複数のタグにマッピングすることはできませんが、複数のプラグインを同じタグにマッピングできます。
 
-#### Example Tag Plugin Overrides
+#### Tag Plugin Overridesの例
 ```
 Tag-Plugin-Override=cpu:collectdcpu # Map CPU plugin data to the "collectdcpu" tag.
 Tag-Plugin-Override=memory:memstats # Map the memory plugin data to the "memstats" tag.
@@ -745,25 +743,26 @@ Tag-Plugin-Override = disk : diskdata  # Map the disk plugin data to the "diskda
 
 ## Kinesis Ingester
 
-Gravwell provides an ingester capable of fetching entries from Amazon's [Kinesis Data Streams](https://aws.amazon.com/kinesis/data-streams/) service. The ingester can process multiple Kinesis streams at a time, with each stream composed of many individual shards. The process of setting up a Kinesis stream is outside the scope of this document, but in order to configure the Kinesis ingester for an existing stream you will need:
+Gravwellは、Amazonの[Kinesis Data Streams](https://aws.amazon.com/kinesis/data-streams/) サービスからエントリを取得できるingesterを提供します。 ingesterは一度に複数のKinesisストリームを処理でき、各ストリームは多くの個別のシャードで構成されます。 Kinesisストリームを設定するプロセスはこのドキュメントの範囲外ですが、既存のストリームにKinesis ingesterを設定するには、次のものが必要です。
 
-* An AWS access key (ID number & secret key)
-* The region in which your stream resides
-* The name of the stream itself
 
-Once the stream is configured, each record in the Kinesis stream will be stored as a single entry in Gravwell.
+* AWSアクセスキー（ID番号とシークレットキー）
+* ストリームが存在する地域
+* ストリーム自体の名前
 
-### Installation and configuration
+ストリームが設定されると、Kinesisストリームの各レコードがGravwellに単一のエントリとして保存されます。
 
-First, download the installer from the [Downloads page](#!quickstart/downloads.md), then install the ingester:
+### インストールと構成
+
+最初に、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードしてから、ingesterをインストールします。
 
 ```
 root@gravserver ~# bash gravwell_kinesis_ingest_installer.sh
 ```
 
-If the Gravwell services are present on the same machine, the installation script should automatically extract and configure the `Ingest-Auth` parameter and set it appropriately. You will now need to open the `/opt/gravwell/etc/kinesis_ingest.conf` configuration file and set it up for your Kinesis stream. Once you have modified the configuration as described below, start the service with the command `systemctl start gravwell_kinesis_ingest.service`
+Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth`パラメーターを抽出して設定し、適切に設定する必要があります。 `/opt/gravwell/etc/kinesis_ingest.conf`設定ファイルを開き、Kinesisストリーム用に設定する必要があります。 以下で説明するように設定を変更したら、コマンド `systemctl start gravwell_kinesis_ingest.service`でサービスを開始します。
 
-The example below shows a sample configuration which connects to an indexer on the local machine (note the `Pipe-Backend-target` setting) and feeds it from a single Kinesis stream named "MyKinesisStreamName" in the us-west-1 region.
+以下の例は、ローカルマシン上のインデクサーに接続し（ `Pipe-Backend-target`設定に注意してください）、us-west-1リージョンの「MyKinesisStreamName」という名前の単一Kinesisストリームからフィードするサンプル設定を示しています。
 
 ```
 [Global]
@@ -787,40 +786,40 @@ AWS-Secret-Access-Key=REPLACEMEWITHYOURKEY
 	Assume-Localtime=true
 ```
 
-You will need to set at least the following fields before starting the ingester:
+ingesterを開始する前に、少なくとも以下のフィールドを設定する必要があります。
 
-* `AWS-Access-Key-ID` - this is the ID of the AWS access key you wish to use
-* `AWS-Secret-Access-Key` - this is the secret access key itself
-* `Region` - the region in which the kinesis stream resides
-* `Stream-Name` - the name of the kinesis stream
+* `AWS-Access-Key-ID`-これは使用したいAWSアクセスキーのIDです
+* `AWS-Secret-Access-Key`-これはシークレットアクセスキーそのものです
+* `Region`-キネシスストリームが存在する領域
+* `Stream-Name`-キネシスストリームの名前
 
-You can configure multiple `KinesisStream` sections to support multiple different Kinesis streams.
+複数の異なるKinesisストリームをサポートするために、複数の `KinesisStream`セクションを設定できます。
 
-You can test the config by running `/opt/gravwell/bin/gravwell_kinesis_ingester -v` by hand; if it does not print out errors, the configuration is probably acceptable.
+手動で `/opt/gravwell/bin/gravwell_kinesis_ingester -v`を実行して設定をテストできます。 エラーが出力されない場合、構成はおそらく受け入れられます。
 
-Most of the fields are self-explanatory, but the `Iterator-Type` setting deserves a note. This setting selects where the ingester starts reading data. By setting it to TRIM_HORIZON, the ingester will start reading records from the oldest available. If it is set to LATEST, the ingester will ignore all existing records and only read records created after the ingester starts. In most situations, to avoid duplicating data it should be set to LATEST; set it TRIM_HORIZON if you have existing data you want to ingest, then shut down the ingester and change the value to LATEST before restarting.
+ほとんどのフィールドは一目瞭然ですが、 `Iterator-Type`設定には注意する価値があります。 この設定は、ingesterがデータの読み取りを開始する場所を選択します。 TRIM_HORIZONに設定することにより、inesterは利用可能な最も古いレコードの読み取りを開始します。 LATESTに設定されている場合、ingesterは既存のすべてのレコードを無視し、ingesterの開始後に作成されたレコードのみを読み取ります。 ほとんどの場合、データの重複を避けるために、最新に設定する必要があります。 既存のデータを取り込みたい場合はTRIM_HORIZONに設定し、再起動する前に、ingesterをシャットダウンし、値をLATESTに変更します。
 
-## GCP PubSub Ingester
+## GCP PubSubインジェスター
 
-Gravwell provides an ingester capable of fetching entries from Google Compute Platform's [PubSub stream](https://cloud.google.com/pubsub/) service. The ingester can process multiple PubSub streams within a single GCP project. The process of setting up a PubSub stream is outside the scope of this document, but in order to configure the PubSub ingester for an existing stream you will need:
+Gravwellは、Google Compute Platformの[PubSubストリーム](https://cloud.google.com/pubsub/) サービスからエントリを取得できるingesterを提供します。 ingesterは、単一のGCPプロジェクト内で複数のPubSubストリームを処理できます。 PubSubストリームを設定するプロセスはこのドキュメントの範囲外ですが、既存のストリームにPubSub ingesterを設定するには、次のものが必要です。
 
-* The Google Project ID
-* A file containing GCP service account credentials (see the [Creating a service account](https://cloud.google.com/docs/authentication/getting-started) documentation)
-* The name of a PubSub topic
+* GoogleプロジェクトID
+* GCPサービスアカウント認証情報を含むファイル（[サービスアカウントの作成](https://cloud.google.com/docs/authentication/getting-started)ドキュメントを参照）
+* PubSubトピックの名前
 
-Once the stream is configured, each record in the PubSub stream topic will be stored as a single entry in Gravwell.
+ストリームが設定されると、PubSubストリームトピックの各レコードがGravwellに単一のエントリとして保存されます。
 
-### Installation and configuration
+### インストールと構成
 
-First, download the installer from the [Downloads page](#!quickstart/downloads.md), then install the ingester:
+最初に、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードしてから、ingesterをインストールします。
 
 ```
 root@gravserver ~# bash gravwell_pubsub_ingest_installer.sh
 ```
 
-If the Gravwell services are present on the same machine, the installation script should automatically extract and configure the `Ingest-Auth` parameter and set it appropriately. You will now need to open the `/opt/gravwell/etc/pubsub_ingest.conf` configuration file and set it up for your PubSub topic. Once you have modified the configuration as described below, start the service with the command `systemctl start gravwell_pubsub_ingest.service`
+Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth`パラメーターを抽出して設定し、適切に設定する必要があります。 `/opt/gravwell/etc/pubsub_ingest.conf`設定ファイルを開き、PubSubトピック用に設定する必要があります。 以下で説明するように設定を変更したら、コマンド `systemctl start gravwell_pubsub_ingest.service`でサービスを開始します
 
-The example below shows a sample configuration which connects to an indexer on the local machine (note the `Pipe-Backend-target` setting) and feeds it from a single PubSub topic named "mytopic", which is part of the "myproject-127400" GCP project.
+以下の例は、ローカルマシンのインデクサーに接続し（ `Pipe-Backend-target`設定に注意してください）、「myproject-127400」の一部である「mytopic」という名前の単一のPubSubトピックからフィードするサンプル設定を示しています 「GCPプロジェクト。
 
 ```
 [Global]
@@ -841,35 +840,35 @@ Google-Credentials-Path=/opt/gravwell/etc/google-compute-credentials.json
 	Assume-Localtime=true
 ```
 
-Note the following essential fields:
+次の必須フィールドに注意してください。
 
-* `Project-ID` - the Project ID string for a GCP project
-* `Google-Credentials-Path` - the path to a file containing GCP service account credentials in JSON format
-* `Topic-Name` - the name of a PubSub topic within the specified GCP project
+* `Project-ID`-GCPプロジェクトのプロジェクトID文字列
+* `Google-Credentials-Path`-JSON形式のGCPサービスアカウント認証情報を含むファイルへのパス
+* `Topic-Name`-指定されたGCPプロジェクト内のPubSubトピックの名前
 
-You can configure multiple `PubSub` sections to support multiple different PubSub topics within a single GCP project.
+複数の `PubSub`セクションを設定して、単一のGCPプロジェクト内で複数の異なるPubSubトピックをサポートできます。
 
-You can test the config by running `/opt/gravwell/bin/gravwell_pubsub_ingester -v` by hand; if it does not print out errors, the configuration is probably acceptable.
+手動で `/opt/gravwell/bin/gravwell_pubsub_ingester -v`を実行することで設定をテストできます。 エラーが出力されない場合、構成はおそらく受け入れられます。
 
-## Disk Monitor
+## ディスクモニター
 
-The diskmonitor ingester is designed to take periodic samples of disk activity and ship the samples to gravwell.  The disk monitor is extremely useful in identifying storage latency issues, looming disk failures, and other potential storage problems.  We at Gravwell actively monitor our own storage infrastructure with the disk monitor to study how queries are operating and to identify when the storage infrastructure is behaving badly.  We were able to identify a RAID array that transitioned to write-through mode via a latency plot even when the RAID controller failed to mention it in the diagnostic logs.
+diskmonitor ingesterは、ディスクアクティビティの定期的なサンプルを取得し、サンプルをgravwellに出荷するように設計されています。 ディスクモニタは、ストレージの遅延の問題を特定したり、ディスク障害を見つけたり、その他の潜在的なストレージの問題を特定するのに非常に役立ちます。 Gravwellでは、ディスクモニターを使用して独自のストレージインフラストラクチャを積極的に監視し、クエリの動作方法を調査し、ストレージインフラストラクチャの動作不良を特定しています。 RAIDコントローラーが診断ログで言及しなかった場合でも、レイテンシプロットを介してライトスルーモードに移行したRAIDアレイを特定することができました。
 
-The disk monitor ingester is available on [github](https://github.com/gravwell/ingesters)
+ディスクモニターのingesterは[github](https://github.com/gravwell/ingesters)で入手できます。
 
 ![diskmonitor](diskmonitor.png)
 
 ## Session Ingester
 
-The session ingester is a specialized tool used to ingest larger, single records. The ingester listens on a given port and upon receiving a connection from a client it will aggregate any data received into a single entry.
+Session Ingesterは、より大きな単一のレコードを取り込むために使用される特殊なツールです。 ingesterは指定されたポートでリッスンし、クライアントから接続を受信すると、受信したデータを1つのエントリに集約します。
 
-This enables behavior such as indexing all of your Windows executable files:
+これにより、すべてのWindows実行可能ファイルのインデックス作成などの動作が可能になります。
 
 ```
 for i in `ls /path/to/windows/exes`; do cat $i | nc 192.168.1.1 7777 ; done
 ```
 
-The session ingester is driven via command line parameters rather than a persistent configuration file.
+セッションingesterは、永続的な構成ファイルではなく、コマンドラインパラメーターによって駆動されます。
 
 ```
 Usage of ./session:
@@ -897,42 +896,42 @@ Usage of ./session:
         Path to remote public key to verify against
 ```
 
-### Notes
+### ノート
 
-The session ingester is not formally supported, nor is there an installer available.  The source code for the session ingester is available on [github](https://github.com/gravwell/ingesters).
+セッションingesterは正式にサポートされておらず、インストーラーも利用できません。 セッションingesterのソースコードは[github](https://github.com/gravwell/ingesters)で入手できます。
 
-## The Gravwell Federator
+## Gravwell Federator
 
-The Federator is an entry relay: ingesters connect to the Federator and send it entries, then the Federator passes those entries to an indexer.  The Federator can act as a trust boundary, securely relaying entries across network segments without exposing ingest secrets or allowing untrusted nodes to send data for disallowed tags.  The Federator upstream connections are configured like any other ingester, allowing multiplexing, local caching, encryption, etc.
+Federatorはエントリリレーです。インジェスターはFederatorに接続してエントリを送信し、Federatorはそれらのエントリをインデクサーに渡します。 Federatorは信頼境界として機能し、インジェストシークレットを公開したり、信頼できないノードが許可されていないタグのデータを送信したりすることなく、ネットワークセグメント間でエントリを安全に中継します。 Federatorのアップストリーム接続は、他のすべてのingesterと同様に構成され、多重化、ローカルキャッシュ、暗号化などを可能にします。
 
 ![](federatorDiagram.png)
 
-### Use Cases
+### ユースケース
 
- * Ingesting data across geographically diverse regions when there may not be robust connectivity
- * Providing an authentication barrier between network segments
- * Reducing the number of connections to an indexer
- * Controlling the tags an data source group can provide
+*堅牢な接続性がない場合に地理的に多様な地域にデータを取り込む
+  *ネットワークセグメント間に認証障壁を提供する
+  *インデクサーへの接続数を減らす
+  *データソースグループが提供できるタグの制御
 
-### Installation
+### 設定
 
-If you're using the Gravwell Debian repository, installation is just a single apt command:
+Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
 
 ```
 apt-get install gravwell-federator
 ```
 
-Otherwise, download the installer from the [Downloads page](#!quickstart/downloads.md). Using a terminal on the Gravwell server, issue the following command as a superuser (e.g. via the `sudo` command) to install the federator:
+それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上の端末を使用して、スーパーユーザーとして（たとえば、 `sudo`コマンドを使用して）次のコマンドを発行し、フェデレーターをインストールします。
 
 ```
 root@gravserver ~ # bash gravwell_federator_installer.sh
 ```
 
-The Federator will almost certainly require configuration for your specific setup; please refer to the following section for more information. The configuration file can be found at `/opt/gravwell/etc/federator.conf`.
+Federatorは、ほぼ確実に特定のセットアップのための構成を必要とします。 詳細については、次のセクションを参照してください。 設定ファイルは `/opt/gravwell/etc/federator.conf`にあります。
 
-### Example Configuration
+### 設定例
 
-The following example configuration connects to two upstream indexers in a *protected* network segment and provides ingest services on two *untrusted* network segments.  Each untrusted ingest point has a unique Ingest-Secret, with one serving TLS with a specific certificate and key pair. The configuration file also enables a local cache, making the Federator act as a fault-tolerant buffer between the Gravwell indexers and the untrusted network segments.
+次の設定例は、*保護された*ネットワークセグメントの2つのアップストリームインデクサーに接続し、2つの*信頼できない*ネットワークセグメントでインジェストサービスを提供します。 信頼されていない各インジェストポイントには、固有のIngest-Secretがあり、特定の証明書とキーペアで1つのTLSを提供します。 また、構成ファイルはローカルキャッシュを有効にし、FederatorをGravwellインデクサーと信頼できないネットワークセグメント間のフォールトトレラントバッファーとして機能させます。
 
 ```
 [Global]
@@ -960,26 +959,26 @@ The following example configuration connects to two upstream indexers in a *prot
        Tags=nginx
 ```
 
-Ingesters in the DMZ can connect to the Federator at 192.168.220.105:4024 using TLS encryption. These ingesters are **only** allowed to send entries tagged with the `apache` and `nginx` tags. Ingesters in the business network segment can connect via cleartext to 10.0.0.121:4023 and send entries tagged `windows` and `syslog`. Any mis-tagged entries will be rejected by the Federator; acceptable entries are passed to the two indexers specified in the Global section.
+DMZのインジェスターは、TLS暗号化を使用して192.168.220.105:4024のフェデレーターに接続できます。 これらのインジェスターは、「apache」および「nginx」タグでタグ付けされたエントリの送信のみを許可されます。 ビジネスネットワークセグメントのインジェスターは、クリアテキストを介して10.0.0.121:4023に接続し、「windows」および「syslog」のタグが付いたエントリを送信できます。 誤ってタグ付けされたエントリは、フェデレーターによって拒否されます。 許容可能なエントリは、グローバルセクションで指定された2つのインデクサーに渡されます。
 
-### Troubleshooting
+### トラブルシューティング
 
-Common configuration errors for the Federator include:
+Federatorの一般的な構成エラーは次のとおりです。
 
-* Incorrect Ingest-Secret in the Global configuration
-* Incorrect Backend-Target specification(s)
-* Invalid or already-taken Bind specifications
-* Enforcing certification validation when upstream indexers or federators do not have certificates signed by a trusted certificate authority (see the `Insecure-Skip-TLS-Verify` option)
-* Mismatched Ingest-Secret for downstream ingesters
+*グローバル構成での不正なIngest-Secret
+*誤ったバックエンドターゲットの指定
+*無効または既に使用されているバインド仕様
+*上流のインデクサーまたはフェデレーターが信頼できる認証局によって署名された証明書を持っていない場合に証明書の検証を強制する（「Insecure-Skip-TLS-Verify」オプションを参照）
+*ダウンストリームインジェスターの不一致のインジェストシークレット
 
 ## Ingest API
 
-The Gravwell ingest API and core ingesters are fully open source under the BSD 2-Clause license.  This means that you can write your own ingesters and integrate Gravwell entry generation into your own products and services.  The core ingest API is written in Go, but the list of available API languages is under active expansion.
+GravwellインジェストAPIとコアインジェスターは、BSD 2-Clauseライセンスの下で完全にオープンソースです。 これは、独自のインジェスターを作成し、Gravwellエントリ生成を独自の製品およびサービスに統合できることを意味します。 コアインジェストAPIはGoで記述されていますが、利用可能なAPI言語のリストは積極的に拡張されています。
 
 [API code](https://github.com/gravwell/ingest)
 
-[API documentation](https://godoc.org/github.com/gravwell/ingest)
+[API ドキュメント](https://godoc.org/github.com/gravwell/ingest)
 
-A very basic ingester example (less than 100 lines of code) that watches a file and sends any lines written to it up to a Gravwell cluster [can be seen here](https://www.godoc.org/github.com/gravwell/ingest#example-package)
+ファイルを監視し、書き込まれた行をGravwellクラスターに送信する非常に基本的なingesterの例（100行未満のコード）[こちらで確認できます](https://www.godoc.org/github.com/gravwell/ingest#example-package)
 
-Keep checking back with the Gravwell Github page, as the team is continually improving the ingest API and porting it to additional languages. Community development is fully supported, so if you have a merge request, language port, or a great new ingester that you have open sourced, let Gravwell know!  The Gravwell team would love to feature your hard work in the ingestor highlight series.
+チームが継続的に取り込みAPIを改善し、追加の言語に移植しているため、Gravwell Githubページで引き続きチェックしてください。 コミュニティ開発は完全にサポートされているため、マージリクエスト、言語ポート、またはオープンソース化されたすばらしい新学期がある場合は、Gravwellにお知らせください！ Gravwellチームは、インジェスターハイライトシリーズであなたのハードワークを紹介したいと思っています。
