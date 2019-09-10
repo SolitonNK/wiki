@@ -1,48 +1,48 @@
 ## Regex
 
-Regex is a pipeline module that uses regular expressions to match text data. It is an extremely powerful way of matching complex patterns and extracting enumerable fields from text. For those unfamiliar with regular expressions, a decent starting point is [the Wikipedia article](https://en.wikipedia.org/wiki/Regular_expression).
+正規表現はテキストデータを照合するために正規表現を使用するパイプラインモジュールです。  これは、複雑なパターンを照合し、テキストから列挙可能なフィールドを抽出するための非常に強力な方法です。
 
-Building regular expressions is well outside the scope of this document, but one important thing to note is that the `(?P<foo> .*)` style syntax which will assign any matched group into an enumerated field (named “foo” in this case). These enumerated fields are useful for performing analysis, charting, etc.
+正規表現を作成することはこの文書の範囲外ですが、注意すべき重要なことの1つは、(?P<foo> .*)一致したグループを列挙フィールド（この場合は「foo」という名前）に割り当てるスタイル構文です。  これらの列挙フィールドは、分析、図表作成などを実行するのに役立ちます。
 
-For example, the following search will enumerate the method, user, and ip from an sshd Accepted log entry.
+たとえば、次の検索では、sshdの承認済みログエントリからmethod、user、およびipが列挙されます。
 
 ```
 ".*sshd.*Accepted (?P<method>\S*) for (?P<user>\S*) from (?P<ip>[0-9]+.[0-9]+.[0-9]+.[0-9]+)"
 ```
 
-Because regular expressions can get very long, the regex module takes the `-r` flag, which specifies a resource containing a regular expression. When populating the resource, do not include "wrapping quotes" around the whole expression as you would when typing directly into a search: e.g. `".*ssh.*Accepted"` becomes `.*ssh.*Accepted`. This is because the quotes are normally stripped out by the search parser prior to being handed to the regex module.
+正規表現は非常に長くなる可能性があるため、regexモジュールは`-r`フラグを取ります。  これは正規表現を含むリソースを指定します。  リソースを投入するときは、検索に直接入力する場合と同様に、式全体の周りに「ラッピング引用符」を含まない：例えば`.*ssh.*Accepted`なり`.*ssh.*Accepted`。  これは、通常、引用符は正規表現モジュールに渡される前に検索パーサーによって削除されるためです。
 
-### Supported Options
+### サポートされているオプション
 
-* `-e <arg>`: The “-e” option operates on an enumerated value instead of on the entire record. For example, a pipeline that showed packets not headed for port 80 but that have HTTP text would be `tag=pcap packet ipv4.DstPort!=80 tcp.Payload | regex -e Payload ".*GET \/ HTTP\/1.1.*"`
-* `-r <arg>`: The “-r” option specifies that the regular expression statement is located in a resource file. 
-* `-v`: The "-v" option tells regex to operate in inverse mode, dropping any entries which match the regex and passing entries which do not match.
+* `-e <arg>`: “ -e”オプションは、レコード全体ではなく列挙値に作用します。  たとえば、ポート80に向けられていないがHTTPテキストを持つパケットを示すパイプラインは次のようになります。`tag=pcap packet ipv4.DstPort!=80 tcp.Payload | regex -e Payload ".*GET \/ HTTP\/1.1.*"`
+* `-r <arg>`: “ -r”オプションは、正規表現ステートメントがリソースファイルにあることを指定します。 
+* `-v`: "-v"オプションは、正規表現に一致するエントリをすべてドロップし、一致しないエントリを渡す逆モードで動作するように正規表現に指示します。
 
-Note: Storing especially large regular expressions in resource files can clean up queries, and allows for easy reuse.  If `-r` is specified, do not specify a regular expression in the query -- instead the contents of the resource will be used. Handy!
+Note: 注：特に大きな正規表現をリソースファイルに保存すると、クエリをクリーンアップでき、簡単に再利用できます。 `-r`が指定されている場合、クエリで正規表現を指定しないでください。代わりに、リソースのコンテンツが使用されます。
 
-### Inline Filtering
+### インラインフィルタリング
 
-The regex module supports inline filtering to allow for downselecting data directly within the regex module.  The inline filtering also enables regex to engage accelerators to dramatically reduce the amount of data that needs to be processed.  Inline filtering is achieved in the same manner as other modules by using comparison operators.  If a filter is enabled that specifies equality ("equal", "not equal", "contains", "not contains") any entry that fails the filter specification will be dropped entirely.  If a field is specified as not equal "!=" and the field does not exist, the field is not extracted but the entry won't be dropped entirely.
+正規表現モジュールはインラインフィルタリングをサポートしており、正規表現モジュール内で直接データを選択解除することができます。  インラインフィルタリングにより、正規表現をアクセラレータと連動させて、処理が必要なデータ量を大幅に減らすこともできます。  インラインフィルタリングは、比較演算子を使用して他のモジュールと同じ方法で実現されます。  等価（ "等しい"、 "等しくない"、 "含む"、 "含まない"）を指定するフィルタが有効になっている場合、フィルタの指定に失敗したエントリはすべて削除されます。  フィールドが等しくない "！="として指定され、そのフィールドが存在しない場合、そのフィールドは抽出されませんが、エントリは完全にはドロップされません。
 
 
-| Operator | Name | Description |
+| オペレーター | 名 | 説明 |
 |----------|------|-------------|
-| == | Equal | Field must be equal
-| != | Not equal | Field must not be equal
-| ~ | Subset | Field contains the value
-| !~ | Not Subset | Field does NOT contain the value
+| == | 等しい | フィールドは等しくなければなりません
+| != | 等しくない | フィールドは等しくてはいけません
+| ~ | サブセット | フィールドに値が含まれています
+| !~ | サブセットではない | フィールドに値が含まれていません
 
-#### Filtering Examples
+#### フィルタリング例
 
 ```
 tag=syslog regex *shd.*Accepted (?P<method>\S*) for (?P<user>\S*) from (?P<ip>[0-9]+.[0-9]+.[0-9]+.[0-9]+)" user==root ip ~ "192.168"
 ```
 
-### Parameter Structure
+### パラメータ構造
 ```
 regex <argument list> <regular expression> <filter arguments>
 ```
-### Example Search
+### 検索例
 ```
 tag=syslog grep sshd | regex *shd.*Accepted (?P<method>\S*) for (?P<user>\S*) from (?P<ip>[0-9]+.[0-9]+.[0-9]+.[0-9]+)"
 ```

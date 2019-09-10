@@ -1,16 +1,16 @@
 ## Src
 
-The source module is used for filtering entries based on source, which is a universal metadata item that all entries have.  The module is useful for looking at entries emanating from a specific location.  Src can filter on IP and subnet.
+ソースモジュールは、ソースに基づいてエントリをフィルタリングするために使用されます。  これは、すべてのエントリが持つユニバーサルメタデータ項目です。  このモジュールは特定の場所から出ているエントリを見るのに役立ちます。  SrcはIPとサブネットをフィルタリングできます。
 
-### Example Usage
+### 使用例
 
-Eliminate entries coming from a specific source:
+特定のソースからのエントリを削除します:
 
 ```
 tag=syslog,apache,pcap src != 192.168.1.1 | count by TAG | chart count by TAG
 ```
 
-Select only those entries coming from a specific subnet:
+特定のサブネットからのエントリのみを選択します:
 
 ```
 tag=syslog,apache,pcap src == 192.168.1.0/24 | count by SRC | chart count by SRC

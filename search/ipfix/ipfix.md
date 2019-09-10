@@ -1,74 +1,75 @@
 # IPFIX
 
-The ipfix processor is designed to extract and filter raw IPFIX data frames, allowing for quickly identfying network flows, filtering on ports, or generally monitoring the behavior of aggregate flows.  Gravwell has a native IPFIX + Netflow ingester which is open source and avialable at https://github.com/gravwell/ingesters or as an installer in the [quickstart section](/#!quickstart/downloads.md).
+ipfixプロセッサは、生のIPFIXデータフレームを抽出してフィルタ処理するように設計されているので、ネットワークフローをすばやく識別したり、ポートでフィルタ処理したり、通常は集約フローの動作を監視したりできます。  Gravwellは、オープンソース(https://github.com/gravwell/ingesters)で入手可能な、または[クイックスタートセクション](/#!quickstart/downloads.md)のインストーラーとして利用可能なネイティブのIPFIX + Netflowインジェスターを持っています。
 
-## Supported Options
+## サポートされているオプション
 
-* `-e`: The “-e” option specifies that the ipfix module should operate on an enumerated value.  Operating on enumerated values can be useful when you have extracted an ipfix frame using upstream modules.  You could extract ipfix frames from raw PCAP and pass the frames into the ipfix module.
+* `-e`: “ -e”オプションは、ipfixモジュールが列挙値で動作することを指定します。  列挙値を操作すると、アップストリームモジュールを使用してipfixフレームを抽出したときに役立ちます。  生のPCAPからipfixフレームを抽出して、そのフレームをipfixモジュールに渡すことができます。
 
-## Processing Operators
+## 処理オペレータ
 
-Each IPFIX field supports a set of operators that can act as fast filters.  The filters supported by each operator are determined by the data type of the field. Numeric values support everything but the subset operators and IP addresses support just the subset operators.
+各IPFIXフィールドは、高速フィルターとして機能できる一連の演算子をサポートします。  各演算子でサポートされているフィルタは、フィールドのデータ型によって決まります。  数値はすべてをサポートしますが、サブセット演算子とIPアドレスはサブセット演算子だけをサポートします
 
-| Operator | Name | Description |
-|----------|------|-------------|
-| == | Equal | Field must be equal
-| != | Not equal | Field must not be equal
-| < | Less than | Field must be less than
-| > | Greater than | Field must be greater than
-| <= | Less than or equal | Field must be less than or equal to
-| >= | Greater than or equal | Field must be greater than or equal to
-| ~ | Subset | Field must be a member of
-| !~ | Not subset | Field must not be a member of
+| オペレーター | 名 | 説明
+|----------|------|-------------
+| == | 等しい | フィールドは等しくなければなりません
+| != | 等しくない | フィールドは等しくてはいけません
+| < | 未満 | フィールドはより小さい
+| > | より大きい | フィールドはより大きくなければなりません
+| <= | 以下 | フィールドは以下でなければなりません
+| >= | 以上 | フィールドは以上でなければなりません
+| ~ | サブセット | フィールドはメンバーでなければなりません
+| !~ | サブセットではない | フィールドはメンバーであってはいけません
 
 
-## Data Items
+## データ項目
 
-The ipfix search module is designed to process raw IPFIX frames.  A single IPFIX frame consists of a header and N data records. One essential difference between IPFIX and Netflow v5 is that all fields in Netflow are pre-defined, while IPFIX data records conform to templates specified by the generating device. Thus, one IPFIX generator might send source and destination IP & ports for flows, while a switch just sends IPFIX records containing packet counts.
+ipfix検索モジュールは生のIPFIXフレームを処理するように設計されています。  単一のIPFIXフレームは、ヘッダーとN個のデータレコードで構成されています。  IPFIXとNetflow v5の1つの本質的な違いは、NetFlowのすべてのフィールドが事前定義されているのに対し、IPFIXデータレコードは生成デバイスによって指定されたテンプレートに準拠していることです。  したがって、1つのIPFIXジェネレータがフローの送信元および宛先IP＆ポートを送信する一方、スイッチはパケット数を含むIPFIXレコードを送信するだけです。 
 
-All elements of the IPFIX header can be used for filtering, as can some of the more common data elements. When filtering on Header data items, the filter applies to all records in the frame.  Header data items are processed first, and only if the header filters do not drop the frame are the individual records processed.  The ipfix processor is an expanding module; expanding modules break input entries into multiple output entries.  This means that when using the ipfix module more entries can come out of the pipeline than were fed in.
+IPFIXヘッダーのすべての要素は、より一般的なデータ要素の一部と同様に、フィルタリングに使用できます。  ヘッダデータ項目をフィルタ処理する場合、フィルタはフレーム内のすべてのレコードに適用されます。  ヘッダデータ項目が最初に処理され、ヘッダーフィルターがフレームをドロップしない場合にのみ、個々のレコードが処理されます。  ipfixプロセッサは拡張モジュールです。  拡張モジュールは入力エントリを複数の出力エントリに分割します。  これは、ipfixモジュールを使うとき、与えられたよりも多くのエントリがパイプラインから出ることができることを意味します。
 
-### IPFIX Header Data Items
+### IPFIXヘッダーデータ項目
 
-| Field |       Description        | Supported Operators | Example |
+| フィールド |       説明        | サポートされている演算子 | 例 |
 |-------|--------------------------|---------------------|---------|
-| Version | The IPFIX version in use; this should always be 10 | > < <= >= == != | Version != 0xa
-| Length | The total length of this IPFIX frame | > < <= >= == != | Length > 1000
-| Sec | Current Unix timestamp of the sensing device | > < <= >= == != | Sec == 1526511023
-| Sequence | Sequence counter of total flows on the sensing device | > < <= >= == != | Sequence == 1
-| Domain | The observation domain from which the record originated | > < <= >= == != | Domain == 0x1A
+| Version | IPFIXのバージョン、必ず 10 | > < <= >= == != | Version != 0xa
+| Length | IPFIXフレームの長さ | > < <= >= == != | Length > 1000
+| Sec | センサーデバイスのUnixタイム | > < <= >= == != | Sec == 1526511023
+| Sequence | センサーデバイスからのフロー連番 | > < <= >= == != | Sequence == 1
+| Domain | ドメイン | > < <= >= == != | Domain == 0x1A
 
-### IPFIX Data Record Items
+### IPFIXデータレコード項目
 
-There are many possible fields which can be populated in any given IPFIX flow record; [IANA defines hundreds](https://www.iana.org/assignments/ipfix/ipfix.xhtml#ipfix-information-elements). We have implemented filtering for some of the most common:
+どんな与えられたIPFIXフロー記録にも入れることができる多くの可能な分野があります。  [IANA
+](https://www.iana.org/assignments/ipfix/ipfix.xhtml#ipfix-information-elements)は何百もの定義をしています。  私たちは最も一般的ないくつかのためにフィルタリングを実装しました：
 
-| Field |       Description        | Supported Operators | Example |
+| フィールド |       説明        | サポートされている演算子 | 例 |
 |-------|--------------------------|---------------------|---------|
-| octetDeltaCount | The number of octets since the previous report (if any) in incoming packets for this Flow at the Observation Point. The number of octets includes IP header(s) and IP payload | > < <= >= == != | octetDeltaCount == 80
-| packetDeltaCount | The number of incoming packets since the previous report (if any) for this Flow at the Observation Point. | > < <= >= == != | packetDeltaCount == 80
-| deltaFlowCount | The conservative count of Original Flows contributing to this Aggregated Flow; may be distributed via any of the methods expressed by the valueDistributionMethod Information Element. | > < <= >= == != | packetDeltaCount == 80
-| protocolIdentifier | Protocol number of the flow (TCP = 6, UDP = 17 | > < <= >= == != | protocolIdentifier == 17
-| ipClassOfService | For IPv4 packets, this is the value of the TOS field in the IPv4 packet header.  For IPv6 packets, this is the value of the Traffic Class field in the IPv6 packet header | > < <= >= == != | ipClassOfService != 0
-| tcpControlBits | TCP control bits observed for the packets of this Flow. | > < <= >= == != | tcpControlBits != 0x0004
-| sourceTransportPort | Source port of the flow.  If the protocol does not have a port the value is zero | > < <= >= == != | sourceTransportPort != 0
-| sourceIPv4Address | IPv4 source address of the flow. | ~ !~ == != | sourceIPv4Address ~ 10.0.0.0/24 
-| sourceIPv4PrefixLength | IPv4 source address prefix length. | > < <= >= == != | sourceIPv4PrefixLength < 24
-| sourceIPv6Address | IPv6 source address of the flow. | ~ !~ == != | sourceIPv6Address == ::1
-| sourceIPv6PrefixLength | IPv6 source address prefix length. | > < <= >= == != | sourceIPv6PrefixLength < 64
-| destinationTransportPort | Destination port of the flow.  If the protocol does not have a port the value is zero | > < <= >= == != | destinationTransportPort != 0
-| destinationIPv4Address | IPv4 destination address of the flow. | ~ !~ == != | destinationIPv4Address ~ 10.0.0.0/24 
-| destinationIPv4PrefixLength | IPv4 destination address prefix length. | > < <= >= == != | destinationIPv4PrefixLength < 24
-| destinationIPv6Address | IPv6 destination address of the flow. | ~ !~ == != | destinationIPv6Address == ::1
-| destinationIPv6PrefixLength | IPv6 destination address prefix length. | > < <= >= == != | destinationIPv6PrefixLength < 64
-| ingressInterface | The index of the IP interface where packets of this flow are being received. | > < <= >= == != | ingressInterface == 1
+| octetDeltaCount | Observation Pointでのこのフローに対する着信パケットの前回のレポート（存在する場合）以降のオクテット数。  オクテットの数はIPヘッダーおよびIPペイロードを含んでいます | > < <= >= == != | octetDeltaCount == 80
+| packetDeltaCount | 監視ポイントでのこのフローに対する前回のレポート（存在する場合）以降の着信パケット数 | > < <= >= == != | packetDeltaCount == 80
+| deltaFlowCount | この集約フローに寄与している元のフローの保守的な数。valueDistributionMethod情報要素によって表現されるメソッドのいずれかを介して配布することができます | > < <= >= == != | packetDeltaCount == 80
+| protocolIdentifier | フローのプロトコル番号（TCP = 6、UDP = 17） | > < <= >= == != | protocolIdentifier == 17
+| ipClassOfService | IPv4パケットの場合、これはIPv4パケットヘッダーのTOSフィールドの値です。IPv6パケットの場合、これはIPv6パケットヘッダーのTraffic Classフィールドの値です。 | > < <= >= == != | ipClassOfService != 0
+| tcpControlBits | このフローのパケットについて観察されたTCP制御ビット。 | > < <= >= == != | tcpControlBits != 0x0004
+| sourceTransportPort | フローの送信元ポート。プロトコルにポートがない場合、値はゼロです。 | > < <= >= == != | sourceTransportPort != 0
+| sourceIPv4Address | フローのIPv4送信元アドレス | ~ !~ == != | sourceIPv4Address ~ 10.0.0.0/24 
+| sourceIPv4PrefixLength | IPv4送信元アドレスプレフィックス長 | > < <= >= == != | sourceIPv4PrefixLength < 24
+| sourceIPv6Address | フローのIPv6送信元アドレス | ~ !~ == != | sourceIPv6Address == ::1
+| sourceIPv6PrefixLength | IPv6送信元アドレスプレフィックス長 | > < <= >= == != | sourceIPv6PrefixLength < 64
+| destinationTransportPort | フローの宛先ポート プロトコルにポートがない場合、値はゼロ | > < <= >= == != | destinationTransportPort != 0
+| destinationIPv4Address | フローのIPv4宛先アドレス | ~ !~ == != | destinationIPv4Address ~ 10.0.0.0/24 
+| destinationIPv4PrefixLength | IPv4宛先アドレスプレフィックス長 | > < <= >= == != | destinationIPv4PrefixLength < 24
+| destinationIPv6Address | フローのIPv6宛先アドレス | ~ !~ == != | destinationIPv6Address == ::1
+| destinationIPv6PrefixLength | Pv6宛先アドレスプレフィックス長 | > < <= >= == != | destinationIPv6PrefixLength < 64
+| ingressInterface | このフローのパケットが受信されているIPインターフェイスのインデックス | > < <= >= == != | ingressInterface == 1
 
-Note: While the names we use are not as short / friendly as those used in the netflow or packet parsers, they match exactly [the names assigned by the specification](https://www.iana.org/assignments/ipfix/ipfix.xhtml#ipfix-information-elements).
+注: 私たちが使う名前は、netflowやパケットパーサーで使われているものほど短くはありませんが、[仕様で割り当てられている名前](https://www.iana.org/assignments/ipfix/ipfix.xhtml#ipfix-information-elements)と完全に一致します。
 
-Beside the fields specified above, you can also extract (but not filter on) any other official IPFIX information element name as specified [here](https://www.iana.org/assignments/ipfix/ipfix.xhtml#ipfix-information-elements). You can also specify non-standard fields by giving an enterprise ID and field ID separated by a colon, e.g. "0x1ad7:0x15". We recommend extracting this to a more convenient name: `ipfix 0x1ad7:0x15 as foo`.
+上記で指定したフィールドのほかに、[ここ](https://www.iana.org/assignments/ipfix/ipfix.xhtml#ipfix-information-elements)に指定されているように、他の公式IPFIX情報要素名を抽出することもできます（ただし、フィルターはかけません）。  エンタープライズIDとフィールドIDをコロンで区切って指定することにより、非標準フィールドを指定することもできます。  "0x1ad7:0x15"  これをより便利な名前`ipfix 0x1ad7:0x15 as foo`に抽出することをお勧めします。
 
-## Examples
+## 例
 
-### Number of HTTPS flows by Source IP over time
+### 一定期間にわたるソースIPごとのHTTPSフローの数
 
 ```
 tag=ipfix ipfix destinationIPv4Address as Dst destinationTransportPort==443 | count by Dst | chart count by Dst

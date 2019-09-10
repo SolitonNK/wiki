@@ -1,21 +1,21 @@
 # Join
 
-The join module makes it easier to join two or more enumerated values into a single enumerated value. All enumerated value types are converted to strings and concatenated, except for byte slices which can only be joined to byte slices and will remain byte slices.
+結合モジュールを使用すると、2つ以上の列挙値を単一の列挙値に結合するのが簡単になります。  バイトスライスにのみ結合できるバイトスライスを除き、列挙型の値はすべて文字列に変換されて連結されます。  バイトスライスは残ります。
 
-The following search will extract the destination IP and port from netflow records and join them with a semicolon as a separator, placing the result in an enumerated value named `dialstring`:
+次の検索では、netflowレコードから宛先IPとポートを抽出し、それらを区切り文字としてセミコロンで結合して、結果を`dialstring`という名前の列挙値に配置します:
 
 ```
 tag=netflow netflow Dst DstPort | join -s : -t dialstring Dst DstPort | table Dst DstPort dialstring
 ```
 
-Any number of enumerated values can be specified. The `-t` flag specifies a "target" enumerated value; if not specified, the first-listed enumerated value will be overwritten.
+列挙値はいくつでも指定できます。  `-t`フラグは、「標的」の列挙値を指定します。  指定しない場合は、最初にリストされた列挙値が上書きされます。
 
-## Supported Options
+## サポートされているオプション
 
-* `-s <separator>`: Place the given separator string between the value of each enumerated value in the resulting string. If not specified, no separator will be used. Ignored for byte slices.
-* `-t <target>`: Store the result in an enumerated value with the given name rather than overwriting the first enumerated value.
+* `-s <separator>`:結果の文字列内の各列挙値の値の間に、指定された区切り文字列を配置してください。  指定しない場合、区切り文字は使用されません。  バイトスライスでは無視されます。
+* `-t <target>`: 最初の列挙値を上書きするのではなく、指定された名前の列挙値に結果を格納してください。
 
-## Example
+## 例
 
 ```
 tag=pcap packet ipv4.SrcIP ~ 192.168.0.0/16 tcp.SrcPort | join -s : -t dialstring SrcIP SrcPort | unique SrcIP,SrcPort | table SrcIP SrcPort dialstring

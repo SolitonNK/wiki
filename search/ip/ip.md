@@ -1,23 +1,23 @@
 # IP
 
-The ip module can convert enumerated values to the IP type and optionally perform filtering. This allows the user to, for instance, extract a string containing an IP address from a JSON structure, then use the ip module to convert that string to an IP address and check if it is in a certain subnet.
+ipモジュールは列挙値をIPタイプに変換し、オプションでフィルタリングを実行できます。  これにより、ユーザーは、たとえば、JSON構造からIPアドレスを含む文字列を抽出し、ipモジュールを使用してその文字列をIPアドレスに変換し、それが特定のサブネット内にあるかどうかを確認できます。
 
-## Supported Options
+## サポートされているオプション
 
-* `-or`: The "-or" flag specifies that the ip module should allow an entry to continue down the pipeline if ANY of the filters are successful.
+* `-or`: "-or"フラグは、フィルタのどれかが成功した場合に、ipモジュールがエントリをパイプラインに沿って続けることを許可することを指定します。
 
-## Processing Operators
+## 処理オペレータ
 
-Enumerated values passed to the ip module can be compared against IP addresses or subnets using the following operators.
+ipモジュールに渡された列挙値は、次の演算子を使用してIPアドレスまたはサブネットと比較できます。
 
-| Operator | Name | Description |
+| オペレーター | 名 | 説明 |
 |----------|------|-------------|
-| == | Equal | IP must be equal to the given address
-| != | Not equal | IP must not be equal to the given address
-| ~ | Subset | IP must be a member of the given subnet
-| !~ | Not subset | IP must not be a member of the given subnet
+| == | 等しい | フィールドは等しくなければなりません
+| != | 等しくない | フィールドは等しくてはいけませんl
+| ~ | サブセット | フィールドに値が含まれています
+| !~ | サブセットではない | フィールドに値が含まれていません
 
-The ip module defines the keyword PRIVATE to match any of the standard private networks:
+pモジュールは、標準のプライベートネットワークのいずれかに一致するようにキーワードPRIVATEを定義します:
 
 * 10.0.0.0/8
 * 172.16.0.0/12
@@ -28,39 +28,39 @@ The ip module defines the keyword PRIVATE to match any of the standard private n
 * fd00::/8
 * fe80::/10
 
-## Examples
+## 例
 
-### Convert a string to an IP
+### 文字列をIPに変換する
 
-Assuming JSON-formatted entries containing an 'ipaddr' field, extract that field and convert it to an IP address for later use:
+'ipaddr'フィールドを含むJSON形式のエントリを想定して、そのフィールドを抽出して後で使用するためにIPアドレスに変換します:
 
 ```
 tag=json json ipaddr | ip ipaddr
 ```
 
-The resulting IP enumerated value can also be assigned to a different enumerated value name rather than overwriting the original:
+結果のIP列挙値は、元のものを上書きするのではなく、別の列挙値名に割り当てることもできます:
 
 ```
 tag=json json ipaddr | ip ipaddr as IP
 ```
 
-### Filter by address or subnet
+### アドレスまたはサブネットでフィルタリングする
 
-Assuming CSV-formatted data in which the 3rd field describes the source IP address of a connection, we can drop all connections not originating from 192.168.1.5:
+3番目のフィールドに接続の送信元IPアドレスが記述されているCSV形式のデータを想定すると、192.168.1.5から発信されていないすべての接続をドロップできます:
 
 ```
 tag=csv csv [2] as srcip | ip srcip==192.168.1.5
 ```
 
-We can also eliminate any connections which originated in the local subnet:
+ローカルサブネットから発生した接続を排除することもできます:
 
 ```
 tag=csv csv [2] as srcip | ip srcip !~ 192.168.0.0/16
 ```
 
-### Use the PRIVATE keyword
+### PRIVATEキーワードを使用する
 
-Assuming CSV-formatted data in which the 3rd field describes the source IP address of a connection, we can use the ip module to keep only those entries originating from private networks:
+3番目のフィールドに接続の送信元IPアドレスが記述されているCSV形式のデータを想定すると、ipモジュールを使用して、プライベートネットワークから送信されたエントリだけを保持できます:
 
 ```
 tag=csv csv [2] as srcip | ip srcip ~ PRIVATE

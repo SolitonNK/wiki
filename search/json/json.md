@@ -1,59 +1,59 @@
 ## JSON
 
-The json module is used to extract and filter data from search entries into enumerated values for later use.  JSON is an excellent data format for daynmic exploration as the data is self-describing.  The JSON module can extract items and rename them, or filter based on the extracted value.  Filtering directly within the JSON module provides a very high speed and intuitive way to select data of a specific format 
+jsonモジュールは、後で使用するために、検索項目からデータを抽出して列挙値にするために使用されます。  データは自己記述的であるため、JSONは日中探査に最適なデータ形式です。  JSONモジュールは項目を抽出してそれらの名前を変更したり、抽出された値に基づいてフィルタリングしたりできます。  JSONモジュール内で直接フィルタリングすると、特定の形式のデータを選択するための非常に高速で直感的な方法が提供されます。
 
-### Supported Options
+### サポートされているオプション
 
-* `-e <arg>`: The “-e” option operates on an enumerated value instead of on the entire record.
-* `-s`: The “-s” option informs the json module that we are in strict mode, meaning that if any item isn't found, drop the entire entry.
+* `-e <arg>`: “ -e”オプションは、レコード全体ではなく列挙値に作用します。
+* `-s`: “ -s”オプションは、厳密モードになっていることをjsonモジュールに通知します。  つまり、項目が見つからない場合はエントリ全体を削除します。
 
-### Filtering Operators
+###フィルタリング演算子
 
-The JSON module allows for a filtering based on equality.  If a filter is enabled that specifies equality ("equal" or "not equal") any entry that fails the filter specification will be dropped entirely.  If a field is specified as not equal "!=" and the field does not exist, the field is not extracted but the entry won't be dropped entirely.
+JSONモジュールは同等性に基づくフィルタリングを可能にします。  同等（「等しい」または「等しくない」）を指定するフィルタが有効になっている場合、フィルタの指定に失敗したエントリはすべて削除されます。  フィールドが等しくない "！="として指定され、そのフィールドが存在しない場合、そのフィールドは抽出されませんが、エントリは完全にはドロップされません。
 
-| Operator | Name | Description |
-|----------|------|-------------|
-| == | Equal | Field must be equal
-| != | Not equal | Field must not be equal
-| ~ | Subset | Field contains the value
-| !~ | Not Subset | Field does NOT contain the value
+| オペレーター | 名 | 説明
+|----------|------|-------------
+| == | 等しい | フィールドは等しくなければなりません
+| != | 等しくない | フィールドは等しくてはいけません
+| ~ | サブセット | フィールドはメンバーでなければなりません
+| !~ | サブセットではない | フィールドはメンバーであってはいけません
 
-### Examples
-To find the most prolific reddit posters, the following search extracts the "Author" field from each reddit post into a new enumerated value, then counts the occurrence of each author and puts it into a table:
+### 例
+最も豊富なredditポスターを見つけるために、次の検索では各reddit投稿から "Author"フィールドを新しい列挙値に抽出し、次に各著者の出現回数を数えてテーブルに入れます:
 
 ```
 tag=reddit json Author | count by Author | table Author count
 ```
 
-The module can also descend multiple layers into the JSON entry. For example, in the Shodan data we ingest for testing, we can extract the "region code" from entries to discover where the endpoint resides. If we want to learn which states have the most AT&T U-verse customers, we can issue the following search:
+このモジュールは複数のレイヤをJSONエントリに降格させることもできます。  たとえば、テストのために取り込んだShodanのデータでは、エントリから「地域コード」を抽出して、エンドポイントが存在する場所を見つけることができます。  どの州が最も多くのAT&T U-verse顧客を持っているかを知りたい場合は、以下の検索を発行できます:
 
 ```
 tag=shodan grep "AT&T U-verse" | json location.region_code | count by region_code | table region_code count
 ```
 
-It can also operate on enumerated values rather than the full entry data if desired; for instance, if an XML entry contains json within it:
+必要に応じて、フルエントリデータではなく列挙値を操作することもできます。  たとえば、XMLエントリにjsonが含まれているとします:
 
 ```
 <System><Data>{ "domain": "gravwell.io" }</Data></System>
 ```
 
-We can use the following command to extract the JSON from within the XML as an enumerated value named "Data", then apply the json module to parse out the domain value into another enumerated value named "domain":
+次のコマンドを使用して、XML内からJSONを「Data」という列挙値として抽出し、jsonモジュールを適用してドメイン値を「domain」という別の列挙値に解析します:
 
 ```
 xml System.Data | json -e Data domain
 ```
-Enumerated value names are derived by the last name in a JSON specification, in the earlier example which extracted the region_code field the output is populated in the "region_code" enumerated value.  Output enumerated value names can be overridden with an "as" argument.  The following example extracts the domain member from the Data enumerated value and assignes it into a new enumerated value named "dd":
+列挙値の名前は、JSON仕様の姓によって派生します。  前の例では、region_codeフィールドが抽出され、出力は "region_code"列挙値に移入されます。  出力列挙値の名前は、 "as"引数で上書きできます。  次の例では、Data列挙値からドメインメンバーを抽出し、それを "dd"という名前の新しい列挙値に割り当てます:
 
 ```
 json -e Data domain as dd
 ```
-Using the filter operator we can extract the Data field, but only when the domain is not the value "google.com." Filters can be combined with renaming.
+フィルター演算子を使用して、データフィールドを抽出できますが、これはドメインが値「google.com」でない場合のみです。 フィルタは名前の変更と組み合わせることができます。
 
 ```
 json -e Data domain != "google.com" as dd
 ```
 
-The JSON format is extremely liberal and allows names of all types, including characters Gravwell usually treats as separators such as '.' and "-". In cases where the JSON name contains such characters, wrap the individual field in double-quotes to parse it as a single token. For example, this JSON string contains a dot character in a field name:
+JSON形式は非常に自由度が高く、Gravwellが通常 '.'や"-"のような区切り文字として扱う文字を含むすべての型の名前を使用できます。  JSON名にそのような文字が含まれている場合は、個々のフィールドを二重引用符で囲んで単一のトークンとして解析してください。  たとえば、このJSON文字列はフィールド名にドット文字を含みます:
 
 ```
 { "subfield.op": "stuff", "subfield.type": "int", "subfield.value": 99}
@@ -65,13 +65,13 @@ An example json module argument to extract the subfield.op member would be:
 json "subfield.op" as sop
 ```
 
-Similarly, consider the following nested structure:
+同様に、次の入れ子構造を考えてください:
 
 ```
 { "fields": { "search-id": 1234, "search-type": "background" } }
 ```
 
-Because search-id and search-type contain a dash character, they should be wrapped in quotes when used:
+search-idとsearch-typeにはダッシュ文字が含まれているため、使用時には引用符で囲む必要があります:
 
 ```
 json fields."search-id" fields."search-type" as type | count by "search-id",type | table "search-id" type count

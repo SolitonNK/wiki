@@ -1,27 +1,27 @@
 # Table
 
-The table renderer is used to create tables. Building tables is done by providing arguments to the table renderer. Arguments must be enumerated values, TAG, TIMESTAMP, or SRC. Arguments will be used as the columns of the table.
+テーブルレンダラーはテーブルを作成するために使用されます。  テーブルを構築するには、テーブルレンダラーに引数を渡します。  引数は列挙値、TAG、TIMESTAMP、またはSRCでなければなりません。  引数はテーブルの列として使用されます。
 
-Specifying no column arguments causes table to display all enumerated values as columns instead; this is useful for exploration.
+列引数を指定しないと、tableはすべての列挙値を列として表示します。  これは調査に役立ちます。
 
-## Supported options
+## サポートされているオプション
 
-* `-save <destination>`: save the resulting table as a resource for the [lookup module](#!search/lookup/lookup.md). This is a useful way to save the results of one search (say, extracting a MAC->IP mapping from DHCP logs) and use it in later searches.
-* `-csv`: In conjunction with the -save flag, save the table in CSV format rather than the native Gravwell format (CSV is also compatible with the lookup module). Useful when exporting data.
-* `-update <key>`: in conjunction with the `-save` flag, updates an existing table rather than overwriting it. This can be useful when using a scheduled search to maintain e.g. a list of all MAC addresses ever seen on the network. The columns of the existing lookup table must match the columns given as arguments. The "key" option is the name of one of the columns; when merging the old and new lookup tables, a row from the old table will only be included if the value in its keyed column does not exist in the new table.
-* `-nt`: Put the table into non-temporal mode. This causes upstream math modules to condense results rather than having table do it. This can seriously speed up searches over large quantities of data when temporal sub-selection is not needed. It is also currently required when using the [stats module](#!search/stats/stats.md)
+* `-save <destination>`: 結果のテーブルをlookupモジュール用のリソースとして保存します。  これは、ある検索の結果を保存し（DHCPログからMACからIPへのマッピングを抽出するなど）、後の検索で使用するのに便利な方法です。
+* `-csv`: -saveフラグと組み合わせて、ネイティブのGravwell形式ではなくCSV形式でテーブルを保存します（CSVはルックアップモジュールとも互換性があります）。 データをエクスポートするときに便利です。
+* `-update <key>`: `-save`フラグと組み合わせて、既存のテーブルを上書きするのではなく更新します。 これは、スケジュール検索を使用して、たとえば ネットワークでこれまでに見られたすべてのMACアドレスのリスト。 既存のルックアップテーブルの列は、引数として指定された列と一致する必要があります。 "key"オプションは、いずれかの列の名前です。 古いルックアップテーブルと新しいルックアップテーブルをマージするとき、古いテーブルの行は、そのキー付き列の値が新しいテーブルに存在しない場合にのみ含まれます。
+* `-nt`: テーブルをnon-temporalモードにします。 これにより、上流の数学モジュールは、テーブルに実行させるのではなく、結果を圧縮します。 これにより、一時的な副選択が不要な場合に、大量のデータの検索を大幅に高速化できます。 現在、[stats module](#!search/stats/stats.md)を使用する場合にも必要です。
 
-## Sample Queries
+## サンプルクエリ
 
-### Basic table use
+### 基本テーブル用
 
-Extract a few elements from a Netflow record, then have table automatically display them:
+Netflowレコードからいくつかの要素を抽出して、テーブルにそれらを自動的に表示させます:
 
 ```
 tag=netflow netflow Src Dst SrcPort DstPort | table
 ```
 
-Find brute-force SSH attacks:
+ブルートフォースSSH攻撃を見つける:
 
 ```
 tag=syslog grep sshd | regex "authentication error for (?P<user>\S+)" | count by user | table user count
@@ -29,23 +29,23 @@ tag=syslog grep sshd | regex "authentication error for (?P<user>\S+)" | count by
 
 ![](table-render.png)
 
-### Using the -nt option
+### -ntオプションを使用する
 
-In a situation with massive quantities of data, force table into non-temporal mode so the count module will condense results instead:
+大量のデータがある状況では、countモジュールが代わりに結果を圧縮するように、tableをnon-temporalモードに強制します:
 
 ```
 tag=jsonlogs json source | count by source | table -nt source count
 ```
 
-### Using the -save option
+### -saveオプションを使用する
 
-Use DHCP logs to build a lookup table containing IP to MAC mappings:
+DHCPログを使用して、IPからMACへのマッピングを含むルックアップテーブルを作成します:
 
 ```
 tag=syslog regex "DHCPACK on (?P<ip>\S+) to (?P<mac>\S+)" | unique ip mac | table -save ip2mac ip mac
 ```
 
-and then use the lookup table to find the MACs associated with SSH logins:
+そして、ルックアップテーブルを使ってSSHログインに関連するMACを見つけます:
 
 ```
 tag=syslog grep sshd | regex "Accepted .* for (?P<user>\S+) from (?P<ip>\S+)" | lookup -r ip2mac ip ip mac as mac |table user ip mac
@@ -53,11 +53,11 @@ tag=syslog grep sshd | regex "Accepted .* for (?P<user>\S+) from (?P<ip>\S+)" | 
 
 ![](table-ipmac.png)
 
-### Using the -update option
+### -updateオプションを使用する
 
-In this example, we build a table containing IP addresses seen on the local network, then update it with more.
+この例では、ローカルネットワークで見られるIPアドレスを含むテーブルを作成し、さらに更新します。
 
-First, we construct a table that contains all unique private IPv4 addresses seen on the 192.168.2.0/24 network:
+最初に、192.168.2.0/24ネットワークで見られる一意のプライベートIPv4アドレスをすべて含むテーブルを作成します。
 
 ```
 tag=pcap packet ipv4.SrcIP ~ PRIVATE | unique SrcIP | subnet SrcIP /24 | eval subnet == toIP("192.168.2.0") | table -save test -csv SrcIP
@@ -65,7 +65,7 @@ tag=pcap packet ipv4.SrcIP ~ PRIVATE | unique SrcIP | subnet SrcIP /24 | eval su
 
 ![](update1.png)
 
-Downloading the resulting resource (named 'test') shows the expected table:
+結果のリソース（'test'という名前）をダウンロードすると、予想されるテーブルが表示されます。:
 
 ```
 SrcIP
@@ -76,7 +76,7 @@ SrcIP
 192.168.2.61
 ```
 
-Next, we run another search to *add* IPs seen in the 192.168.0.0/24 subnet:
+次に、192.168.0.0/24サブネットで見られるIPを*追加*するために別の検索を実行します:
 
 ```
 tag=pcap packet ipv4.SrcIP ~ PRIVATE | unique SrcIP | subnet SrcIP /24 | eval subnet == toIP("192.168.0.0") | table -update SrcIP -save test -csv SrcIP
@@ -84,7 +84,7 @@ tag=pcap packet ipv4.SrcIP ~ PRIVATE | unique SrcIP | subnet SrcIP /24 | eval su
 
 ![](update2.png)
 
-Although the table that is *displayed* only shows the new IP addresses, the resource now contains the results of both searches:
+*表示*されているテーブルには新しいIPアドレスのみが表示されていますが、リソースには両方の検索結果が含まれています:
 
 ```
 SrcIP
@@ -105,4 +105,4 @@ SrcIP
 192.168.2.61
 ```
 
-We passed 'SrcIP' as the argument to -update. This is used for deduplication; any rows in the old table whose SrcIP match a row in the new table are not included in the updated resource.
+updateの引数として'SrcIP'を渡しました。これは重複排除に使用されます。 SrcIPが新しいテーブルの行と一致する古いテーブルの行は、更新されたリソースに含まれません。

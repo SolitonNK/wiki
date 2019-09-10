@@ -1,26 +1,26 @@
 # Winlog
 
-The winlog processor is a special-purpose extractor for XML-formatted Windows log data. It provides "shortcuts" for extracting many common fields from Windows log entries rather than requiring the more general [xml module](/#!search/xml/xml.md)
+winlogプロセッサは、XML形式のWindowsログデータ用の特別な目的の抽出プログラムです。  それはより一般的な[xmlモジュール](/#!search/xml/xml.md)を必要とするよりもむしろWindowsログエントリから多くの一般的なフィールドを抽出するための"ショートカット"を提供します
 
-## Supported Options
+## サポートされているオプション
 
-* `-e`: The “-e” option specifies that the winlog module should operate on an enumerated value.  Operating on enumerated values can be useful when you have extracted log entries using upstream modules.
-* `-or`: The "-or" flag specifies that the winlog module should allow an entry to continue down the pipeline if ANY of the extractions or filters are successful.
+* `-e`: “ -e”オプションは、winlogモジュールが列挙値で動作することを指定します。  列挙値を操作すると、アップストリームモジュールを使用してログエントリを抽出した場合に役立ちます。
+* `-or`: "-or"フラグは、抽出またはフィルタのいずれかが成功した場合に、winlogモジュールがエントリをパイプラインに沿って続行することを許可することを指定します。
 
-## Processing Operators
+## 処理オペレータ
 
-Each winlog field supports a set of operators that can act as fast filters. In the case of the winlog module, all fields will be extracted as strings, so only string filters are available.
+各winlogフィールドは、高速フィルタとして機能できる一連の演算子をサポートします。  winlogモジュールの場合、すべてのフィールドは文字列として抽出されるので、文字列フィルタのみが利用可能です。
 
-| Operator | Name | Description |
-|----------|------|-------------|
-| == | Equal | Field must be equal
-| != | Not equal | Field must not be equal
-| ~ | Subset | Field must be a member of
-| !~ | Not subset | Field must not be a member of
+| オペレーター | 名 | 説明
+|----------|------|-------------
+| == | 等しい | フィールドは等しくなければなりません
+| != | 等しくない | フィールドは等しくてはいけません
+| ~ | サブセット | フィールドはメンバーでなければなりません
+| !~ | サブセットではない | フィールドはメンバーであってはいけません
 
-## Data Fields
+## データフィールド
 
-Given a log entry in this format:
+以下の形式のログエントリがあるとします:
 
 ```
 <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
@@ -52,9 +52,9 @@ Given a log entry in this format:
 </Event>
 ```
 
-The following fields can be extracted
+以下のフィールドを抽出することができます
 
-| Field | XML spec |
+| フィールド | XML仕様 |
 |-------|----------|
 | ProviderName | Event.System.Provider[Name] |
 | ProviderGUID | Event.System.Provider[Guid] |
@@ -72,19 +72,19 @@ The following fields can be extracted
 | Channel | Event.System.Channel |
 | Computer | Event.System.Computer |
 
-Specifying a field not listed above will cause the winlog module to attempt to extract `Event.Data[Name]==<field>`. For example, the SubjectLogonId in the example above (0x3e3) can be extracted by simply specifying `SubjectLogonId` to the winlog module.
+上記にリストされていないフィールドを指定すると、winlogモジュールは`Event.Data [Name] == <field>`を抽出しようとします。 たとえば、上記の例の`SubjectLogonId（0x3e3）`は、winlogモジュールに"SubjectLogonId"を指定するだけで抽出できます。
 
-## Examples
+## 例
 
-The following examples refer to the sample log shown above.
+次の例は、上記のサンプルログを参照しています。
 
-To extract the process ID (4) and the user name (GRAVUSER$):
+プロセスID（4）とユーザー名（GRAVUSER$）を抽出するには:
 
 ```
 winlog ProcessID SubjectUserName
 ```
 
-To extract the process name from only those events on the Security channel with EventID == 4689:
+EventID == 4689のセキュリティチャネル上のイベントのみからプロセス名を抽出するには、次の手順を実行します:
 
 ```
 winlog EventID==4689 Channel==Security ProcessName
