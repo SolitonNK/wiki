@@ -1,19 +1,19 @@
-# Simple Relay
+# 簡易リレー
 
-Simple Relay is the go-to ingester for text based data sources that can be delivered over plaintext TCP and/or UDP network connections via either IPv4 or IPv6.
+シンプルリレーは、IPv4またはIPv6を介したプレーンテキストTCPおよび/またはUDPネットワーク接続を介して配信できる、テキストベースのデータソースの注目の的です。
 
-Some common use cases for Simple Relay are:
+シンプルリレーの一般的な使用例は次のとおりです。
 
-* Remote syslog collection
-* Devop log collection over a network
-* Bro sensor log collection
-* Simple integration with any text source capable of delivering over a network
+*リモートsyslog収集
+*ネットワーク経由のDevopログ収集
+* Broセンサーのログ収集
+*ネットワーク経由で配信可能なテキストソースとの簡単な統合
 
-## Basic Configuration
+## 基本設定
 
-The Simple Relay ingester uses the unified global configuration block described in the [ingester section](#!ingesters/ingesters.md#Global_Configuration_Parameters).  Like most other Gravwell ingesters Simple Relay supports multiple upstream indexers, TLS, cleartext, and named pipe connections, a local cache, and local logging.
+Simple Relay ingesterは、[ingester section](#!ingesters/ingesters.md#Global_Configuration_Parameters)で説明されている統一されたグローバル構成ブロックを使用します。 他のほとんどのGravwellインジェスターと同様に、Simple Relayは複数のアップストリームインデクサー、TLS、クリアテキスト、名前付きパイプ接続、ローカルキャッシュ、ローカルロギングをサポートしています。
 
-An example configuration for the Simple Relay ingester, configured to listen on several ports and apply a unique tag to each is as follows:
+いくつかのポートでリッスンし、それぞれに一意のタグを適用するように構成されたSimple Relay ingesterの構成例は次のとおりです。
 
 ```
 [Global]
@@ -53,19 +53,19 @@ Log-File=/opt/gravwell/log/simple_relay.log
 	Keep-Priority=true	# leave the <nnn> priority tag at the start of each syslog entry
 ```
 
-Note: The `Keep-Priority` field is necessary if you plan to analyze syslog entries with the [syslog search module](#!search/syslog/syslog.md).
+注：syslog検索モジュールを使用してsyslogエントリーを分析する場合は、Keep-Priorityフィールドが必要です。
 
-## Listeners
+## リスナー
 
-Each listener contains a set of universal configuration values, regardless of whether the listener is a line reader, RFC5424 reader, or JSON Listener.
+各リスナーには、リスナーがラインリーダー、RFC5424リーダー、JSONリスナーのいずれであるかに関係なく、ユニバーサル構成値のセットが含まれます。
 
-### Universal Listener Configuration Parameters
+### ユニバーサルリスナーの構成パラメーター
 
-Listeners support several configuration parameters which allow for specifying protocols, listening interfaces and ports, and fine tuning ingest behavior.
+リスナーは、プロトコルの指定、インターフェイスとポートのリッスン、および取り込み動作の微調整を可能にするいくつかの構成パラメーターをサポートします。
 
 #### Bind-String
 
-The Bind-String parameter controls which interface and port the listener will bind to.  The listener can bind to TCP or UDP ports, specific addresses, and specific ports.  IPv4 and IPv6 are supported.
+Bind-Stringパラメーターは、リスナーがバインドするインターフェイスとポートを制御します。 リスナーは、TCPまたはUDPポート、特定のアドレス、および特定のポートにバインドできます。 IPv4とIPv6がサポートされています。
 
 ```
 #bind to all interfaces on TCP port 7777
@@ -81,19 +81,19 @@ Bind-String=[fe80::4ecc:6aff:fef9:48a3%p1p1]:1234
 Bind-String=[2600:1f18:63ef:e802:355f:aede:dbba:2c03]:901
 ```
 
-#### Ignore-Timestamps
+#### タイムスタンプを無視
 
-The "Ignore-Timestamps" parameter instructs the listener to not attempt to derive a timestamp from the read values, instead apply the current timestamp.  This parameter is useful for reading data where there may not be a timestamp present, or the timestamp is wrong on the originating system due to unreliable system clocks.  "Ignore-Timestamps" is false by default, to enable specify ```Ignore-Timestamps=true```
+「Ignore-Timestamps」パラメーターは、読み取り値からタイムスタンプを取得しようとせず、代わりに現在のタイムスタンプを適用するようリスナーに指示します。 このパラメーターは、タイムスタンプが存在しない可能性のあるデータを読み取る場合、または信頼できないシステムクロックのために発信元システムでタイムスタンプが間違っている場合に役立ちます。 「Ignore-Timestamps」はデフォルトでfalseであり、有効にするために `` `Ignore-Timestamps = true```を指定します
 
-#### Assume-Local-Timezone and Timezone-Override
+#### Assume-Local-TimezoneおよびTimezone-Override
 
-Most timestamp formats have a timezone attached which indicates an offset to Universal Cordinated Time (UTC).  However, some systems do not specify the timezone leaving it up to the receiver to determine what timezone a log entry may be in.  Assume-Local-Timezone causes the reader to assume that the timestamp is in the same timezone as the Simple Relay reader when the timzeone is omitted. Timezone-Override takes a string in the IANA timezone database format (e.g. "America/Chicago") and applies that timezone to timestamps which do not specify a timezone.
+ほとんどのタイムスタンプ形式には、協定世界時（UTC）へのオフセットを示すタイムゾーンが添付されています。 ただし、一部のシステムでは、タイムゾーンを指定せずにログエントリのタイムゾーンを決定するために受信者に任せています。Assume-Local-Timezoneは、タイムスタンプがSimple Relayリーダーと同じタイムゾーンにあるとリーダーに仮定させます ティムゼオンは省略されます。 Timezone-Overrideは、IANAタイムゾーンデータベース形式の文字列（例： "America / Chicago"）を受け取り、そのタイムゾーンをタイムゾーンを指定しないタイムスタンプに適用します。
 
-Assume-Local-Timezone and Timezone-Override are mutually exclusive.
+Assume-Local-TimezoneとTimezone-Overrideは相互に排他的です。
 
-#### Source-Override
+#### ソースオーバーライド
 
-The "Source-Override" parameter instructs the listener to ignore the source of the data and apply a hard coded value.  It may be desirable to hard code source values for incoming data as a method to organize and/or group data sources.  "Source-Override" values can be IPv4 or IPv6 values.
+「Source-Override」パラメーターは、データのソースを無視し、ハードコードされた値を適用するようリスナーに指示します。 データソースを整理および/またはグループ化する方法として、着信データのソース値をハードコードすることが望ましい場合があります。 「Source-Override」の値は、IPv4またはIPv6の値にすることができます。
 
 ```
 Source-Override=192.168.1.1
@@ -101,9 +101,9 @@ Source-Override=127.0.0.1
 Source-Override=[fe80::899:b3ff:feb7:2dc6]
 ```
 
-#### Timestamp-Format-Override
+#### タイムスタンプ形式のオーバーライド
 
-Data values may contain multiple timestamps which can cause some confusion when attempting to derive timestamps out of the data.  Normally, the Listeners will grab the left most timestamp that can be derived, but it may be desirable to only look for a timestamp in a very specific format.  "Timestamp-Format-Override" tells the listener to only respect timestamps in a specific format.  The following timstamp formats are available:
+Timestamp-Format-OverrideDataの値には複数のタイムスタンプが含まれている場合があり、データからタイムスタンプを取得しようとすると混乱が生じる可能性があります。 通常、リスナーは取得可能な左端のタイムスタンプを取得しますが、非常に特定の形式のタイムスタンプのみを検索することが望ましい場合があります。 「Timestamp-Format-Override」は、特定の形式のタイムスタンプのみを尊重するようリスナーに指示します。 次のタイムスタンプ形式が利用可能です。
 
 * AnsiC
 * Unix
@@ -128,18 +128,18 @@ Data values may contain multiple timestamps which can cause some confusion when 
 * SyslogVariant
 * UnpaddedDateTime
 
-To force the Listener to only look for timestamps that match the RFC3339 specification add ```Timestamp-Format-Override=RFC3339``` to the Listener.
+リスナーにRFC3339仕様に一致するタイムスタンプのみを強制的に検索させるには、リスナーに `` `Timestamp-Format-Override = RFC3339```を追加します。
 
-### Listener Reader Types and configurations
+### リスナーリーダーの種類と構成
 
-Simple relay supports the following types of basic readers which are useful in different contexts
+シンプルリレーは、さまざまな状況で役立つ次の種類の基本的なリーダーをサポートしています
 
-* line reader
+* ラインリーダー
 * RFC5424
 
-The basic listeners are specified via the "Listener" block and support line delimited and RFC5424 reader types.  Each Listener must have a unique name and a unique bind port (two different listeners cannot bind to the same protocol, address, and port).  The reader type for a basic listener is controlled by the "Reader-Type" parameter.  Currently there are two types of listeners (line and RFC5424).  If no Reader-Type is specified the line reader type is assumed.
+基本的なリスナーは「リスナー」ブロックを介して指定され、行区切りおよびRFC5424リーダータイプをサポートします。 各リスナーには、一意の名前と一意のバインドポートが必要です（2つの異なるリスナーが同じプロトコル、アドレス、ポートにバインドすることはできません）。 基本的なリスナーのリーダータイプは、「Reader-Type」パラメーターによって制御されます。 現在、2種類のリスナー（回線とRFC5424）があります。 Reader-Typeが指定されていない場合、ラインリーダーのタイプが想定されます。
 
-Basic Listeners also require that each listener designate the tag the listener will apply to all incoming data via the "Tag-Name" parameter.  If the "Tag-Name" parameter is omitted, the "default" tag is applied.  The most basic listener named "test" which expects line broken data on TCP port 5555 and applies the tag "testing" would have the following configuration specification:
+また、基本リスナーでは、各リスナーが「Tag-Name」パラメーターを介してすべての着信データに適用するタグを指定する必要があります。 「Tag-Name」パラメーターを省略すると、「default」タグが適用されます。 TCPポート5555で改行データを予期し、「テスト」タグを適用する「テスト」という最も基本的なリスナーには、次の構成仕様があります。
 
 ```
 [Listener "test"]
@@ -147,27 +147,28 @@ Basic Listeners also require that each listener designate the tag the listener w
 	Tag-Name=testing
 ```
 
-#### Line Reader Listener
+#### ラインリーダーリスナー
 
-The line reader listener is designed to read newline broken data streams from either a TCP or UDP stream.  Applications which can deliver simple line broken data over a network can utilize this type of reader to very simply and easily integrate with Gravwell.  The Line Reader listener can also be used for simple log file delivery by simply sending log files to the listening port.
+ラインリーダーリスナーは、TCPまたはUDPストリームから改行の壊れたデータストリームを読み取るように設計されています。 ネットワークを介して単純な改行データを配信できるアプリケーションは、このタイプのリーダーを利用して非常に簡単かつ簡単にGravwellと統合できます。 Line Readerリスナーは、ログファイルをリスニングポートに送信するだけで、単純なログファイルの配信にも使用できます。
 
-For example, an existing log file can be imported into Gravwell using netcat and Simple Relay
+たとえば、既存のログファイルは、netcatとSimple Relayを使用してGravwellにインポートできます。
+
 ```
 nc -q 1 10.0.0.1 7777 < /var/log/syslog
 ```
 
-##### Example Line Reader Listener
+##### ラインリーダーリスナーの例
 
-The most basic Listener requires only one the "Bind-String" argument which tells the listener what port to listen on. 
+最も基本的なリスナーは、リスナーにリッスンするポートを指示する「バインド文字列」引数を1つだけ必要とします。
 
 ```
 [Listener "default"]
 	Bind-String="0.0.0.0:7777" #bind to all interfaces, with TCP implied
 ```
 
-#### RFC5424 Listener
+#### RFC5424リスナー
 
-A listener designed to accept structured syslog messages based on either RFC5424 or RFC3164 enables Simple Relay to act as a syslog aggregation point.  To enable a listener that expects syslog messages using a reliable TCP connection on port 601 set the "Reader-Type" to "RFC5424.
+RFC5424またはRFC3164に基づく構造化されたsyslogメッセージを受け入れるように設計されたリスナーにより、Simple Relayがsyslog集約ポイントとして機能できるようになります。 ポート601で信頼できるTCP接続を使用してsyslogメッセージを予期するリスナーを有効にするには、「Reader-Type」を「RFC5424」に設定します。
 
 ```
 [Listener "syslog"]
@@ -175,7 +176,7 @@ A listener designed to accept structured syslog messages based on either RFC5424
 	Reader-Type=RFC5424
 ```
 
-To accept syslog messages over stateless UDP via port 514 the listener would look like the following:
+ポート514を介してステートレスUDP経由でsyslogメッセージを受け入れる場合、リスナーは次のようになります。
 
 ```
 [Listener "syslog"]
@@ -183,15 +184,15 @@ To accept syslog messages over stateless UDP via port 514 the listener would loo
 	Reader-Type=RFC524
 ```
 
-RFC5424 reader types also support a parameter named "Keep-Priority" which is set to true by default.  A typical syslog message is prepended by a priority identifier, however some users may wish to discard the priority from stored messages.  This is accomplished by added "Keep-Priority=false" to an RFC5424 based listener.  Line based listeners ignore the "Keep-Priority" parameter.
+RFC5424リーダータイプは、デフォルトでtrueに設定されている「Keep-Priority」という名前のパラメーターもサポートしています。 典型的なsyslogメッセージには優先度識別子が付加されますが、一部のユーザーは保存されたメッセージから優先度を破棄したい場合があります。 これは、RFC5424ベースのリスナーに「Keep-Priority = false」を追加することで実現されます。 行ベースのリスナーは、「Keep-Priority」パラメーターを無視します。
 
-An example syslog message with a priority attached:
+優先度が付加されたsyslogメッセージの例：
 
 ```
 <30>Sep 11 17:04:14 router dhcpd[9987]: DHCPREQUEST for 10.10.10.82 from e8:c7:4f:04:e1:af (Chromecast) via insecure
 ```
 
-An example listener specification which removes the priority tag from entries:
+エントリから優先度タグを削除するリスナー仕様の例：
 
 ```
 [Listener "syslog"]
@@ -200,23 +201,23 @@ An example listener specification which removes the priority tag from entries:
 	Keep-Priority=false
 ```
 
-Note: The priority portion of a syslog message is codified in the RFC specification.  Removing the priority means that the Gravwell [syslog](#!search/syslog/syslog.md) search module will be unable to properly parse the values.  Paid Gravwell licenses are all unlimited and we reccomend that the priority field is left in syslog messages.  The syslog search module is also dramatically faster than attempting to hand parse syslog messages with regular expressions.
+注：syslogメッセージの優先順位部分は、RFC仕様で体系化されています。 優先度を削除すると、Gravwell [syslog](#!search/syslog/syslog.md) 検索モジュールが値を適切に解析できなくなります。 有料のGravwellライセンスはすべて無制限であり、syslogメッセージに優先度フィールドが残っていることをお勧めします。 syslog検索モジュールは、syslogメッセージを正規表現で解析するよりも劇的に高速です。
 
-### JSON Listeners
+### JSONリスナー
 
-The JSON Listener type enables some mild JSON processing at the time of ingest.  The purpose of a JSON reader would be to apply a unique tag to an entry based on the value of a field in a JSON entry.   Many applications export JSON data with a field that indicates the format of the JSON, from a processing efficiency standpoint it can be beneficial to tag the different formats with specific tags.
+JSONリスナータイプを使用すると、取り込み時に穏やかなJSON処理が可能になります。 JSONリーダーの目的は、JSONエントリのフィールドの値に基づいてエントリに一意のタグを適用することです。 多くのアプリケーションは、JSONの形式を示すフィールドを使用してJSONデータをエクスポートします。処理効率の観点から、さまざまな形式に特定のタグをタグ付けすると有益な場合があります。
 
-A great example use case is the JSON over TCP data export functionality found in many Bro sensor appliances.  The appliances export all Bro log data over a single TCP stream, however there are multiple data types within the stream built by different modules.  Using the JSON Listener we can derive the data type from the module field and apply a unique tag.  this allows us to do things like keep the Bro conn logs in one well, the Bro DNS logs in another, and all other Bro logs in yet another.  As a result, we can differentiate the data types with different tags and take advantage of Gravwell Wells when multiple JSON data types are coming in via a single stream.
+優れた使用例は、多くのBroセンサーアプライアンスに見られるJSON over TCPデータエクスポート機能です。 アプライアンスは、すべてのBroログデータを単一のTCPストリームでエクスポートしますが、ストリーム内には異なるモジュールによって構築された複数のデータタイプがあります。 JSONリスナーを使用して、モジュールフィールドからデータ型を導出し、一意のタグを適用できます。 これにより、Bro connのログを1つに、Bro DNSのログを別のログに、他のすべてのBroのログを別のログに保存するなどのことができます。 その結果、異なるタグでデータ型を区別し、単一のストリームを介して複数のJSONデータ型が入力されるときにGravwell Wellsを利用できます。
 
-#### JSON Listener Configuration Parameters
+#### JSONリスナー構成パラメーター
 
-The JSON Listener blocks implement the universion listener types as documented above.  Additional parameters allow for specifying which field we wish to pivot on to define a tag.
+JSONリスナーブロックは、上記のユニバージョンリスナータイプを実装します。 追加のパラメーターにより、タグを定義するためにピボットするフィールドを指定できます。
 
-##### Extractor Parameter
+##### 抽出パラメータ
 
-The "Extractor" parameter specifies a JSON extraction string which is used to pull a field from a JSON entry.  The Extraction string follows the same syntax as the Gravwell [json](#!search/json/json.md) search module minus any inline filtering.
+「Extractor」パラメータは、JSONエントリからフィールドを取得するために使用されるJSON抽出文字列を指定します。 抽出文字列は、Gravwell [json](#!search/json/json.md) 検索モジュールと同じ構文からインラインフィルタリングを除いたものに従います。
 
-Given the following JSON:
+次のJSONを考えます：
 
 ```
 {
@@ -240,7 +241,7 @@ Given the following JSON:
 }
 ```
 
-We could extract the location and state value and apply a tag based on which state abbreviation we find using the following Extraction parameter:
+次のExtractionパラメーターを使用して、場所と状態の値を抽出し、検出した状態の略語に基づいてタグを適用できます。
 
 ```
 Extractor=location.state
@@ -248,30 +249,30 @@ Extractor=location.state
 
 ##### Tag-Match
 
-Each JSONListener supports multiple field value to tag match specifications.  The value to tag assignment is specified as an argument to the "Tag-Match" paramter in the form <field value>:<tag name>.
+各JSONListenerは、複数のフィールド値をサポートして、一致仕様をタグ付けします。 タグ割り当ての値は、<タグ値>パラメーターの引数として<フィールド値>：<タグ名>の形式で指定されます。
 
-For example, if we extracted a field with the value "foo" and wanted to assign it to the tag "bar" we would add the following to the JSONListener configuration block:
+たとえば、値が「foo」のフィールドを抽出し、それをタグ「bar」に割り当てたい場合、JSONListener構成ブロックに次を追加します。
 
 ```
 Tag-Match=foo:bar
 ```
 
-The field extraction values can contain ":" characters, to specify a field value with a ":" character in it encapsulate the value with double quotes.
+フィールド抽出値には「：」文字を含めることができます。フィールド値に「：」文字を含めると、値を二重引用符でカプセル化できます。
 
-For example, if we wanted to assign the tag "baz" to the extracted value "foo:bar" the "Tag-Match" parameter would be as follows:
+たとえば、抽出した値「foo：bar」にタグ「baz」を割り当てたい場合、「Tag-Match」パラメーターは次のようになります。
 
 ```
 Tag-Match="foo:bar":baz
 ```
 
-Extraction value to tag mappings can be many to one, meaning that multiple extraction values can be mapped to the same tag.  For example the following parameters will map both "foo" and "bar" extracted values to the tag "baz":
+抽出値からタグへのマッピングは多対1にすることができます。つまり、複数の抽出値を同じタグにマッピングできます。 たとえば、次のパラメーターは、「foo」と「bar」の両方の抽出値をタグ「baz」にマッピングします。
 
 ```
 Tag-Match=foo:baz
 Tag-Match=bar:baz
 ```
 
-However, a single extraction value CANNOT be mapped to multiple tags.  The following is invalid:
+ただし、単一の抽出値を複数のタグにマッピングすることはできません。 次は無効です。
 
 ```
 Tag-Match=foo:baz
@@ -280,12 +281,11 @@ Tag-Match=foo:bar
 
 ##### Default-Tag
 
-When extracting fields and applying tags, the JSON Listener will apply a default tag if there is no matching Tag-Match specified.
+フィールドを抽出してタグを適用するときに、一致するTag-Matchが指定されていない場合、JSONListenerはデフォルトのタグを適用します。
 
-#### Example JSONListener behaviors
+#### JSONListenerの動作の例
 
-Assume the following configured JSONListener:
-
+次の構成済みJSONListenerを想定します。
 ```
 [JSONListener "testing"]
 	Bind-String=0.0.0.0:7777
@@ -296,28 +296,28 @@ Assume the following configured JSONListener:
 	Tag-Match=test3:tag3
 ```
 
-Some example JSON data and resulting tag:
+いくつかのサンプルJSONデータと結果のタグ：
 
-##### Matched field
+##### 一致したフィールド
 
 ```
 { "field1": "test1", "field2": "test2" }
 ```
 
-The entry gets the tag "tag1" because the field "field1" matched the "Tag-Match=test1:tag1"
+フィールド「field1」が「Tag-Match = test1：tag1」と一致したため、エントリはタグ「tag1」を取得します
 
-##### Unmatched field
+##### 一致しないフィールド
 
 ```
 { "field1": "foobar", "field2": "test2" }
 ```
 
-The entry gets the tag "json" because the field "field1" did not match any "Tag-Match" parameters.
+フィールド「field1」が「Tag-Match」パラメーターと一致しなかったため、エントリはタグ「json」を取得します。
 
-##### Extraction field not found
+##### 抽出フィールドが見つかりません
 
 ```
 { "fieldfoo": "test1", "fieldbar": "test2" }
 ```
 
-The entry gets the tag "json" because the extractor could not find the field "field1".
+抽出プログラムはフィールド「field1」を見つけることができなかったため、エントリはタグ「json」を取得します。
