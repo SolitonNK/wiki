@@ -1,110 +1,97 @@
-# Account control and info page for users and groups
-This page describes the API used for interacting with users and groups.
+## Account controls
+このページでは、ユーザーやグループとのやり取りに使用されるAPIについて説明します。
 
-## Connectivity test
-#### allows for checking connectivity with the backend
-Basically a GET on /api/test returns a 200 with no content.  Pretty simple.
+## 接続テスト
+### バックエンドとの接続を確認することができます
+基本的に/api/testに対するGETは、内容のない200を返します。ものすごく単純。
 
-## Version API
-#### Path is /api/version/
-Perform a GET and you get version info.  Any, no authentication required.
+## バージョンAPI
+### パスは/api/version/です。
+GETを実行するとバージョン情報が表示されます。認証は必要ありません。
 ```
 {"Version":0.1,"Date":"0001-01-01T00:00:00Z"}
 ```
-## Logging in and logging out
+## アカウントと活動を一覧表示する
+ /api/user/サブディレクトリは、管理者がアカウント情報を取得したり、アカウントの利用状況を確認したりできるようにするためのものです。
 
-[documented here](login.md)
-
-# List accounts and activity
-The /api/user/ subdirectory is for admins to be able to get account info and also see account activity
-
-## List all accounts
-
-An admin can perform a GET request against /api/user and the backend will return a JSON packet containing a summery for every account.  The JSON returned is as follows:
-
+##すべてのアカウントを一覧表示する
+管理者は /api/user/に対してGET要求を実行でき、バックエンドはすべてのアカウントの要約を含むJSONパケットを返します。返されるJSONは次のとおりです。
 ```
 {[
     {
         UID: 1
-        User: "Administrator"
-        Name: "I am the law"
-        Email: "admin@example.com"
+        User: "Administrator" 
+        Name: "I am the law" 
+        Email: "admin@example.com" 
         Admin: true
         Locked: false
-        TS: "2009-11-01 17:45:02.1000 +0000 UTC"
+        TS: "2009-11-01 17:45:02.1000 +0000 UTC" 
     },
     {
         UID: 2
-        User: "paco"
-        Name: "Paco Chingato"
-        Email: "paco@gmail.com"
+        User: "paco" 
+        Name: "Paco Chingato" 
+        Email: "paco@gmail.com" 
         Admin: false
         Locked: true
-        TS: "2014-05-01 01:31:33.1234 +0000 UTC"
+        TS: "2014-05-01 01:31:33.1234 +0000 UTC" 
     }
 ]}
 ```
+## アカウント管理
+管理者はアカウントを変更するために/api/user/を操作できます。バックエンドは常にコマンドが成功したかどうかを示すJSONパケットと可能な情報エラーメッセージで応答します。失敗するとフロントエンドはエラーメッセージをユーザーに表示します（人間向けにフォーマットされています）。適切なエラーメッセージが応答の本文に表示されます。StatusOK（200）は良いリクエストで送信され、400-500ステータスはエラーで送信されます（どのエラーとなぜ）。
 
-# account control
-An admin can operate on /api/user/ in order to modify accounts.  The backend will always respond with a JSON packet which indicates whether the command succeeded or not and a possible informational error message.  On failure the frontend should display the error message to the user (it is formatted for a human).  The appropriate error message will be dumped in the body of the response.  StatusOK (200) will be sent on a good request and a 400-500 status will be sent on error (depending on what error and why).
+管理者アカウントのユーザー名を変更または削除することはできません。また、管理者アカウントを管理者ステータスから降格することもできません。
 
-The Admin account username cannot be changed or deleted, nor can the Admin account be demoted out of admin status.
-
-## Adding a new user
-To add a new user the front end should POST the following struct/JSON to /api/user/
-
+## 新しいユーザーを追加する
+新しいユーザーを追加するには、フロントエンドは次のstruct/JSONを /api/user/にPOSTする必要があります。
 ```
+
 {
      User: "chuck",
      Pass: "chuckTesta4Eva",
      Name: "Chuck Testa",
-     Email: "chuck@testa.net"
+     Email: "chuck@testa.net" 
      Admin: true,
 }
 ```
+すべてのフィールドに入力する必要があります。バックエンドは上記のように標準レスポンスJSONでレスポンスします。
 
-All fields must be populated.  The back end will respond with the standard response JSON as mentioned above.
+ユーザーアカウントをロックする
 
-## Locking a user account
-To Lock an account the front end should send an empty POST to /api/user/{id}/lock with the {id} of the UID for the user that will be locked.  Locking a user account will immediately stop any new connections to the backend, even if a session is active.
+アカウントをロックするには、フロントエンドはロックされるユーザーのUIDの{id}とともに空のPOSTを /api/user/{id}/lockに送信する必要があります。ユーザーアカウントをロックすると、セッションがアクティブであっても、バックエンドへの新しい接続は即座に停止されます。
 
-## UnLocking a user account
-To UnLock an account the front end should send an empty DELETE to /api/user/{id}/lock with the {id} for the UID of the user that will be unlocked.  The backend will respond with success regardless of whether the account was actually unlocked if the action is allowed.  We do this because locking a locked account ends in the state that the account is locked.  So its all good.  Same with unlocking.
+ユーザーアカウントのロック解除
+アカウントのロックを解除するには、フロントエンドはロックを解除するユーザーのUIDの{id}を付けて/api/user/{id}/lock with the {id}に空のDELETEを送信する必要があります。アクションが許可されている場合、アカウントが実際にロック解除されたかどうかにかかわらず、バックエンドは正常に応答します。これは、ロックされたアカウントをロックすると、そのアカウントがロックされた状態で終了するためです。だからそれはすべて良いです。ロック解除と同じです。
 
-## Changing user info
-To change user info the front end should send a PUT /api/user/{id}/ with replaced account JSON:
-
+## ユーザー情報を変更する
+ユーザ情報を変更するには、フロントエンドはPUT /api/user/{id}/をアカウントJSONに置き換えて送信します。
 ```
 {
      User: "chuck",
      Name: "Chuck Testa",
-     Email: "chuck@testa.net"
+     Email: "chuck@testa.net" 
 }
 ```
+入力されていないフィールドは無視されます。バックエンドは上記のように標準レスポンスJSONでレスポンスします。現在のユーザーが管理者ではなく、自分のアカウントを変更していない場合、リクエストは拒否されます。管理者は任意のアカウントの情報を変更できます。プライマリ管理者アカウント（UIDゼロ）はその管理ステータスを変更できません。バックエンドは、誰がエラーの原因となったのかに応じて、成功時に200、エラー時に400〜500で応答します。エラーメッセージはレスポンスの本文に返され、人間が表示できます。
 
-Any field that is NOT populated will be ignored.  The backend will respond with the standard response JSON as mentioned above.  If the current user is NOT an admin and not changing their own account, the request will be rejected.  Admins can change information for any account.  The primary admin account (UID zero) cannot change its admin status.  The backend responds with a 200 on success and 400-500 on error depending on who caused the error and why.  Error messages will be returned in the body of the response and are human displayable.
-
-## Changing a users password
-To change a password the frontend should PUT JSON to the url /api/user/{id}/pwd
-If the User is an admin and changing the password for an account they DO NOT OWN, the OrigPass field is NOT required.
+## ユーザーのパスワードを変更する
+パスワードを変更するには、フロントエンドはJSONをurl /api/user/{id}/pwdに設定する必要があります。ユーザーが管理者でアカウントのパスワードを変更しない場合、OrigPassフィールドは必要ありません。
 ```
 {
      OrigPass: "my old password was bad",
      NewPass: "thisis mynewpassword",
 }
 ```
+## ユーザーを削除する
+ユーザを削除するには、フロントエンドは削除するUIDのIDを付けてDELETEを/api/user/{id}/に送信する必要があります。この機能を使用できるのは管理者だけです。ユーザーは自分のアカウントを削除することはできません。1次管理者（UIDゼロ）は削除できません。
 
-## Deleting a user
-To Delete a user the front end should send a DELETE to /api/user/{id}/ with the id of the UID to delete.  Only Admins can use this facility, and a user cannot delete their own account.  The Primary admin (UID zero) cannot be deleted.
-
-## Changing admin status
-To change the admin status of a user or query the admin status the frontend should hit /api/user/{id}/admin
-with an empty body where the method specifies the action.  The backend will respond with 200 on success and 400-500 on error depending on who munged the request and why.
+## 管理ステータスを変更する
+ユーザの管理ステータスを変更したり、管理ステータスを問い合わせたりするには、フロントエンドは/api/user/{id}/adminに空のボディを付けてメソッドにアクションを指定する必要があります。バックエンドは、成功した場合は200、エラーが発生した場合は400から500で応答を返します。
 ```
 GET - returns current admin status
 PUT - sets the user as an admin and returns the new status
 DELETE - removes admin status for the user
-
 
 //example JSON on success
 {
@@ -112,11 +99,9 @@ DELETE - removes admin status for the user
      Admin: true,
 }
 ```
-
-## Getting a single users account information
-To get a single users account information the front end should send a GET to /api/user/{id}/.  Admins can retrieve any account, non-admins can ONLY retrieve their own account information.  Response of 200 will contain valid JSON in the body, 400-500 means someone boned the request and the body will contain an error message.  The backend will respond with a JSON packet containing the account info as follows:
+## シングルユーザーアカウント情報の取得
+シングルユーザーアカウント情報を取得するには、フロントエンドは/api/user/{id}/にGETを送信する必要があります。管理者は任意のアカウントを取得でき、管理者以外は自分のアカウント情報のみを取得できます。200のレスポンスはボディに有効なJSONを含み、400-500は誰かがリクエストをボーンしたことを意味し、ボディはエラーメッセージを含みます。バックエンドは次のようにアカウント情報を含むJSONパケットで応答します。
 ```
-
 //the JSON returned on success
 {
     Status: bool,
@@ -131,6 +116,7 @@ To get a single users account information the front end should send a GET to /ap
         TS: string
     }
 }
+
 //an example successful response
 {
     Status: true,
@@ -142,17 +128,15 @@ To get a single users account information the front end should send a GET to /ap
         Email: "ChuckTesta@gmail.com",
         Admin: false,
         Locked: false,
-        TS: "05-12-2014 13:05:01.2242 +0000 UTC"
+        TS: "05-12-2014 13:05:01.2242 +0000 UTC" 
     }
 }
-
 ```
+## アカウントとグループの情報
+情報URLは、認証されたユーザーなら誰でも攻撃できます。URLを押すと現在のユーザー情報が得られます。
 
-## account and group info
-The info URLs can be hit by any authenticated user.  Hitting the urls gets the current users info.
-### Base URL for account user info /api/info/whoami
-GET on /api/info/whoami returns current account info
-
+## アカウントユーザー情報のベースURL /api/info/whoami
+/api/info/whoamiでGETを実行すると、現在のアカウント情報が返されます。
 ```
 {
         "UID": 1,
@@ -167,9 +151,8 @@ GET on /api/info/whoami returns current account info
                 {
                         "GID": 1,
                         "Name": "TheNinos",
-                        "Desc": "This is the Ninos group"
+                        "Desc": "This is the Ninos group" 
                 }
         ]
 }
-
 ```

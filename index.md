@@ -4,65 +4,67 @@
 
 # Gravwell
 
-This site contains documentation for Gravwell, plus other resources such as Changelogs.
+このサイトには、Gravwellのドキュメントに加えて、変更ログなどの他のリソースが含まれています。
 
-If you're just starting out with Gravwell, we recommend reading the [Quickstart](quickstart/quickstart.md) first, then moving on to the [Search pipeline](search/search.md) documentation to learn more.
+Gravwellを始めたばかりの場合は、最初に[Quickstart](quickstart/quickstart.md)を読んでから、[Search pipeline](search/search.md)ドキュメントに進んで詳細を確認することをお勧めします。
 
-Gravwell is pleased to announce our free [Community Edition](https://www.gravwell.io/download)!
+Gravwellは無料の[Community Edition](https://www.gravwell.io/download)を発表します。
 
-[Quickstart](quickstart/quickstart.md)
 
-  * [Downloads](quickstart/downloads.md)
+[クイックスタート](quickstart/quickstart.md)
 
-[Searching with Gravwell](search/search.md)
+  * [ダウンロード](quickstart/downloads.md)
 
-  * [Search modules](search/searchmodules.md)
+[Gravwellによる検索方法](search/search.md)
 
-  * [Render modules](search/rendermodules.md)
+  * [検索モジュール](search/searchmodules.md)
 
-[Gravwell System Architecture](architecture/architecture.md)
+  * [レンダリングモジュール](search/rendermodules.md)
 
-[Setting Up Ingesters](ingesters/ingesters.md)
+[Gravwellシステムアーキテクチャ](architecture/architecture.md)
 
-  * [Service Integrations](ingesters/integrations.md)
+[Ingesters設定](ingesters/ingesters.md)
 
-[Installing and Configuring Gravwell](configuration/configuration.md)
+  * [サービス インテグレーション](ingesters/integrations.md)
 
-  * [Docker Deployment](configuration/docker.md)
+[Gravwellのインストールと構成](configuration/configuration.md)
 
-  * [Setting up TLS/HTTPS](configuration/certificates.md)
+  * [Dockerの展開](configuration/docker.md)
+
+  * [TLS/HTTPSのセットアップ](configuration/certificates.md)
   
-  * [Setting up Extractors](configuration/autoextractors.md)
+  * [エクストラクターのセットアップ](configuration/autoextractors.md)
   
-  * [Data Ageout](configuration/ageout.md)
+  * [データエイジアウト](configuration/ageout.md)
  
-  * [Data Archive](configuration/archive.md)
+  * [データアーカイブ](configuration/archive.md)
 
-  * [Data Replication](configuration/replication.md)
+  * [データ複製](configuration/replication.md)
 
-  * [Query Acceleration](configuration/accelerators.md)
+  * [クエリ高速化](configuration/accelerators.md)
 
-[//]: # (* [Data Auto-extraction](configuration/autoextractors.md))
-  * [Distributed Frontends](distributed/frontend.md)
+[//]: # (* [データの自動抽出](configuration/autoextractors.md))
 
-  * [Environment Variables](configuration/environment-variables.md)
+  * [分散フロントエンド](distributed/frontend.md)
 
-  * [Detailed configuration parameters](configuration/parameters.md)
+  * [環境変数](configuration/environment-variables.md)
 
-[The Resource System](resources/resources.md)
+  * [詳細な構成パラメーター](configuration/parameters.md)
 
-[Orchestration](scripting/scriptingsearch.md)
+[リソースシステム](resources/resources.md)
 
-  * [Scripting](scripting/scripting.md)
+[オーケストレーション](scripting/scriptingsearch.md)
 
-[GUI User Preferences](configuration/gui.md)
+  * [スクリプティング](scripting/scripting.md)
 
-[Using the Command-Line Client](cli/cli.md)
+[GUIユーザー設定](configuration/gui.md)
+
+[コマンドラインクライアントの使用](cli/cli.md)
 
 [API](api/api.md)
 
-[Licensing](license/license.md)
+[ライセンス](license/license.md)
 
-[Changelogs](changelog/list.md)
+[変更ログ](changelog/list.md)
 
-Documentation version 2.0
+ドキュメント バージョン 2.0

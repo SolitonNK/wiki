@@ -1,18 +1,20 @@
 ## user preferences
-user preferences API is used to store GUI preferences to persist across logins and between devices.
+### ユーザー設定
 
-GET the /api/users/{id}/preferences and it will return a chunk of JSON.  Admins can request any users preferences, users can ONLY request their own sessions. If no preferences exist, return null.
+ユーザー設定APIは、ログイン間およびデバイス間で持続するためのGUI設定を格納するために使用されます。
 
-GET on /api/users/preferences will return all users preferences
+/ api / users / {id} / preferencesを取得すると、大量のJSONが返されます。管理者は任意のユーザー設定を要求でき、ユーザーは自分のセッションのみを要求できます。設定が存在しない場合は、nullを返します。
 
-PUT the /api/users/{id}/preferences to update the user preferences. If no preferences exist, update with the provided JSON anyway. No POST will ever occur on this api. The payload of the PUT method will be the JSON blob.
+/ api / users / preferencesをGETすると、すべてのユーザー設定が返されます。
 
-GET and PUT are the only relevant methods. Each user should inherently have one and only one preferences JSON blob.
+ユーザー設定を更新するには、/ api / users / {id} / preferencesを入力します。設定が存在しない場合は、とにかく提供されているJSONで更新してください。このAPIにPOSTは発生しません。PUTメソッドのペイロードはJSON BLOBになります。
 
-DELETE on /api/users/{id}/preferences will delete the preferences (if admin or canning your own)
+GETとPUTが唯一の関連メソッドです。各ユーザーは本質的に唯一の好みJSONブロブを持つべきです。
+
+/ api / users / {id} / preferencesをDELETEすると、設定が削除されます（管理者または自分専用の場合）。
 
 
-example returned JSON on a GET:
+例ではGETでJSONが返されました。
 ```json
 {
      "foo": "bar",
@@ -20,8 +22,8 @@ example returned JSON on a GET:
 }
 ```
 
-## Examples from the client
-### Requesting preferences
+## クライアントからの例
+### 設定を要求する
 ```
 WEB GET /api/users/5/preferences:
 {
@@ -37,12 +39,12 @@ WEB GET /api/users/1/preferences:
         "Things": 3.1415
 }
 ```
-### Requesting ALL preferences (as admin)
+### すべての設定を要求する（管理者として）
 ```
 WEB GET /api/users/preferences:
 []
 ```
-### Pushing
+
 ```
 WEB REQ PUT /api/users/1/preferences:
 {
@@ -60,18 +62,18 @@ WEB REQ PUT /api/users/5/preferences:
         "DataData": "bW9yZSBpbXBvcnRhbnQgZGF0YQ=="
 }
 ```
-### Pushing to non existent user
+### 存在しないユーザーにする
 
-will get a 404 not found
+404が見つかりません
 
-### Pushing and pulling someone elses as non admin
+### 非管理者として他の人を押したり引いたりする
 
-will get a 403 forbidden
+403は禁止されます
 
-### Deleting our preferences
+### 設定を削除する
 ```
 WEB REQ DELETE /api/users/5/preferences:
 ```
-### Attempting to delete someone elses
+### 他の人を削除しようとしています
 
-will get a 403 forbidden
+403は禁止されます

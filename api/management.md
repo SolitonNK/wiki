@@ -1,24 +1,25 @@
 # System Management
+## システムマネジメント
 
-This page documents admin-only APIs for managing the Gravwell processes and configuration.
+このページでは、Gravwellのプロセスと設定を管理するための管理者専用APIについて説明しています。
 
-## Restarting Gravwell
+## Gravwellの再起動
 
-Two APIs are provided to restart Gravwell processes; one to restart the webserver, and one to restart the indexers. In both cases, "restarting" is accomplished by shutting down the process and allowing systemd (or whatever init system is in use) to restart it.
+Gravwellプロセスを再起動するために2つのAPIが提供されています。1つはWebサーバーを再起動するためのもの、もう1つはインデクサーを再起動するためのものです。どちらの場合も、「再起動」は、プロセスをシャットダウンしてsystemd（または使用中のinitシステム）に再起動を許可することで実現されます。
 
-### Restarting the webserver
+### Webサーバーを再起動する
 
-To restart the webserver, send a POST request with an empty body to `/api/restart/webserver`. This should trigger the webserver to shut down and restart immediately.
+Webサーバーを再起動するには、本文を空にしてPOSTリクエストをに送信し/api/restart/webserverます。これにより、Webサーバーは直ちにシャットダウンして再起動します。
 
-### Restarting the indexers
+### インデクサーの再起動
 
-To restart all indexers to which the webserver is currently connected, send a POST request with an empty body to `/api/restart/indexers`. The webserver will signal to each indexer that it should shut itself down and restart. As the individual indexers come back up, the webserver will reconnect automatically.
+Webサーバーが現在接続しているすべてのインデクサーを再起動するには、本文を空にしてPOSTリクエストを送信し/api/restart/indexersます。Webサーバーは各インデクサーに、自分自身をシャットダウンして再起動するように通知します。個々のインデクサーが復旧すると、Webサーバーは自動的に再接続します。
 
-### Checking for a Distributed Frontend
+### 分散フロントエンドの確認
 
-To check whether the Gravwell cluster is operating in a distributed frontend mode, perform a GET on `/api/distributed`.  The webserver will responde with a JSON object indicating whether the frontend is configured in a distributed mode.
+Gravwellクラスターが分散フロントエンドモードで動作しているかどうかを確認するには、GETを実行し/api/distributedます。Webサーバはフロントエンドが分散モードで設定されているかどうかを示すJSONオブジェクトで応答します。
 
-An example response when not in distributed mode:
+分散モードではない場合の応答例
 
 ```
 {

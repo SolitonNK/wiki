@@ -1,4 +1,5 @@
 # Gravwell Docs
 
-[Home](index.md)
-[Changelogs](changelog/list.md)
+[ホーム](index.md)
+
+[変更ログ](changelog/list.md)

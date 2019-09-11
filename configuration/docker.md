@@ -1,105 +1,100 @@
-# Deploying Gravwell in Docker
+# GravwellをDockerにデプロイする
 
-With pre-built Docker images available in the Docker Hub, it is very easy to deploy Gravwell in Docker for experimentation or long-term use. In this document, we show how to set up a Gravwell environment within Docker.
+Docker Hubでビルド済みのDockerイメージを使用できるので、実験または長期使用のためにGravwellをDockerにデプロイするのは非常に簡単です。 この文書では、Docker内でGravwell環境を設定する方法を説明します。
 
-If you are a paid Gravwell customer and wish to deploy Gravwell in Docker, contact support@gravwell.io for help. We also have some information about deploying a custom Docker instance [on this wiki](#!configuration/custom-docker.md) and [on our blog](https://www.gravwell.io/blog/gravwell-docker-deployment)
+Gravwellの有料顧客で、GravwellをDockerにデプロイしたい場合は、support @ gravwell.ioに連絡してください。 この[ウィキ](#!configuration/custom-docker.md)や[ブログ](https://www.gravwell.io/blog/gravwell-docker-deployment)で、カスタムDockerインスタンスのデプロイに関するいくつかの情報もあります。
 
-Once you have set up Gravwell, check out the [quickstart](#!quickstart/quickstart.md) for some starting points on *using* Gravwell.
+Gravwellを設定したら、Gravwellを使用するためのいくつかの出発点について[クイックスタート ](#!quickstart/quickstart.md) をチェックしてください。
 
-Note: Users running Docker on MacOS should be aware that the MacOS host does not have direct IP access to containers, as explained [here](https://docs.docker.com/docker-for-mac/networking/). Be prepared to forward additional ports if you need to access container network services from the host.
+<span style="color: red; ">注意：MacOS上でDockerを実行しているユーザーは、[ここ](https://docs.docker.com/docker-for-mac/networking/)で説明されているように、MacOSホストがコンテナーへの直接IPアクセスを持っていないことに注意してください。 ホストからコンテナネットワークサービスにアクセスする必要がある場合は、追加のポートを転送する準備をしてください。</span>
 
-## Create Docker network
-
-To keep our Gravwell containers separated from any other containers you may be running, we'll create a Docker network called `gravnet`:
+## Dockerネットワークを作成する
+Gravwellコンテナを他の実行中のコンテナから分離するために、`gravnet`というDockerネットワークを作成します。
 
 	docker network create gravnet
 
-## Deploy the indexer and webserver
-
-The Gravwell indexer and webserver frontend, plus the Simple Relay ingester, are shipped in a single Docker image ([gravwell/gravwell](https://hub.docker.com/r/gravwell/gravwell/)) for convenience. We will launch it with port 80 forwarded to port 8080 on the host for access to the webserver:
+## インデクサーとWebサーバーをデプロイする
+GravwellインデクサーとWebサーバーフロントエンド、およびSimple Relayインジェスターは、便宜上単一のDockerイメージ([gravwell/gravwell](https://hub.docker.com/r/gravwell/gravwell/)) で出荷されます。 Webサーバーにアクセスするために、ホストのポート80をポート80に転送して起動します。
 
 	docker run --net gravnet -p 8080:80 -p 4023:4023 -p 4024:4024 -d -e GRAVWELL_INGEST_SECRET=MyIngestSecret -e GRAVWELL_INGEST_AUTH=MyIngestSecret -e GRAVWELL_CONTROL_AUTH=MyControlSecret -e GRAVWELL_SEARCHAGENT_AUTH=MySearchAgentAuth --name gravwell gravwell/gravwell:latest
 
-Note that the new container is named `gravwell`; we will use this when pointing ingesters to the indexer.
+新しいコンテナは`gravwell`という名前です。インデクサーをインジェスターに向けるときにこれを使用します。
 
-We have set several environment variables which bear examination. They set shared secrets used to communicate between components of Gravwell. Normally these are set in [configuration files](#!configuration/parameters.md), but we can also set them via [environment variables](#!configuration/environment-variables.md) for a more dynamic, Docker-friendly config. We'll use the `GRAVWELL_INGEST_SECRET=MyIngestSecret` value later for ingesters too. The variables we set are:
+検討を要する環境変数をいくつか設定しました。彼らはGravwellの構成要素間の通信に使用される共有秘密を設定しました。通常これらは[設定ファイル](#!configuration/parameters.md)で設定されますが、より動的でDockerにやさしい設定のために[環境変数](#!configuration/environment-variables.md)で設定することもできます。後で `GRAVWELL_INGEST_SECRET=MyIngestSecret`値をインジェスターにも使用します。設定した変数は次のとおりです。
 
-* `GRAVWELL_INGEST_AUTH=MyIngestSecret` tells the *indexer* to use MyIngestSecret to authenticate ingesters.
-* `GRAVWELL_INGEST_SECRET=MyIngestSecret` tells the *Simple Relay ingester* to use MyIngestSecret to authenticate to the indexer. This **must** match the value of GRAVWELL_INGEST_AUTH!
-* `GRAVWELL_CONTROL_AUTH=MyControlSecret` tells the *frontend* and *indexer* that they should authenticate with each other using MyControlSecret
-* `GRAVWELL_SEARCHAGENT_AUTH=MySearchAgentAuth` tells the *frontend* to use MySearchAgentAuth when authenticating the search agent
+* `GRAVWELL_INGEST_AUTH = MyIngestSecret`は、インデクサーを認証するためにMyIngestSecretを使用するように* indexer *に指示します。
+* `GRAVWELL_INGEST_SECRET = MyIngestSecret`は、インデクサーの認証にMyIngestSecretを使用するように*単純なリレーingester *に指示します。 これは、GRAVWELL_INGEST_AUTHの値と一致する必要があります。
+* `GRAVWELL_CONTROL_AUTH = MyControlSecret`は、MyControlSecretを使用して相互に認証する必要があることを* frontend *および* indexer *に伝えます
+* `GRAVWELL_SEARCHAGENT_AUTH = MySearchAgentAuth`は、検索エージェントの認証時にMySearchAgentAuthを使用するように* frontend *に指示します
 
-Attention: We **highly** recommend setting these values to secrets of your own choosing if you intend to run this long-term, ESPECIALLY if you expose it to the Internet in any way.
+<span style="color: red; ">注意：長期的に実行する場合、特に何らかの方法でインターネットに公開する場合は、これらの値を独自の秘密に設定することを強くお勧めします。</span>
 
-Attention: The secret value for GRAVWELL_INGEST_AUTH must match GRAVWELL_INGEST_SECRET
+<span style="color: red; ">重要：GRAVWELL_INGEST_AUTHの秘密の値はGRAVWELL_INGEST_SECRETと一致する必要があります</span>
 
-## Upload license and log in
+## ライセンスをアップロードしてログインする
 
-Now that Gravwell is running, point a web browser at port http://localhost:8080 on the host. It should prompt for a license upload:
+Gravwellが実行されているので、ホスト上のポートhttp://localhost:8080にWebブラウザを向けます。ライセンスのアップロードを促すはずです。
 
 ![](license-upload-docker.png)
 
-Note: Paid users and existing Community Edition users should have received a license via email. If you haven't signed up for Community Edition yet, head over to [https://www.gravwell.io/download](https://www.gravwell.io/download) and get a license.
+注：有料ユーザーおよび既存のCommunity EditionユーザーはEメールでライセンスを受けているはずです。 まだCommunity Editionにサインアップしていない場合は、[https://www.gravwell.io/download](https://www.gravwell.io/download)にアクセスしてライセンスを取得してください。
 
-Once you upload the license and it is verified, you'll get a login prompt:
+ライセンスをアップロードして確認すると、ログインプロンプトが表示されます。
 
 ![](docker-login.png)
 
-Log in with the default credentials **admin** / **changeme**. You're now in Gravwell! If you're going to run Gravwell for a while, you should probably change the password (click the user icon in the upper right to change the password).
+デフォルトの認証情報**admin** / **changeme**でログインします。 あなたは今Gravwellにいます！ しばらくGravwellを実行する場合は、おそらくパスワードを変更する必要があります（パスワードを変更するには、右上のユーザーアイコンをクリックしてください）。
 
-## Add some data to test
+## テストにデータを追加する
 
-The gravwell/gravwell Docker image ships with the Simple Relay [ingester](#!ingesters/ingesters.md) pre-installed. It listens on the following ports:
+gravwell / gravwell Dockerイメージには、Simple Relay[インジェスター](#!ingesters/ingesters.md)がプリインストールされた状態で出荷されています。 次のポートで待機します。
+* 行区切りログ用のTCP 7777（ 'default'とタグ付けされている）
+* syslogメッセージ用のTCP 601（ 'syslog'のタグ付き）
+* syslogメッセージ用のUDP 514（ 'syslog'のタグ付き）
 
-* TCP 7777 for line-delimited logs (tagged 'default')
-* TCP 601 for syslog messages (tagged 'syslog')
-* UDP 514 for syslog messages (tagged 'syslog')
-
-To make sure we can get data into Gravwell, we can use netcat to write lines to port 7777. However, when we launched the VM, we didn't forward any of those ports to the host. Luckily, we can use `docker inspect` to get the IP address assigned to the Gravwell container:
+確実にデータをGravwellに取り込むために、netcatを使用してポート7777に行を書き込むことができます。ただし、VMを起動したときに、これらのポートをホストに転送しませんでした。 幸いなことに、Gravwellコンテナに割り当てられたIPアドレスを取得するために`docker inspect`を使うことができます。
 
 	docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' gravwell
 
-In our case, it was **172.19.0.2**. We can then use netcat to send in some lines, hitting Ctrl-C when done:
+私たちの場合、それは**172.19.0.2**でした。 その後、netcatを使用していくつかの行を送信し、完了したらCtrl-Cを押します。
 
 	$ netcat 172.19.0.2 7777
 	this is a test
 	this is another test
 
-Attention: MacOS users cannot access containers directly by IP, because the containers are actually run within a Linux VM. You can either use netcat from within a Docker container (either the same container or a new one), or forward port 7777 to the host when launching the Gravwell container.
-
-We can then run a quick search over the last hour to verify that the data made it in and Gravwell is working properly:
+重要：コンテナーは実際にはLinux VM内で実行されるため、MacOSユーザーはIPでコンテナーに直接アクセスすることはできません。 Dockerコンテナー（同じコンテナーまたは新しいコンテナー）からnetcatを使用するか、Gravwellコンテナーを起動するときにポート7777をホストに転送することができます。
+その後、過去1時間にわたってクイック検索を実行して、データが正しく入力され、Gravwellが正しく機能していることを確認できます。
 
 ![](docker-search.png)
 
-## Set up ingesters
+## インジェスターを設定する
+gravwell / gravwellイメージが付属しているSimple Relayインジェスターの他に、現在3つのビルド済みの独立型インジェスターイメージが用意されています。
 
-Besides the Simple Relay ingester that ships with the gravwell/gravwell image, we currently provide three pre-built standalone ingester images:
+* [gravwell/netflow_capture](https://hub.docker.com/r/gravwell/netflow_capture/) は、ポート2055でNetflow v5レコードを受信し、ポート6343でIPFIXレコードを受信するように構成されたNetflowコレクターです。
+* [gravwell/collectd](https://hub.docker.com/r/gravwell/collectd/) は、ポート25826で収集された収集ポイントからハードウェアの統計情報を受け取ります
+* [gravwell/simple_relay](https://hub.docker.com/r/gravwell/simple_relay/) は、コアイメージにプリインストールされているSimple Relay ingesterであり、個別に展開する場合にも使用します。
 
-* [gravwell/netflow_capture](https://hub.docker.com/r/gravwell/netflow_capture/) is a Netflow collector, configured to receive Netflow v5 records on port 2055 and and IPFIX records on port 6343
-* [gravwell/collectd](https://hub.docker.com/r/gravwell/collectd/) receives hardware stats from collectd acquisition points on port 25826
-* [gravwell/simple_relay](https://hub.docker.com/r/gravwell/simple_relay/) is the Simple Relay ingester as pre-installed on the core image, in case you want to deploy it separately too.
-
-We'll launch the Netflow ingester here, but the same command (with names and ports changed) can be used for the other ingesters too:
+ここでNetflow ingesterを起動しますが、同じコマンド（名前とポートを変更）を他のインジェスターにも使用できます。
 
 	docker run -d --net gravnet -p 2055:2055/udp --name netflow -e GRAVWELL_CLEARTEXT_TARGETS=gravwell -e GRAVWELL_INGEST_SECRET=MyIngestSecret gravwell/netflow_capture
 
-Note the use of the `-e` flag to set environment variables. This allows us to dynamically configure the ingester by directing it to connect to the container named 'gravwell' for ingest (GRAVWELL_CLEARTEXT_TARGETS=gravwell) and setting the shared ingest secret to 'IngestSecrets' (GRAVWELL_INGEST_SECRET=IngestSecrets).
+環境変数を設定するための `-e`フラグの使用に注意してください。 これにより、摂取のために「gravwell」という名前のコンテナに接続し（GRAVWELL_CLEARTEXT_TARGETS = gravwell）、共有インジェストシークレットを「IngestSecrets」（GRAVWELL_INGEST_SECRET = IngestSecrets）に設定することで、ingesterを動的に構成できます。
 
-The `-p 2055:2055/udp` option forwards UDP port 2055 (Netflow v5 ingest port) from the container to the host. This should make it easier to send Netflow records into the ingest container.
+`-p 2055:2055/udp` オプションは、UDPポート2055（Netflow v5取り込みポート）をコンテナーからホストに転送します。 これにより、Netflowレコードを取り込みコンテナに送信しやすくなります。
 
-Note: The netflow ingester is also configured by default to accept IPFIX records over UDP on port 6343. If you wish to ingest IPFIX records too, add `-p 6343:6343/udp` to the command line above.
+注：NetFlowインジェスタも、デフォルトでUDPを介してポート6343でIPFIXレコードを受け入れるように設定されています。IPFIXレコードも取り込む場合は、上記のコマンドラインに`-p 6343:6343/udp` を追加してください。
 
-We can verify that the ingester is active by clicking on the Ingesters item in the menu:
+メニューのIngesters項目をクリックして、インジェスターがアクティブであることを確認できます。
 
 ![](netflow_ingest.png)
 
-Now we can configure our Netflow generators to send records to port 2055 of the host; they'll be passed in to the container and ingested into Gravwell.
+これで、ホストのポート2055にレコードを送信するようにNetflowジェネレータを設定できます。 それらはコンテナに渡され、Gravwellに摂取されます。
 
-## Customizing services
+## カスタマイズサービス
 
-The official Gravwell docker container contains a service management system that makes launching and controlling multiple services within the container very easy.  The manager controls service restarts, error reporting, and back off controls.  Gravwell has opensourced the [manager](https://github.com/gravwell/manager) application on [github](https://github.com/gravwell) under the BSD 3-Clause license.  So if you want a very small and easily configured SystemD like service manager for your docker containers, have at it.
+Gravwellの公式dockerコンテナには、コンテナ内の複数のサービスの起動と制御を非常に簡単にするサービス管理システムが含まれています。[マネージャ](https://github.com/gravwell/manager)は、サービスの再開、エラー報告、および制御の取り消しを制御します。 GravwellはBSD 3-Clauseライセンスの下で[github](https://github.com/gravwell)上のマネージャアプリケーションをオープンソース化しました。 だからあなたがあなたのdockerコンテナのための非常に小さくて簡単に設定されたSystemDのようなサービスマネージャを望むなら、それを持ってください。
 
-The official gravwell Docker image contains the full Gravwell stack (indexer and webserver) as well as the Simple Relay ingester.  The default manager configuration is:
+公式のgravwell Dockerイメージには、完全なGravwellスタック（インデクサーとWebサーバー）とSimple Relay ingesterが含まれています。 デフォルトのマネージャー構成は次のとおりです。
 
 ```
 [Global]
@@ -138,47 +133,43 @@ The official gravwell Docker image contains the full Gravwell stack (indexer and
 	Restart-Period=10 #10 minutes
 ```
 
-This default configuration for the manager application enables the error reporting system which helps us identify and correct bugs.  If a service exits with a non-zero exit code, we get an error report.  To disable the error reporting system you can either remove the "[Error-Handler]" section or pass in the environment variable "DISABLE_ERROR_REPORTING" with a value of "TRUE".
+マネージャアプリケーションのためのこのデフォルト設定は私達がバグを識別して修正するのを助けるエラー報告システムを可能にします。 サービスがゼロ以外の終了コードで終了した場合、エラーレポートが表示されます。 エラー報告システムを無効にするには、 "[Error-Handler]"セクションを削除するか、または環境変数 "DISABLE_ERROR_REPORTING"に "TRUE"の値を渡します。
 
-Individual services can be disabled at the time of launch by passing in an environment variable with the service name in all caps and prefixed with "DISABLE_" assined to "TRUE".
+個々のサービスは、起動時に、サービス名を大文字で「TRUE」にアサインした「DISABLE_」を前に付けて渡すことによって無効にすることができます。
 
-For example, to launch the gravwell docker container without error reporting, launch with the "-e DISABLE_ERROR_REPORTING=true" option.
+たとえば、エラー報告なしにgravwell dockerコンテナを起動するには、"-e DISABLE_ERROR_REPORTING=true"オプションを指定して起動します。
 
-If you would like to disable the integrated SimpleRelay ingester, add "-e DISABLE_SIMPLE_RELAY=TRUE" and if you wanted to launch with ONLY the indexer started chain them all up like so:
+統合されたSimpleRelayインジェスターを無効にしたい場合は、"-e DISABLE_SIMPLE_RELAY=TRUE"を追加してください。あなただけを起動したい場合は、インデクサーがそれらをすべて次のように連鎖させてください。
 
 ```
 docker run --name gravwell -e GRAVWELL_INGEST_SECRET=MyIngestSecret -e DISABLE_SIMPLE_RELAY=TRUE -e DISABLE_WEBSERVER=TRUE -e DISABLE_SEARCHAGENT=TRUE gravwell/gravwell:latest
 ```
 
-For more information about the service manager visit the [github page](https://github.com/gravwell/manager).
+サービスマネージャの詳細については、[githubページ](https://github.com/gravwell/manager)をご覧ください。
 
-### Customizing ingester containers
+### インジェスターコンテナーのカスタマイズ
+インジェスタコンテナを起動したら、デフォルト設定を多少変更することをお勧めします。 たとえば、Netflowインジェスタを別のポートで実行することにします。
 
-Once you've launched an ingester container, you may want to modify the default configuration somewhat. For instance, you may decide to run the Netflow ingester on a different port.
-
-To make changes to the Netflow ingester container we launched above, we can launch a shell in the container:
+上記で起動したNetflowインジェスタコンテナに変更を加えるには、コンテナ内でシェルを起動します。
 
 	docker exec -it netflow sh
 
-Then we can use vi to edit `/opt/gravwell/etc/netflow_capture.conf` as described in [the ingesters documentation](#!ingesters/ingesters.md). Once our modifications are made, we simply restart the whole container:
+その後、viを使用して、[ingestersの資料](#!ingesters/ingesters.md)に記載されているように `/opt/gravwell/etc/netflow_capture.conf` を編集できます。 変更を加えたら、コンテナ全体を再起動します。
 
 	docker restart netflow
 
-## Configuring external (non-Docker) ingesters
+## 外部（非Docker）インジェスターの設定
+`gravwell/gravwell`イメージを起動するために使用した元のコマンドに戻って参照すると、ポート4023と4024がホストに転送されていることがわかります。これらはそれぞれ、インデクサー用のクリアテキストおよびTLS暗号化された取り込みポートです。他のシステムでインジェスターを実行している場合（おそらくLinuxサーバー上のどこかでログファイルを収集している場合）、インジェスター設定ファイルの`Cleartext-Backend-target`または`Encrypted-Backend-target`フィールドをDockerホストとインジェストを指すように設定できます。 Gravwellインスタンスへのデータの転送。
 
-If you refer back to the original command we used to launch the `gravwell/gravwell` image, you'll note that we forwarded ports 4023 and 4024 to the host. These are respectively the cleartext and TLS-encrypted ingest ports for the indexer. If you have an ingester running on another system (perhaps gathering log files on a Linux server somewhere), you can set the `Cleartext-Backend-target` or `Encrypted-Backend-target` fields in the ingester config file to point at your Docker host and ingest data into the Gravwell instance there.
+インジェスターの構成について詳しくは、[インジェスターの資料](#!ingesters/ingesters.md)を参照してください。
 
-Refer to [the ingesters documentation](#!ingesters/ingesters.md) for more information on configuring ingesters.
+## セキュリティ上の考慮事項
+転送されたコンテナポートをインターネットに公開する予定がある場合は、値を保護するために以下を設定することが重要です。
 
-## Security considerations
+* 「admin」パスワードはデフォルトの「changeme」から変更する必要があります。
+* インデクサーとWebサーバーの起動時に設定されるGRAVWELL_INGEST_SECRET、GRAVWELL_INGEST_AUTH、GRAVWELL_CONTROL_AUTH、およびGRAVWELL_SEARCHAGENT_AUTH環境変数（上記を参照）は、複雑な文字列に設定する必要があります。
 
-If you intend to expose the forwarded container ports to the Internet, it is **critical** that you set the following to secure values:
+## より多くの情報
+Gravwellが稼働している状態で、システムの使用方法について詳しくは、[残りの資料](#!index.md)を参照してください。
 
-* The 'admin' password must be changed from default 'changeme'.
-* The GRAVWELL_INGEST_SECRET, GRAVWELL_INGEST_AUTH, GRAVWELL_CONTROL_AUTH, and GRAVWELL_SEARCHAGENT_AUTH environment variables set when launching the indexer & webserver (see above) must be set to complex strings.
-
-## More Info
-
-With Gravwell running, refer to [the rest of the documentation](#!index.md) for more information on how to use the system.
-
-If you are a paid Gravwell customer and wish to deploy Gravwell in Docker, contact support@gravwell.io for help. We also have some information about deploying a custom Docker instance [on this wiki](#!configuration/custom-docker.md) and [on our blog](https://www.gravwell.io/blog/gravwell-docker-deployment)
+Gravwellの有料顧客で、GravwellをDockerにデプロイしたい場合は、support @ gravwell.ioに連絡してください。[このウィキ](#!configuration/custom-docker.md) や[ブログ](https://www.gravwell.io/blog/gravwell-docker-deployment)で、カスタムDockerインスタンスのデプロイに関するいくつかの情報もあります。

@@ -1,16 +1,17 @@
 # Search History
+## 検索履歴
 
-REST API located at /api/searchhistory
+/ api / searchhistoryにあるREST API
 
-The search history API is used to pull back a list of searches that a user, group, or combination thereof have launched.  The results provide basic info like who launched the search, what group owns it, when it was launched and the two strings representing the search (what the user actually typed, and what the backend processed).
+検索履歴ＡＰＩは、ユーザ、グループ、またはそれらの組み合わせが立ち上げた検索のリストを引き出すために使用される。結果には、誰が検索を開始したか、どのグループが検索を開始したか、検索を表す2つの文字列（ユーザーが実際に入力したもの、バックエンドが処理したもの）などの基本情報が表示されます。
 
-## Basic API overview
+## 基本的なAPIの概要
 
-The basic action here is to perform a GET on /api/searchhistory/{cmd}/{id} with cmd representing what set of searches you want and id representing the ID related to that search.  For example if you wanted all searches owned by the user with the UID 1 you would perform a GET on /api/searchhistory/user/1 where if you wanted all searches owned by group with GID 4 you would perform a GET on /api/searchhistory/group/4.
+ここでの基本的なアクションは、/ api / searchhistory / {cmd} / {id}に対してGETを実行することです。cmdは、必要な検索セットを表し、idは、その検索に関連するIDを表します。たとえば、すべての検索をUID 1のユーザーが所有する場合は、/ api / searchhistory / user / 1に対してGETを実行します。すべての検索をGID 4のグループが所有する場合は、/ api /に対してGETを実行します。検索履歴/グループ/ 4。
 
-You can request ALL searches a specific UID has access to using the "all" cmd.  This means give me all searches owned by the UID as well as all searches that are owned by groups he is a member of.  For example a GET on /api/searchhistory/all/1  may return searches owned by group with GIDs 1, 2, 3, and 4 if the user with UID 1 is a member of those groups.   The returned results will be a list of SearchLog structures in JSON format
+"all" cmdを使用して、特定のUIDがアクセス権を持つALL検索を要求できます。これは、UIDが所有するすべての検索と、彼がメンバーであるグループが所有するすべての検索を私に提供することを意味します。たとえば、/ api / searchhistory / all / 1に対するGETは、UID 1のユーザーがそれらのグループのメンバーである場合、GID 1、2、3、および4のグループが所有する検索を返すことがあります。返された結果は、JSON形式のSearchLog構造のリストになります。
 
-Example JSON:
+JSONの例:
 ```
 [
         {

@@ -1,59 +1,59 @@
-# Advanced Gravwell Configuration
+# 高度なGravwell設定
 
-This document describes some more advanced configuration options for Gravwell installations, including information on configuring storage wells, data ageout, and multi-node clusters.
+このドキュメントでは、Gravwellインストールのより高度な構成オプションについて説明します。これには、ストレージウェルの構成、データの有効期限切れ、およびマルチノードクラスタに関する情報が含まれます。
 
-Gravwell is optionally a distributed system, allowing for multiple indexers which comprise a Gravwell cluster.  The default installation will install both the webserver and indexer on the same machine, but with an appropriate license configuration, running a cluster is just as simple as running a single instance.
+Gravwellはオプションで分散システムであり、Gravwellクラスターを構成する複数のインデクサーを可能にします。 デフォルトのインストールでは、Webサーバーとインデクサーの両方が同じマシンにインストールされますが、適切なライセンス構成では、クラスターの実行は単一インスタンスの実行と同じくらい簡単です。
 
-## Installer Options
 
-The Gravwell installer supports several flags to make automated installation or deployment easier.  The following flags are supported:
+## インストーラオプション
 
-| Flag | Description |
+Gravwellインストーラーは、自動インストールまたはデプロイメントを容易にするためにいくつかのフラグをサポートしています。 以下のフラグがサポートされています。
+
+| フラグ | 説明 |
 |------|-------------|
-| `--help` | Display installer help menu |
-| `--no-certs` | Installer will not generate self-signed certificates
-| `--no-questions` | Assume all defaults and automatically accept EULA
-| `--no-random-passwords` | Do not generate random ingest and control secrets
-| `--no-indexer` | Do not install Gravwell indexer component
-| `--no-webserver` | Do not install the Gravwell webserver component
-| `--no-searchagent` | Do not install the Gravwell search agent (typically used with `--no-webserver`)
-| `--no-start` | Do not start the components after installation
-| `--no-crash-report` | Do not install the automated debug report component
-| `--use-config` | Use a specific config file
+| `--help` | インストーラのヘルプメニューを表示する |
+| `--no-certs` | インストーラは自己署名証明書を生成しません
+| `--no-questions` | すべてのデフォルトを想定し、自動的にEULAを受け入れる
+| `--no-random-passwords` | ランダムな取り込みと制御の秘密を生成しません
+| `--no-indexer` | Gravwellインデクサーコンポーネントをインストールしません
+| `--no-webserver` | Gravwell Webサーバーコンポーネントをインストールしないでください
+| `--no-searchagent` | Gravwell検索エージェントをインストールしません（通常--no-webserverと共に使用されます）。
+| `--no-start` | インストール後にコンポーネ
+| `--no-crash-report` | 自動デバッグレポートコンポーネントをインストールしない
+| `--use-config` | 特定の設定ファイルを使う
 
-### Common use-case examples of advanced installation requirements
+### 高度なインストール要件の一般的なユースケース例
 
-If you are deploying Gravwell to a cluster with multiple indexers, you would not want to install the webserver component on your indexer nodes.
+Gravwellを複数のインデクサーを持つクラスターにデプロイする場合は、インデクサーノードにWebサーバーコンポーネントをインストールしたくないでしょう。
 
-If you are using an automated deployment tool you don’t want the installer stopping and asking a questions.
+自動展開ツールを使用している場合は、インストーラが停止して質問することは望ましくありません。
 
-If you already have your list of indexers with ingest and control shared secrets, specifying a configuration file at install time can greatly speed up the process.
+共有秘密を取り込んで制御するインデクサーのリストがすでにある場合は、インストール時に構成ファイルを指定すると、処理が大幅にスピードアップします。
 
-An example argument list for installing the indexer component without installing the webserver or randomizing passwords is:
+Webサーバーをインストールしたりパスワードをランダム化したりせずにインデクサーコンポーネントをインストールするための引数リストの例は次のとおりです。
 
 ```
 root@gravserver# bash gravwell_8675309_0.2.sh --no-questions --no-random-passwords --no-webserver
 ```
 
-If you choose to randomize passwords, you will need to go back through your indexers and webserver and ensure the Control-Auth parameter in the gravwell.conf file matches for the webserver and each indexer.
+パスワードをランダム化することを選択した場合は、インデクサとWebサーバを調べて、gravwell.confファイルのControl-AuthパラメータがWebサーバと各インデクサに一致するようにする必要があります。
 
-## General Configuration
+## 一般的な設定
+Gravwellクラスターの構成は、最初から単純で効率的になるように設計されています。ただし、システムが極端に大きなシステムや、メモリの制約がある小さな組み込みおよび産業用デバイスをうまく利用できるようにするために、調整が必要なノブがあります。コア構成ファイルは、Webサーバーとインデクサーの両方で共有されるように設計されており、デフォルトでは`/opt/gravwell/etc/gravwell.conf`にあります。
 
-Configuration of a Gravwell cluster is designed to be simple and efficient right from the start.  However, there are knobs to twist that can allow the system to better take advantage of extremely large systems or smaller embedded and industrial devices with memory constraints.  The core configuration file is designed to be shared by both the webserver and indexer, and is located by default at `/opt/gravwell/etc/gravwell.conf`
+設定オプションの詳細な一覧については、[このページ](parameters.md)を参照してください。
 
-For a detailed listing of configuration options see [this page](parameters.md)
+インデクサー設定の完全な例については、[デフォルト設定の例](indexer-default-config.md)を参照してください。
 
-For a complete example indexer configuration see our [example default config](indexer-default-config.md)
+設定ファイル内の最も重要な項目は、`Ingest-Auth`, `Control-Auth`、および`Search-Agent-Auth`設定パラメータです。 `Control-Auth`パラメータは、Webサーバーとインデクサーが互いに認証するために使用する共有秘密です。攻撃者があなたのインデクサーと通信でき、`Control-Auth`トークンを持っていれば、攻撃者はそれらが保存しているデータに完全にアクセスすることができます。 `Ingest-Auth`トークンはインジェスターを検証するために使用され、タグを作成してデータをGravwellにプッシュする機能を制限します。 Gravwellはスピードを重視しています。つまり、`Ingest-Auth`トークンへのアクセス権を持つ攻撃者は、膨大な量のデータを非常に短時間でGravwellにプッシュできます。 `Search-Agent-Auth`トークンを使用すると、GravwellのSearch Agentユーティリティは自動的にWebサーバーに接続し、ユーザーに代わって検索を発行できます。これらのトークンは重要であり、慎重に保護する必要があります。
 
-The most important items in the configuration file are the `Ingest-Auth`, `Control-Auth`, and `Search-Agent-Auth` configuration parameters.  The `Control-Auth` parameter is the shared secret that the webserver and indexers use to authenticate each other. If an attacker can communicate with your indexers and has the `Control-Auth` token, he has total access to the data they store.  The `Ingest-Auth` token is used to validate ingesters, and restricts the ability to create tags and push data into Gravwell.  Gravwell prides itself on speed, which means an attacker with access to your `Ingest-Auth` token can push a tremendous amount of data into Gravwell in a very short amount of time.  The `Search-Agent-Auth` token allows Gravwell's Search Agent utility to automatically connect to the webserver and issue searches on the behalf of users. These tokens are important and you should protect them carefully.
+重要：クラスター化されたGravwellインストールでは、適切な相互通信を可能にするために、すべてのノードが同じ`Ingest-Auth`および`Control-Auth` の値で構成されていることが重要です。
 
-Attention: In clustered Gravwell installations, it is essential that all nodes are configured with the same `Ingest-Auth` and `Control-Auth` values to enable proper intercommunication.
+## Webサーバ設定
 
-## Webserver Configuration
+Webサーバはすべての検索の中心点として機能し、Gravwellへの対話型インタフェースを提供します。 Webサーバーは大量のストレージを必要としませんが、検索によって大量のデータが返送された場合でも、ユーザーが結果を流動的にナビゲートできるように、非常に高速なストレージの小さなプールから恩恵を受けます。 Webサーバーも検索パイプラインに参加し、多くの場合、フィルタリング、メタデータ抽出、およびデータのレンダリングの一部を実行します。 Webサーバーをスペックするときは、適度なサイズのソリッドステートディスク（可能であればNVME）、16 GB以上のRAMのメモリプール、および少なくとも4つの物理コアをお勧めします。 Gravwellはきわめて並行して構築されているため、CPUコアとメモリを増設するとパフォーマンスが向上するだけです。 32GB以上のメモリを搭載したIntel E5またはAMD Epicチップが適しています。
 
-The webserver acts as the focusing point for all searches, and provides an interactive interface into Gravwell.  While the webserver does not require significant storage, it can benefit from small pools of very fast storage so that even when a search hands back large amounts of data, users can fluidly navigate their results.  The webserver also participates in the search pipeline and often performs some of the filtering, metadata extraction, and rendering of data.  When speccing a webserver, we recommend a reasonably sized solid state disk (NVME if possible), a memory pool of 16GB of RAM or more, and at least 4 physical cores.  Gravwell is built to be extremely concurrent, so more CPU cores and additional memory will only increase its performance.  An Intel E5 or AMD Epic chip with 32GB of memory or more is a good choice, and more is always better.
-
-Two configuration options inform the webserver which indexers it should use for searching. The `Remote-Indexers` option specifies the IPs of the indexers, and the `Control-Auth` option gives a shared key used by the webserver to authenticate to the indexers. A webserver connecting to three indexers might contain the following in its `gravwell.conf`:
+2つの設定オプションは、検索にどのインデクサーを使用すべきかをWebサーバーに通知します。 `Remote-Indexers`オプションはインデクサーのIPを指定し、`Control-Auth`オプションはWebサーバーがインデクサーを認証するために使用する共有キーを指定します。 3つのインデクサーに接続しているWebサーバーの`gravwell.conf`には、次のものが含まれている可能性があります。
 
 ```
 Control-Auth=MySuperSecureControlToken
@@ -62,41 +62,40 @@ Remote-Indexers=net:10.0.1.2:9404
 Remote-Indexers=net:10.0.1.3:9404
 ```
 
-Note: The indexers listed above are listening for control connections on port 9404, the default. This port is set by the `Control-Port` option in the indexer's gravwell.conf file.
+<span style="color: red; ">注：上記のインデクサーは、デフォルトのポート9404で制御接続をlistenしています。 このポートは、インデクサのgravwell.confファイルのControl-Portオプションによって設定されます。</span>
 
-### Webserver Configuration Pitfalls
+### Webサーバ設定の落とし穴
+*リモートインデクサーの欠落または構成ミス
+* Control-Authトークンの欠落または不一致
+* Webサーバーとバックエンドのライセンスの不一致
+   *ウェブサーバーとインデクサーの両方に互換性のあるライセンスが必要です
+* Webサーバーとインデクサー間の不十分なネットワーク接続
+   *高遅延、低帯域幅、またはMTUサイズの構成ミス。
+*インデクサーまたはWebサーバーポートへのアクセスをブロックするファイアウォール
+   *デフォルトは9404です
 
-* Missing or misconfigured Remote-Indexers
-* Missing or mismatched Control-Auth tokens
-* Mismatched licenses on webserver and backend
-  * Both the webserver and indexer must have compatible licenses
-* Poor network connectivity between the webserver and indexers
-  * High latency, low bandwidth, or misconfigured MTU sizes.
-* Firewalls blocking access to indexer or webserver ports
-  * The default is 9404
+## インデクサー構成
 
-## Indexer Configuration
+インデクサーはGravwellの保管センターであり、データの保管、検索、および処理を担当します。インデクサーは、クエリを実行するときに最初の重い作業を行います。最初にデータを見つけ、次にそれを検索パイプラインにプッシュします。検索パイプラインは、インデクサーができるだけ多くの作業を並行して実行できるように、できるだけ多くの照会を分散します。インデクサーは、高速で低遅延のストレージと可能な限り多くのRAMから恩恵を受けます。 Gravwellはファイルシステムのキャッシュを利用することができます。つまり、同じデータに対して複数のクエリを実行しているため、ディスクにアクセスする必要さえありません。 Gravwellがキャッシュされたデータで1ノードあたり5GB / s以上で動作するのを見ました。メモリが多いほど、より多くのデータをキャッシュできます。最大規模のマシンでさえもメモリ容量を超える大きなプールを検索する場合、高速RAIDアレイはスループットの向上に役立ちます。
 
-Indexers are the storage centers of Gravwell and are responsible for storing, retrieving, and processing data.  Indexers perform the first heavy lifting when executing a query, first finding the data then pushing it into the search pipeline.  The search pipeline will distribute as much of a query as is possible to ensure that the indexers can do as much work in parallel as possible.  Indexers benefit from high speed low latency storage and as much RAM as possible.  Gravwell can take advantage of file system caches, which means that as you are running multiple queries over the same data it won’t even have to go to the disks.  We have seen Gravwell operate at over 5GB/s per node on well-cached data.  The more memory, the more data can be cached.  When searching over large pools that exceed the memory capacity of even the largest machines, high speed RAID arrays can help increase throughput.
+インデクサーには8個のCPUコアを搭載した少なくとも32GBのメモリーを搭載することをお勧めします。可能であれば、Gravwellは、ホットウェルとして機能し、最新のデータを数日保持し、回転速度の遅いディスクプールにエージングアウトできる超高速NVMEソリッドステートディスクも推奨します。ホットウェルを使用すると、Gravwellが古いデータを整理および統合して、できるだけ効率的に検索できるようにしながら、最新のデータに非常に高速にアクセスできます。
 
-We recommend indexers have at least 32GB of memory with 8 CPU cores.  If possible, Gravwell also recommends a very high speed NVME solid state disk that can act as a hot well, holding just a few days of of the most recent data and aging out to the slower spinning disk pools.  The hot well enables very fast access to the most recent data, while enabling Gravwell to organize and consolidate older data so that he can be searched as efficiently as possible.
+インデクサのgravwell.confには、一般的な動作に影響を与えるいくつかの重要な設定オプションがあります。
 
-There are a few key configuration options in an indexer's gravwell.conf which affect its general behavior:
+* `Control-Port`は、インデクサーがWebサーバーからの着信接続をリッスンするポートを設定します。 デフォルト9404。
+* `Control-Auth`は、ウェブサーバーが認証に使用する共有秘密を設定します。 デフォルトはランダムに生成された文字列です。
+*「Ingest-Port」と「TLS-Ingest-Port」は、それぞれ暗号化されていない暗号化された取り込みトラフィックをリッスンするポートを指定します。
+*「Ingest-Auth」は、データインジェスターがインデクサーの認証に使用する共有シークレットを設定します。 デフォルトはランダムに生成された文字列です。
 
-* `Control-Port` sets the port on which the indexer will listen for incoming connections from a webserver. Default 9404.
-* `Control-Auth` sets a shared secret which webservers use to authenticate. Defaults to a randomly-generated string.
-* `Ingest-Port` and `TLS-Ingest-Port` specify which ports to listen on for unencrypted and encrypted ingest traffic, respectively.
-* `Ingest-Auth` sets a shared secret used by data ingesters to authenticate to the indexer. Defaults to a randomly-generated string.
+インデクサーはデータをウェルに格納します。各ウェルにはいくつかのタグが格納されています。ウェルに100GBの "pcap"タグの付いたデータと10MBの "syslog"タグの付いたデータがある場合、syslogデータを検索すると、インデクサーはディスクからpcapデータを読み取る必要があるため、検索速度が低下します。このため、お客様が予想するタグ用に別のウェルを作成することを強くお勧めします。詳細については、「タグとウェル」のセクションを参照してください。
 
-Indexers store their data in _wells_. Each well stores some number of tags. If a well contains 100GB of data tagged "pcap" and 10MB of data tagged "syslog", searching for syslog data means the indexer also has to read the pcap data from the disk, slowing down the search. For this reason we strongly suggest creating separate wells for tags you anticipate will contain a lot of data. See the 'Tags and Wells' section for more information.
+## タグとウェル
 
-## Tags and Wells
+**タグ** は、異なる種類のデータを論理的に分離するための方法として使用されます。タグは、取り込み時にインジェスターによって適用されます（SimpleRelay、NetworkCaptureなど）。たとえば、syslogログ、Apacheログ、ネットワークパケット、ビデオストリーム、オーディオストリームなどに一意のタグを適用すると便利です。 **ウェル** は、実際に取り込まれたデータを整理して格納するストレージグループです。通常、ユーザーはユーザーと対話しませんが、各ウェルには約1.5日分のデータが格納されています。
 
-**Tags** are used as a method to logically separate data of different types.  Tags are applied at ingest time by the ingesters (SimpleRelay, NetworkCapture, etc).  For example, it is useful to apply unique tags to syslog logs, Apache logs, network packets, video streams, audio streams, etc.  **Wells** are the storage groupings which actually organize and store the ingested data. Although users typically do not interact with them, the wells store data on-disk in **shards**, with each shard containing approximately 1.5 days of data.
+タグをウェルに割り当てて、データストリームをより高速または大規模なストレージプールにルーティングできるようにすることができます。たとえば、高帯域幅リンクからの生のpcapストリームは、より高速のストレージプールに割り当てる必要がありますが、syslogまたはWebサーバーからの比較的少量のログエントリは高速ストレージを必要としません。タグからウェルへのマッピングは、1対1のマッピングです。 1つのタグを複数のウェルに割り当てることはできませんが、ウェルには複数のタグを含めることができます。データストリームを論理的および物理的に分離することで、さまざまなルールをさまざまなデータに適用できます。たとえば、15日ごとに、低帯域幅のストリームをずっと長く保ちながら、ネットワークトラフィックのような高帯域幅のストリームを期限切れまたは圧縮することが望ましい場合があります。システムがタグに基づいて適切なウェルをインテリジェントにクエリするので、論理的な分離も検索パフォーマンスを大幅に向上させます（たとえば、デフォルトという名前のsyslogエントリを検索する場合、Gravwellは他のウェルに関与しません）。
 
-Tags can be assigned to wells so that data streams can be routed to faster or larger storage pools. For example, a raw pcap stream from a high bandwidth link may need to be assigned to a faster storage pool while relatively low-volume log entries from syslog or a webserver do not require fast storage. A tag-to-well mapping is a one-to-one mapping; a single tag cannot be assigned to multiple wells, although a well can contain multiple tags.  Logically and physically separating data streams allows different rules to be applied to different data.  For example, it may be desirable to expire or compress high bandwidth streams, like network traffic, every 15 days while keeping low bandwidth streams for much longer.  The logical separation also greatly increases search performance as the system intelligently queries the appropriate well based on tag (e.g. when searching syslog entries located in the well named default, Gravwell will not engage any other wells).
-
-Tag-to-well mappings are defined in the `/opt/gravwell/etc/gravwell.conf` configuration file. By default, only a `Default-Well` will be configured, which accepts all tags. An example configuration snippet for an indexer with multiple wells associated tags might look like this:
+タグからウェルへのマッピングは `/opt/gravwell/etc/gravwell.conf`設定ファイルで定義されています。デフォルトでは、`Default-Well` のみが設定され、すべてのタグが受け入れられます。複数のウェルに関連付けられたタグを持つインデクサーの設定例は次のようになります。
 
 ```
 [Default-Well]
@@ -108,24 +107,22 @@ Tag-to-well mappings are defined in the `/opt/gravwell/etc/gravwell.conf` config
 	tags=video
 ```
 
-The well named "raw" is thus used to store data tagged "pcap" and "video", which we could reasonably assume will consume a significant amount of storage.
+このように、 "pcap"と "video"というタグが付けられたデータを格納するために、 "raw"という名前が付けられています。
 
-### Tag Restrictions and Gotchas
+### タグの制限と手引き
 
-Tag names can only contain alpha numeric values; dashes, underscores, special characters, etc are not allowed in tag names.  Tags should be simple names like "syslog" or "apache" that are easy to type and reflect the type of data in use.
+タグ名には英数字のみを含めることができます。ダッシュ、アンダースコア、特殊文字などはタグ名に使用できません。タグは「syslog」や「apache」のように、入力が簡単で使用中のデータの種類を反映した単純な名前にする必要があります。
 
-The Default well receives all entries with tags that have not been explicitely assigned to other wells.  For example, if you have one well named Syslog which has been assigned the tags "syslog" and "apache" then all other tags will go to the Default well.  Ingesters can still produce entries with tag names that are not explicitely defined in the gravwell.conf file; the entries will just be co-mingled with all other unassigned tags in the default well.
+デフォルトウェルは、他のウェルに明示的に割り当てられていないタグを持つすべてのエントリを受け取ります。たとえば、「syslog」および「apache」というタグが割り当てられているSyslogという名前のウェルが1つある場合、他のすべてのタグはデフォルトのウェルに移動します。インジェスターは依然としてgravwell.confファイルで明示的に定義されていないタグ名を持つエントリーを生成することができます。エントリは、デフォルトのウェル内の他のすべての未割り当てタグと混合されるだけです。
 
-When reassigning tags between wells, the system will NOT move the data.  If you ingest data under the tag "syslog" without pinning the tag to a non-default well, then change the config file to define a new well or assign the syslog tag to an existing well, all data that exists in the default well under the syslog tag is no longer searchable.  Contact support@gravwell.io for access to a standalone tool for well and tag migration that can recover the entries, or for help reingesting old wells into an optimized/alternate configuration.
+ウェル間でタグを再割り当てするとき、システムはデータを移動しません。タグをデフォルト以外のウェルに固定せずに「syslog」タグの下のデータを取り込む場合は、configファイルを変更して新しいウェルを定義するか、syslogタグを既存のウェルに割り当てます。 syslogタグは検索できなくなりました。エントリを回復することができる井戸とタグの移行のためのスタンドアロンツールへのアクセス、または古い井戸を最適化された/代替の構成に再導入するのを助けるためにsupport@gravwell.ioに連絡してください。
 
-## Data Ageout
+## データエージアウト
 
-Gravwell supports an ageout system whereby data management policies can be applied to individual wells.  The ageout policies control data retention, storage well utilization, and compression.  For more information about configuration data ageout see the [Data Ageout](ageout.md). section
+Gravwellは、データ管理ポリシーを個々の井戸に適用できるエージアウトシステムをサポートしています。 エージアウトポリシーは、データの保持、保管庫の利用率、および圧縮を制御します。 構成データの有効期間についての詳細は、[データエージアウト](ageout.md)セクションを参照してください。 
 
-## Well Replication
+## ウェルレプリケーション
+複数のインデクサーノードを持つGravwellクラスターは、ディスク障害または誤って削除された場合に、ノードが互いにデータを複製するように構成できます。複製の構成については、[複製の資料](replication.md)を参照してください。
 
-A Gravwell cluster with multiple indexer nodes can be configured so that nodes replicate their data to one another in case of disk failure or accidental deletion. See the [replication documentation](replication.md) for information on configuring replication.
-
-## Query Acceleration
-
-Gravwell supports the notion of "accelerators" for individual wells, which allow you apply parsers to data at ingest to generate optimization blocks.  Accelerators are just as felexible as query modules and are transparently engaged when performing queries.  Accelerators are extremely useful for needle-in-haystack style queries, where you need to zero in on data that has specific field values very quickly.  See the [Accelerators](accelerators.md) section for more information and configuration techniques.
+## クエリアクセラレーション
+Gravwellは個々の井戸に対して「アクセラレータ」の概念をサポートしています。これにより、取り込み時にデータにパーサーを適用して最適化ブロックを生成できます。 アクセラレータはクエリモジュールと同じくらい柔軟性があり、クエリ実行時に透過的に関与します。 アクセラレータは、特定のフィールド値を持つデータをすばやく絞り込む必要がある、針が空いた形のクエリに非常に便利です。 詳細および設定方法については、[アクセラレータ](accelerators.md)を参照してください。

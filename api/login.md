@@ -1,10 +1,10 @@
-# Login subsystem
+# Login
 
-## Login
+## ログイン
 
-A GET on this page redirects to /api/login/login.html
+このページのGETは/api/login/login.htmlにリダイレクトします。
 
-To login you POST JSON to /api/login/ with the following structure:
+ログインするには、JSONを/ api / login /に次のような構造でPOSTします。
 ```
 {
     "User": "username",
@@ -12,7 +12,7 @@ To login you POST JSON to /api/login/ with the following structure:
 }
 ```
 
-and the server will respond with the following to indicate whether login was successful.
+そして、サーバーはログインが成功したかどうかを示すために以下で応答します。
 
 ```
 {
@@ -22,7 +22,7 @@ and the server will respond with the following to indicate whether login was suc
 
 ```
 
-If the login failed, the server will return a structure with a "reason" property:
+ログインが失敗した場合、サーバーは "reason"プロパティを持つ構造体を返します。
 ```
 {
   "LoginStatus":false,
@@ -30,18 +30,18 @@ If the login failed, the server will return a structure with a "reason" property
 }
 ```
 
-## Logout
+## ログアウト
 
-* PUT /api/logout - logs your current instance out
-* DELETE /api/logout - logs out ALL your users instances
+* PUT / api / logout - 現在のインスタンスをログアウトします
+* DELETE / api / logout - すべてのユーザーインスタンスをログアウトします
 
-## JWT protections are enforced on all POSTs
-The JWT received from the login API must be included as an Authorization Bearer header on all other API requests.
+## JWT保護はすべてのPOSTに適用されます
+ログインAPIから受け取ったJWTは、他のすべてのAPI要求でAuthorization Bearerヘッダーとして含める必要があります。
 
 ```Authorization: Bearer reallylongjsonwebtokenstringishere```
 
-## View active sessions
-GET the /api/account/{id}/sessions and it will return a chunk of JSON.  Admins can request any users sessions, users can ONLY request their own sessions.
+## アクティブセッションを表示する
+/ api / account / {id} / sessionsを取得すると、大量のJSONが返されます。管理者は任意のユーザーのセッションを要求でき、ユーザーは自分のセッションのみを要求できます。
 
 ```
 {

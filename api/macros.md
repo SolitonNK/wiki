@@ -1,52 +1,52 @@
-# Macros API
+# Macros
 
-The web API provides methods for accessing and creating search macros, which are mappings of a short string to a longer string which is expanded during the parse phase of a search.
+Web APIは検索マクロにアクセスして作成するためのメソッドを提供します。検索マクロは、検索の解析段階で展開される短い文字列から長い文字列へのマッピングです。
 
-## The SearchMacro structure
+## SearchMacro構造体
 
-The web server returns macros in a JSON struct which is also used to update fields. Note that when sending a struct to update a macro, not all fields are updated (it is not possible to change the LastUpdated field manually, for instance). The fields are largely self-explanatory but are explained here for precision:
+WebサーバーはJSON構造体でマクロを返します。これはフィールドの更新にも使用されます。マクロを更新するために構造体を送信すると、すべてのフィールドが更新されるわけではありません（たとえば、LastUpdatedフィールドを手動で変更することは不可能です）。これらのフィールドは大部分は一目瞭然ですが、正確を期すためにここで説明します。
 
-* ID: a unique integer representing this macro
-* UID: the macro owner's integer UID
-* GIDs: a list of integer group IDs which are allowed to access the macro
-* Name: the short name of the macro as typed in a search query
-* Expansion: the string to which the macro expands
-* LastUpdated: the time at which this macro was most recently modified
-* Synced: (internal use only)
+* ID: このマクロを表す一意の整数
+* UID: マクロ所有者の整数のUID
+* GIDs: マクロへのアクセスが許可されている整数グループIDのリスト
+* Name: 検索クエリで入力されたマクロの短い名前
+* Expansion: マクロが展開する文字列
+* LastUpdated: このマクロが最後に変更された時刻
+* Synced:（内部使用のみ）
 
-## Listing macros
+## マクロの一覧表示
 
-To get a list of all macros belonging to the current user, do a GET on `/api/macros`. The result will look like this:
+現在のユーザーに属するすべてのマクロのリストを取得するには、GETを実行してください/api/macros。結果は次のようになります。
 
 ```
 [{"ID":1,"UID":1,"GIDs":null,"Name":"FOO","Expansion":"grep foo","LastUpdated":"2018-10-31T20:56:24.629561628Z","Synced":true}]
 ```
 
-In this example, the user with UID 1 has one macro named "FOO" which expands to the string "grep foo". The macro ID is 1, which can be used in other APIs.
+この例では、UID 1のユーザは、文字列「grep foo」に展開される「FOO」という名前の1つのマクロを持っています。マクロIDは1です。これは他のAPIで使用できます。
 
-### Getting macros by user ID
+### ユーザーIDによるマクロの取得
 
-Admin users can retrieve a list of a specific user's macros by performing a GET on `/api/users/{uid}/macros`, replacing `{uid}` with the desired user ID. Non-admin users can use this API to retrieve their own macros.
+管理ユーザーは、GETを実行して目的のユーザーIDに/api/users/{uid}/macros置き換え{uid}て、特定のユーザーのマクロのリストを取得できます。管理者以外のユーザーはこのAPIを使用して自分のマクロを取得できます。
 
-### Getting macros by group ID
+### グループIDでマクロを取得する
 
-Admin users or members of a group can retrieve a list of macros to which a specified group has access by performing a GET on `/api/groups/{gid}/macros`.
+管理ユーザーまたはグループのメンバーは、/ api / groups / ｛gid｝ / macrosに対してGETを実行することによって、指定されたグループがアクセス権を持つマクロのリストを取得できます。
 
-### Getting all macros
+### すべてのマクロを取得する
 
-Admin users can retrieve a list of all macros on the system by performing a GET on `/api/macros/all`.
+管理ユーザーは、/ api / macros / allに対してGETを実行することによって、システム上のすべてのマクロのリストを取得できます。
 
-## Retrieving a specific macro
+## 特定のマクロを取得する
 
-The structure for a specific macro may be retrieved by doing a GET on `/api/macros/{id}`, replacing `{id}` with the macro ID. For instance, a GET on `/api/macros/1` returns the following:
+特定のマクロの構造は、/ api / macros / {id}に対してGETを実行し、{id}をマクロIDに置き換えることで取得できます。 たとえば、/ api / macros / 1に対するGETは次のようになります。
 
 ```
 {"ID":1,"UID":1,"GIDs":null,"Name":"FOO","Expansion":"grep foo","LastUpdated":"2018-10-31T20:56:24.629561628Z","Synced":true}
 ```
 
-## Creating a new macro
+## 新しいマクロを作成する
 
-New macros may be created via POST to `/api/macros`. The body of the request should contain the Name and Expansion fields and (optionally) the GIDs field, as shown below:
+新しいマクロはPOSTを介して作成することができます/api/macros。以下に示すように、要求の本文には、名前フィールドと拡張フィールド、および（オプションで）GIDフィールドを含める必要があります。
 
 ```
 {"GIDs": [1, 2], "Name": "TEST", "Expansion": "grep test | count"}
@@ -58,12 +58,11 @@ A successful creation will return the ID of the new macro; in this example the n
 {"ID":2,"UID":1,"GIDs":null,"Name":"TEST","Expansion":"grep test | count","LastUpdated":"2018-10-31T21:05:34.231426316Z","Synced":true}
 ```
 
-## Updating a macro
+## マクロを更新する
 
-Updating a macro may be done by PUT to `/api/macros/{id}` using the same body format as a creation; note that for safety, it is best to populate the GIDs, Name, and Expanion fields every time even if no changes are made.
+マクロを更新することは/api/macros/{id}、作成と同じ本体フォーマットを使用するようにPUTによって行われます。安全のために、何も変更しなくても毎回GID、Name、Expanionの各フィールドに入力するのが最善です。
 
-A successful update returns HTTP 200 and the updated macro in the body.
+更新が成功すると、HTTP 200と更新されたマクロが本文に返されます。
 
-## Deleting a macro
-
-Macro deletion is performed via a DELETE on `/api/macros/{id}`. This returns HTTP 200 upon success.
+## マクロを削除する
+マクロの削除は、DELETE onによって実行され/api/macros/{id}ます。成功するとHTTP 200が返されます。

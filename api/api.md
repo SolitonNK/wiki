@@ -1,10 +1,10 @@
-# API
+# Web API
 
-This section documents the web API used between the GUI and the "frontend" webserver.
+このセクションでは、GUIと「フロントエンド」Webサーバーとの間で使用されるWeb APIについて説明します。
 
-The bulk of the API is RESTful. The exception to this rule is the searching API which uses websockets due to the nature of data exchange and transfer involved in launching and observing data from a search.
+APIの大部分はRESTfulです。この規則の例外は、検索からのデータの起動と監視に関わるデータ交換と転送の性質により、WebSocketを使用する検索APIです。
 
-## Primary APIs
+## 基本
 
 * [Login](login.md)
 * [User Preferences](userprefs.md)
@@ -25,7 +25,7 @@ The bulk of the API is RESTful. The exception to this rule is the searching API 
 * [User Files](userfiles.md)
 * [System Management](management.md)
 
-## Searching and Search Stats
+## 検索と検索統計のAPI
 
 [Search Websocket](websocket-search.md)
 
@@ -33,16 +33,16 @@ The bulk of the API is RESTful. The exception to this rule is the searching API 
 
 [Interacting with Renderers](websocket-render.md)
 
-## System Stats
+## システム統計
 
-The system stats also use a websocket for communication. This contains all information necessary for monitoring general cluster health.
+システム統計は、通信にWebソケットも使用します。これには、一般的なクラスタの状態を監視するために必要なすべての情報が含まれています。
 
 [System Stats Websocket](websocket-stats.md)
 
-Some other stats may be accessed via REST calls.
+他のいくつかの統計は、REST呼び出しを介してアクセスできます。
 
 [REST Stats API](stats-json.md)
 
-## Test API
+## テストAPI
 
-The System contains a test API located at _/api/test_ which can be used to test if the webserver is alive and functioning.  The test API is entirely unauthenticated and always responds with a StatusOK 200 and an empty body.
+システムには/ api / testにあるテストAPIが含まれています。これを使用して、Webサーバーが稼働中で機能しているかどうかをテストできます。テストAPIは完全に認証されておらず、常にStatusOK 200と空の本文で応答します。

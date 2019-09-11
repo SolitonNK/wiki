@@ -1,28 +1,28 @@
-# Scheduling Searches with the Search Agent
+# 検索エージェントを使用した検索のスケジューリング
 
-It is often advantageous to perform searches automatically, for instance running a search every morning to detect malicious behavior from the previous night. Using Gravwell's search agent, searches can be run on customized scheduled.
+たとえば、毎朝検索を実行して前夜からの悪意のある動作を検出するなど、検索を自動的に実行することはしばしば有利です。 Gravwellの検索エージェントを使用して、カスタマイズされたスケジュールで検索を実行できます。
 
-The scheduling feature allows the user to schedule both regular searches and [search scripts](scriptingsearch.md).
+スケジューリング機能により、ユーザーは通常の検索と[検索スクリプト](scriptingsearch.md)の両方をスケジュールできます。
 
-## Setting up the Search Agent
+## 検索エージェントのセットアップ
 
-The Gravwell Search Agent is now included in the main Gravwell install packages and will be installed by default. Disabling the webserver component with the `--no-webserver` flag or setting the `--no-searchagent` flag will disable installation of the Search Agent. The Search Agent is installed automatically by the Gravwell Debian package.
+Gravwell Search AgentはメインのGravwellインストールパッケージに含まれるようになり、デフォルトでインストールされます。 `--no-webserver`フラグでwebserverコンポーネントを無効にするか、` --no-searchagent`フラグを設定すると、検索エージェントのインストールが無効になります。 検索エージェントはGravwell Debianパッケージによって自動的にインストールされます。
 
-Verify the Search Agent is running with the following command:
+次のコマンドを使用して、検索エージェントが実行されていることを確認します。
 
 ```
 $ ps aux | grep gravwell_searchagent
 ```
 
-## Disabling the Search Agent
+## 検索エージェントを無効にする
 
-The Search Agent is installed by default but can be disabled if desired by running the following:
+検索エージェントはデフォルトでインストールされますが、必要に応じて次を実行して無効にすることができます。
 
 ```
 systemctl stop gravwell_searchagent.service
 systemctl disable gravwell_searchagent.service
 ```
 
-## Disabling network functions in search agent scripts
+## 検索エージェントスクリプトでネットワーク機能を無効にする
 
-By default, scheduled scripts run by the search agent are allowed to use network utilities such as the http library, sftp, and ssh. Setting the option `Disable-Network-Script-Functions=true' in `/opt/gravwell/etc/searchagent.conf` will disable this.
+デフォルトでは、検索エージェントによって実行されるスケジュールされたスクリプトは、httpライブラリ、sftp、sshなどのネットワークユーティリティを使用できます。 `/ opt / gravwell / etc / searchagent.conf`でオプション` Disable-Network-Script-Functions = true 'を設定すると、これが無効になります。

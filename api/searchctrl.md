@@ -1,15 +1,15 @@
 # Search Control
 
-REST API located at /api/searchctrl
+/ api / searchctrlにあるREST API
 
-The searchctrl group is used to query information about active searches and optionally invoke some action.  We currently provide the ability to query all active searches, get information about a specific search, background a an active search, archive an active search, and delete/terminate a search.
+searchctrlグループは、アクティブな検索に関する情報を照会し、オプションで何らかのアクションを呼び出すために使用されます。現在のところ、すべてのアクティブな検索のクエリ、特定の検索に関する情報の取得、アクティブな検索のバックグラウンド化、アクティブな検索のアーカイブ、および検索の削除/終了を行うことができます。
 
-## Basic API overview
+## 基本的なAPIの概要
 
-The basic action here is to perform a GET, DELETE, or PATCH on a REST url
+ここでの基本的なアクションは、REST URLでGET、DELETE、またはPATCHを実行することです。
 
-## Getting a list of searches
-When requesting the list of searches the web server will return all searches the current user is authorized to view.  No json package is posted, but rather an empty GET is performed against '/api/searchctrl/'.  
+## 検索リストを取得する
+検索リストを要求すると、Webサーバーは現在のユーザーが閲覧を許可されているすべての検索を返します。jsonパッケージは投稿されていませんが、空のGETは '/ api / searchctrl /'に対して実行されます。 
 
 ```
 [
@@ -37,8 +37,8 @@ When requesting the list of searches the web server will return all searches the
 ]
 ```
 
-## Getting the info of a specific search
-Getting the status of a specific search is performed by performing a GET the REST url /api/searchctrl/:ID
+## 特定の検索の情報を取得する
+特定の検索のステータスを取得するには、GET the REST url / api / searchctrl /：IDを実行します。
 
 ```
 WEB GET /api/searchctrl/795927171:
@@ -58,38 +58,38 @@ WEB GET /api/searchctrl/795927171:
 
 ## Backgrounding a search
 
-Backgrounding a search is used to inform the web server that if the last client lets go, its ok to continue the search.  To background a search perform a PATCH on the url /api/searchctrl/:ID/background correct ID.   The Search MUST be active or already backgrounded for the command to succeed and the user must be an admin or have access to the search.
+検索のバックグラウンド化は、最後のクライアントが行かせても検索を続行してもよいことをWebサーバーに通知するために使用されます。検索をバックグラウンドで行うには、url / api / searchctrl /：ID / background correct IDでPATCHを実行します。コマンドが成功するには、検索がアクティブであるか、またはすでにバックグラウンドになっている必要があり、ユーザーは管理者であるか、または検索にアクセスできる必要があります。
 
 ```
 WEB PATCH /api/searchctrl/795927171/background:
 null
 ```
 
-## Saving a search
+## 検索のバックグラウンド化
 
-Saving a search is used to inform the webserver that we wish to keep the results of this search.  A backgrounded search will stay resident (even if no one is connected to it) as long as the webserver doesn't need the disk space (or it isn't explicitly deleted).  Saving moves the results to the saved location, and the results will not be deleted unless someone (with the proper authority) explicitly requests it.  To Save a search perform a PATCH on the url /api/searchctrl/:ID/save correct ID.   The Search can be in in any state, but will only begin transferring to the persistent storage once it hits the dormant state.  The transfer to persistent storage is either instantaneous (if the persistent storage is on the same drive) or requires a full copy.  This is done in the background in its own goroutine, so nothing is blocked while it happens.
+検索を保存すると、検索結果を保持したいことをWebサーバーに通知します。ウェブサーバがディスクスペースを必要としない（または明示的に削除されていない）限り、バックグラウンド検索は常駐のままです（誰にも接続されていなくても）。保存すると保存された場所に結果が移動され、（適切な権限を持つ）誰かが明示的にそれを要求しない限り、結果は削除されません。検索を保存するには、url / api / searchctrl /：IDでPATCHを実行し、正しいIDを保存します。検索はどのような状態にあっても構いませんが、休止状態になると永続ストレージへの転送を開始します。永続的ストレージへの転送は、瞬間的（永続的ストレージが同じドライブ上にある場合）またはフルコピーが必要です。これはバックグラウンドで独自のゴルーチンで行われるため、実行中は何もブロックされません。
 
 ```
 WEB PATCH /api/searchctrl/010985768/save:
 null
 ```
 
-## Deleting/terminating a search
+## 検索の削除/終了
 
-Deleting a search terminates the search (and kicks off any active users) and immediately removes any storage associated with the search results.  A search may be deleted while in any state.  To delete a search peroform a DELETE request to /api/searchctrl/:ID with the correct ID.  The server will return 200 on success, 5XX on error, and 403 if the user is not authorized to modify the search.
+検索を削除すると、検索が終了し（アクティブなユーザーがキックオフされ）、検索結果に関連付けられている記憶域が直ちに削除されます。検索はどの状態でも削除できます。検索を削除するには、正しいIDで/ api / searchctrl /：IDへのDELETE要求を実行します。成功した場合は200を返し、エラーがあった場合は5XXを返し、ユーザーが検索の変更を許可されていない場合は403を返します。
 
 ```
 WEB DELETE /api/searchctrl/010985768:
 null
 ```
 
-## Admin APIs
+## 管理API
 
-Admin users can get information about any search, delete any search, load any search, send any search to the background, etc. using the API endpoints documented above.
+管理ユーザーは、上記のAPIエンドポイントを使用して、検索に関する情報の取得、検索の削除、検索の読み込み、検索のバックグラウンドへの送信などを行うことができます。
 
-### List all searches
+### すべての検索をリストする
 
-In order to get a list of all searches that exist on the system, an admin user may do a GET on `/api/searchctrl/all`. The format is identical to that returned from `/api/searchctrl`, but includes all searches on the system.
+システムに存在するすべての検索のリストを取得するために、管理ユーザーは `/api/searchctrl/all`でGETを実行できます。 形式は `/api/searchctrl`から返されるものと同じですが、システム上のすべての検索が含まれます。
 
 ```
 [

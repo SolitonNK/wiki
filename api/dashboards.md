@@ -1,19 +1,19 @@
 # Dashboard Storage API
 
-The dashboard api is essentially a generic CRUD api for managing json blobs used by the GUI to render dashboards. Searches present on a dashboard are launched by the GUI and the backend/frontend/webserver doesn't really have a concept of what they are.
+BLOBを管理するための一般的なCRUD APIです。ダッシュボードに表示される検索はGUIによって起動され、バックエンド/フロントエンド/ Webサーバーには実際にはそれらの概念がありません。
 
-## Creating a dashboard
+## ダッシュボードを作成する
 
-To add a dashboard a **POST** request is issued to **/api/dashboards** with a payload of the following format:
+ダッシュボードを追加するには、POST要求を/api/dashboardsに発行し、ペイロードを次の形式にします。
 
-The 'Data' property is the JSON used by the GUI to create the actual dashboard.
+'Data'プロパティは、実際のダッシュボードを作成するためにGUIによって使用されるJSONです。
 
 ```
 {
         "Name": "test2",
         "Description": "test2 description",
-		"UID": 2,
-		"GIDs": [],
+        "UID": 2,
+        "GIDs": [],
         "Data": {
                 "A": "A2",
                 "B": "B2",
@@ -23,16 +23,15 @@ The 'Data' property is the JSON used by the GUI to create the actual dashboard.
 }
 ```
 
-If the "UID" parameter is omitted from the request, it should default to the UID of the requesting user.
+"UID"パラメータが要求から省略されている場合は、要求元ユーザのUIDがデフォルトになります。
 
-The webserver's response contains the ID of the newly-created dashboard.
+Webサーバーの応答には、新しく作成されたダッシュボードのIDが含まれています。
 
-## Retrieving Dashboards
+## ダッシュボードの取得
 
-### Getting all dashboards for the current user
+### 現在のユーザーのすべてのダッシュボードを取得する
 
-A user can get all dashboards to which they have access (via ownership or group) by issuing a **GET** request on **/api/dashboards**.
-
+ユーザーは、/api/dashboardsでGETリクエストを発行することで、（所有権またはグループを介して）アクセス権を持つすべてのダッシュボードを取得できます。
 ```
 [
         {
@@ -53,16 +52,15 @@ A user can get all dashboards to which they have access (via ownership or group)
 ]
 
 ```
-### Getting a specific dashboard
-To fetch a particular ID, put its ID on the end of the dashboards URL:
+### 特定のダッシュボードを入手する
+特定のIDを取得するには、そのIDをダッシュ​​ボードのURLの最後に配置します。
 
 ```
 GET /api/dashboards/2:
 ```
-
-It is also possible to fetch a specific dashboard by GUID, although this is not recommended
-### Admin getting ALL dashboards of ALL users
-To get all dashboards the user MUST be an admin, and issue a **GET** request to **/api/dashboards/all**. If this request is issued by a non-admin user it should return all dashboards to which they have access (which would be equivocal to a GET on **/api/dashboards**)
+GUIDによって特定のダッシュボードを取得することも可能ですが、これはお勧めできません。
+### すべてのユーザーのすべてのダッシュボードを取得する管理者
+すべてのダッシュボードを取得するには、ユーザーは管理者である必要があり、/api/dashboards/allにGETリクエストを発行する必要があります。この要求が管理者以外のユーザーによって発行された場合は、アクセス権を持つすべてのダッシュボードを返す必要があります（/api/dashboardsの GETとは異なります）。
 
 ```
 WEB GET /api/dashboards/all:
@@ -100,10 +98,10 @@ WEB GET /api/dashboards/all:
 ]
 ```
 
-## Updating a Dashboard
-Updating a dashboard (to change the data or alter the name, description, GID list, etc) is done by issuing a **PUT** request to **/api/dashboards/ID** where ID is the unique identifier for a given dashboard.
+## ダッシュボードの更新
+ダッシュボードの更新（データの変更または名前、説明、GIDリストなどの変更）は、/api/dashboards/IDに対してPUT要求を発行することによって行われます。ここで、IDは特定のダッシュボードの固有のIDです。
 
-In this example a user (UID 3) wishes to add permission for group 3 to access a dashboard (ID 2).
+この例では、ユーザー（UID 3）は、グループ3がダッシュボード（ID 2）にアクセスするための許可を追加したいと考えています。
 
 ```
 GET /api/dashboards/2:
@@ -126,7 +124,7 @@ GET /api/dashboards/2:
 ]
 ```
 
-The user has now retrieved the target dashboard, makes the modifications, and posts a PUT request:
+ユーザーはターゲットダッシュボードを取得し、変更を加え、PUTリクエストを送信します。
 ```
 WEB PUT /api/dashboards/2:
 [
@@ -148,13 +146,13 @@ WEB PUT /api/dashboards/2:
 ]
 ```
 
-The server will respond to update requests with the updated dashboard structure.
+サーバーは更新されたダッシュボード構造で更新要求に応答します。
 
-## Deleting a dashboard
-To remove a dashboard issue a request with the **DELETE** method on the url **/api/dashboards/ID** where ID is the numeric ID of the dashboard.
+## ダッシュボードを削除する
+ダッシュボードを削除するには、url /api/dashboards/IDに対してDELETEメソッドを使用してリクエストを発行します。ここで、IDはダッシュボードの数値IDです。
 
-## Getting all dashboards owned by a user
-To get dashboards explictely owned by a user issue a **GET** request on **/api/users/UID/dashboards** which will hand back ONLY those dashboards specifically owned by that UID.  This WILL NOT include dashboards the user has access to through group memberships.
+## ユーザーが所有するすべてのダッシュボードを取得する
+ユーザーが明示的に所有しているダッシュボードを取得するには、/api/users/UID/dashboardsでGETリクエストを発行します。これは、そのUIDが特に所有しているダッシュボードのみを返します。これには、ユーザーがグループメンバーシップを通じてアクセスできるダッシュボードは含まれません。
 ```
 WEB GET /api/users/1/dashboards:
 [
@@ -178,8 +176,9 @@ WEB GET /api/users/1/dashboards:
 ]
 ```
 
-## Getting all of a groups dashboards
-To get all dashboards that a specific group has access to issue a **GET** request to **/api/groups/GID/dashboards** which will hand back any dashboards tagged to that group.  This deviates a little from normal Unix permissions in that a dashboard can be in multiple groups (so groups don't really OWN a dashboard, but rather dashboards are kind of members of a group).
+## すべてのグループダッシュボードを取得する
+特定のグループが/api/groups/GID/dashboardsにGETリクエストを発行するためにアクセスできるすべてのダッシュボードを取得するには、そのグループにタグ付けされたダッシュボードをすべて返します。ダッシュボードは複数のグループに分けることができるという点で、これは通常のUnixの許可から少し逸脱しています（したがって、グループは実際にはダッシュボードを所有するのではなく、むしろダッシュボードはグループのメンバーの一種です）。
+
 ```
 WEB GET /api/groups/2/dashboards:
 [
@@ -217,8 +216,8 @@ WEB GET /api/groups/2/dashboards:
         }
 ]
 ```
-### Admin getting ALL dashboards of ALL users
-To get all dashboards the user MUST be an admin, and issue a **GET** request to **/api/dashboards/all**. If this request is issued by a non-admin user it should return all dashboards to which they have access (which would be equivocal to a GET on **/api/dashboards**)
+### すべてのユーザーのすべてのダッシュボードを取得する管理者
+すべてのダッシュボードを取得するには、ユーザーは管理者である必要があり、 /api/dashboards/allにGETリクエストを発行する必要があります。この要求が管理者以外のユーザーによって発行された場合は、アクセス権を持つすべてのダッシュボードを返す必要があります（/api/dashboardsの GETとは異なります）。
 
 ```
 WEB GET /api/dashboards/all:

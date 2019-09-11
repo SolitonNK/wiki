@@ -1,6 +1,6 @@
 # Kits Web API
 
-This API implements the creation, installation, and deletion of Gravwell kits. Kits contain other components which are installed on the local system to provide a ready-to-go solution to a particular problem. Kits can contain:
+このAPIはGravwellキットの作成、インストール、削除を実装します。 キットには、特定の問題に対するすぐに使えるソリューションを提供するためにローカルシステムにインストールされる他のコンポーネントが含まれています。 キットには以下を含めることができます。
 
 * Resources
 * Scheduled searches
@@ -10,16 +10,16 @@ This API implements the creation, installation, and deletion of Gravwell kits. K
 * Pivots
 * User files
 
-A given kit will also have the following attributes, specified at build time:
+特定のキットには、ビルド時に指定された次の属性もあります。
 
-* ID: A unique identifier for this kit. We recommend following Android naming practice, e.g. "com.example.my-kit".
-* Name: A human-friendly name for the kit, e.g. "My Kit".
-* Description: A description of the kit.
-* Version: An integer version of the kit.
+* ID：このキットの一意の識別子。 Androidの命名規則に従うことをお勧めします。 「com.example.my-kit」。
+* Name：キットのわかりやすい名前。 「私のキット」。
+* Description: キットの説明。
+* Version: キットの整数バージョン。
 
-## Building a kit
+## キットの作成
 
-Kits are built by sending a POST request to `/api/kit/build` containing a KitBuildRequest structure, as defined below:
+キットは、以下に定義するように、KitBuildRequest構造を含むPOSTリクエストを `/api/kit/build`に送信することで構築されます。
 
 ```
 type KitBuildRequest struct {
@@ -38,7 +38,7 @@ type KitBuildRequest struct {
 }
 ```
 
-Note that while the ID, Name, Description, and Version fields are required, the arrays of templates/pivots/dashboards etc. are optional. For example, here is a request to build a kit containing two dashboards, a pivot, a resource, and a scheduled search:
+ID、名前、説明、およびバージョンのフィールドは必須ですが、テンプレート/ピボット/ダッシュボードなどの配列はオプションです。 たとえば、2つのダッシュボード、ピボット、リソース、およびスケジュールされた検索を含むキットを作成するリクエストは次のとおりです。
 
 ```
 {
@@ -62,9 +62,9 @@ Note that while the ID, Name, Description, and Version fields are required, the 
 }
 ```
 
-Attention: The UUIDs specified for templates, pivots, and userfiles should be the *GUIDs* associated with those structures, not the *ThingUUID* field which is also reported in a listing of items.
+重要：テンプレート、ピボット、およびユーザーファイルに指定するUUIDは、アイテムのリストでも報告される* ThingUUID *フィールドではなく、それらの構造に関連付けられた* GUID *である必要があります。
 
-The system will respond with a structure describing the newly-built kit:
+システムは、新しく構築されたキットを説明する構造で応答します。
 
 ```
 {
@@ -74,15 +74,15 @@ The system will respond with a structure describing the newly-built kit:
 }
 ```
 
-This kit can be downloaded by doing a GET on `/api/kit/build/<uuid>`; given the above response, one would fetch the kit from `/api/kit/build/2f5e485a-2739-475b-810d-de4f80ae5f52`
+このキットは、 `/api/kit/build/<uuid>`でGETを実行することでダウンロードできます。 上記の応答があれば、 `/api/kit/build/2f5e485a-2739-475b-810d-de4f80ae5f52`からキットを取得します
 
-## Uploading a Kit
+## キットをアップロードする
 
-Before a kit can be installed, it must first be uploaded to the webserver. Kits are uploaded by a POST request to `/api/kit`. The request should contain a multipart form. To upload a file from the local system, add a file field to the form named `file` containing the kit file. To upload a file from a remote system such as an HTTP server, add a field named `remote` containing the URL of the kit.
+キットをインストールする前に、まずWebサーバーにアップロードする必要があります。 キットはPOSTリクエストによって `/api/kit`にアップロードされます。 リクエストにはマルチパートフォームが含まれている必要があります。 ローカルシステムからファイルをアップロードするには、キットファイルを含む `file`という名前のフォームにファイルフィールドを追加します。 HTTPサーバーなどのリモートシステムからファイルをアップロードするには、キットのURLを含む「remote」という名前のフィールドを追加します。
 
-## Listing Kits
+## キットのリスト
 
-A GET request on `/api/kit` will return a list of all known kits. Here is an example showing the result when the system has one kit uploaded but not yet installed:
+`/api/kit`に対するGETリクエストは、すべての既知のキットのリストを返します。 システムに1つのキットがアップロードされているが、まだインストールされていない場合の結果を示す例を次に示します。
 
 ```
 [
@@ -142,10 +142,10 @@ A GET request on `/api/kit` will return a list of all known kits. Here is an exa
 ]
 ```
 
-## Installing a Kit
+## キットのインストール
 
-To install a kit once it has been uploaded, send a PUT request to `/api/kit/<uui>`, where the UUID is the UUID field from the list of kits. The server will return a 200 status code upon successful installation.
+アップロードしたキットをインストールするには、PUTリクエストを `/api/kit/<uui>`に送信します。UUIDはキットのリストのUUIDフィールドです。 サーバーは、インストールが成功すると200ステータスコードを返します。
 
-## Uninstalling a kit
+## キットのアンインストール
 
-To remove a kit, issue a DELETE request on `/api/kit/<uuid>`.
+キットを削除するには、`/api/kit/<uuid>`でDELETEリクエストを発行します。

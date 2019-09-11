@@ -1,22 +1,22 @@
-# REST Stats API
+# REST統計API
 
 ## Ping
 
-The ping stats API returns the status of the webserver and indexers. This is retrieved via a GET to `/api/stats/ping`. If all systems are up, they will be reported as "OK":
+ping統計APIは、Webサーバーとインデクサーのステータスを返します。 これは/ api / stats / pingへのGETで取得されます。 すべてのシステムが起動している場合、それらは "OK"として報告されます。
 
 ```
 {"192.168.2.60:9404":"OK","webserver":"OK"}
 ```
 
-If an indexer is down, it will be marked "Disconnected":
+インデクサーが停止している場合は、「切断」とマークされます。
 
 ```
 {"192.168.2.60:9404":"Disconnected","webserver":"OK"}
 ```
 
-## Index Stats
+## インデックス統計
 
-The indexer stats API provides information about the indexes on each indexer. It is accessed via a GET to `/api/stats/idxStats`.
+インデクサー統計APIは、各インデクサーの索引に関する情報を提供します。 / api / stats / idxStatsへのGETを介してアクセスされます。
 
 ```
 {
@@ -72,9 +72,9 @@ The indexer stats API provides information about the indexes on each indexer. It
 
 ```
 
-## Ingester Stats
+## インジェスター統計
 
-Sending a GET request to `/api/stats/igstStats` will return a structure describing the ingesters attached to each indexer. The example below shows a single indexer (192.168.2.60) with two attached ingesters: the Simple Relay ingester and the Network Capture ingester.
+GET要求を/api/stats/igstStatsに送信すると、各インデクサーに接続されているインジェスターを記述する構造体が返されます。 以下の例は、2つのインジェスターが接続された単一のインデクサー（192.168.2.60）を示しています。SimpleRelayインジェスターとNetwork Captureインジェスターです。
 
 ```
 {
@@ -109,13 +109,13 @@ Sending a GET request to `/api/stats/igstStats` will return a structure describi
 }
 ```
 
-In each ingester description, the "Count" field gives the number of entries ingested and the "Size" field gives the number of bytes ingested. "Uptime" is how long, in nanoseconds, the ingester has been connected.
+各インジェスターの説明で、「カウント」フィールドは取り込まれたエントリーの数を示し、「サイズ」フィールドは取り込まれたバイト数を示します。 「稼働時間」とは、摂取者が接続されている時間（ナノ秒単位）です。
 
-Note the "QuotaMax" and "QuotaUsed" fields. Community licenses can only ingest a certain amount each day. "QuotaMax" specifies how many bytes the given indexer is allowed to ingest per day. "QuotaUsed" shows how many bytes have been ingested so far today.
+"QuotaMax"と "QuotaUsed"フィールドに注意してください。 コミュニティライセンスは毎日一定量しか摂取できません。 「QuotaMax」は、指定されたインデクサーが1日に取り込めるバイト数を指定します。 "QuotaUsed"は、今日までに何バイトが取り込まれたかを示します。
 
-## System Stats
+## システム統計
 
-Sending a GET request to `/api/stats/sysStats` will return a structure containing information about the indexer and webserver systems, such as number of CPUs, CPU utilization, memory and network utilization, and more.
+/api/stats/sysStatsにGETリクエストを送信すると、CPUの数、CPU使用率、メモリとネットワークの使用率など、インデクサーとWebサーバーシステムに関する情報を含む構造体が返されます。
 
 ```
 {
@@ -216,11 +216,11 @@ Sending a GET request to `/api/stats/sysStats` will return a structure containin
 }
 ```
 
-Most of the fields are self-explanatory. Note that the "IO" array gives information about disks, with "Read" and "Write" fields specifying read and write *rates* in bytes per second. Similarly, the "Net" component describes network utilization in bytes per second.
+ほとんどのフィールドは一目瞭然です。 "IO"配列はディスクに関する情報を提供し、 "Read"および "Write"フィールドは1秒あたりのバイト数で読み書き速度を指定します。 同様に、「Net」コンポーネントは、ネットワーク使用率を1秒あたりのバイト数で表します。
 
-## System Description
+## システムの説明
 
-Sending a GET request to `/api/stats/sysDesc` will return a structure giving additional information about the webserver and indexer host systems:
+/api/stats/sysDescにGETリクエストを送信すると、Webサーバーとインデクサーのホストシステムに関する追加情報を示す構造体が返されます。
 
 ```
 {

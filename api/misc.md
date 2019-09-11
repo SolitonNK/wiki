@@ -1,18 +1,18 @@
 # Miscellaneous APIs
 
-Some APIs don't fit nicely into the main categories. They are listed here.
+一部のAPIはメインカテゴリにうまく適合しません。それらはここにリストされています。
 
-## Tag List
+## タグリスト
 
-The webserver maintains a list of all tags known to the indexers. This list can be fetched with a GET request on `/api/tags`. This will return a list of tags:
+Webサーバーは、インデクサーに認識されているすべてのタグのリストを管理します。このリストはGETリクエストで取得することができます/api/tags。これはタグのリストを返します。
 
 ```
 ["default", "gravwell", "pcap", "windows"]
 ```
 
-## Search Module List
+## 検索モジュール一覧
 
-To get a list of all available search modules and some info about each one, do a GET on `/api/info/searchmodules/`. This will return a list of module info structures:
+利用可能なすべての検索モジュールのリストとそれぞれの情報を取得するには、/api/info/searchmodules/でGETを実行します。 これはモジュール情報構造体のリストを返すでしょう：
 
 ```
 [
@@ -66,9 +66,9 @@ To get a list of all available search modules and some info about each one, do a
 ]
 ```
 
-## Render Module List
+## レンダリングモジュールリスト
 
-To get a list of all available render modules and some info about each one, do a GET on `/api/info/rendermodules/`. This will return a list of module info structures:
+利用可能なすべてのレンダーモジュールのリストと各モジュールに関する情報を取得するには、/api/info/rendermodules/でGETを実行します。 これはモジュール情報構造体のリストを返すでしょう：
 
 ```
 [
