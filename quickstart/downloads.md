@@ -1,18 +1,19 @@
-# Downloads
+# ダウンロード
 
-Attention: The debian repository is more easily maintained than these standalone installers and is the recommended method of installation. See the [quickstart instructions](#!quickstart/quickstart.md).
+重要：debianリポジトリは、これらのスタンドアロンインストーラーよりも簡単に管理でき、推奨されるインストール方法です。 [クイックスタート手順](#!quickstart/quickstart.md)を参照してください。
 
 ## Gravwell Core
 
-The Gravwell core installer contains the indexer and webserver frontend. You'll need a license; either get a Community Edition free license, or contact info@gravwell.io for commercial options.
+Gravwellコアインストーラーには、インデクサーとWebサーバーフロントエンドが含まれています。 ライセンスが必要です。 Community Editionの無料ライセンスを取得するか、info @ gravwell.ioに連絡して商用オプションを入手してください。
 
-[Download Gravwell Core Installer](https://update.gravwell.io/files/gravwell_3.1.2.sh) (MD5: 0e78718bd1c192b718f6560485deed44)
+[Gravwell Coreインストーラーをダウンロードする](https://update.gravwell.io/files/gravwell_3.1.2.sh) (MD5: 0e78718bd1c192b718f6560485deed44)
 
-## Ingesters
+## インジェスター
 
-The core suite of ingesters are available for download as an installable packages.  Ingesters designed to operate on Linux machines are typically self contained, statically linked executables that are agnostic to the hosts package management system (with the exception of the NetworkCapture ingester).  Windows based ingesters are distributed as executable MSI packages.  Source code for many ingesters can be found at [Github](https://github.com/gravwell/ingesters).
+インジェスターのコアスイートは、インストール可能なパッケージとしてダウンロードできます。 Linuxマシンで動作するように設計されたインジェスターは通常、自己完結型の静的にリンクされた実行可能ファイルであり、ホストパッケージ管理システムにとらわれません（NetworkCapture ingesterを除く）。 Windowsベースのインジェスターは、実行可能なMSIパッケージとして配布されます。 多くのインジェスターのソースコードは[Github](https://github.com/gravwell/ingesters)にあります。
 
-### Version 3.1.2 Ingester Releases
+### バージョン3.1.2 Ingesterリリース
+
 | Ingester | Description | MD5 | More Info |
 |:--------:|-------------|:---:|----------:|
 | [Simple Relay](#!ingesters/ingesters.md#Simple_Relay) | An ingester capable of accepting syslog or line brokend data sent over the network. |7598b4a6a435b93d6b7a46dab1d7947b| [Download](https://update.gravwell.io/files/gravwell_simple_relay_installer_3.1.2.sh)|
@@ -30,10 +31,10 @@ The core suite of ingesters are available for download as an installable package
 [//]: <> (| [](#!ingesters/ingesters.md#) | | | [Download](https://update.gravwell.io/files/) |)
 [//]: <> (| [](#!ingesters/ingesters.md#) | | | [Download](https://update.gravwell.io/files/) |)
 
-## Other downloads
+## その他のダウンロード
 
-Some Gravwell components are distributed as optional additional installers, such as the search agent and the datastore.
+一部のGravwellコンポーネントは、検索エージェントやデータストアなどのオプションの追加インストーラーとして配布されます。
 
-| Component | Description | MD5 | More Info |
+| コンポーネント | 説明 | MD5 | 詳細情報 |
 |:---------:|-------------|:---:|----------:|
-| [Datastore](#!distributed/frontend.md) | The datastore keeps multiple Gravwell webservers in sync, enabling load balancing |e1cc3ff581d05e111b9e29087d7b4d68| [Download](https://update.gravwell.io/files/gravwell_datastore_installer_3.1.2.sh) |
+| [データストア](#!distributed/frontend.md) | データストアは複数のGravwell Webサーバーの同期を維持し、負荷分散を可能にします |e1cc3ff581d05e111b9e29087d7b4d68| [ダウンロード](https://update.gravwell.io/files/gravwell_datastore_installer_3.1.2.sh) |
