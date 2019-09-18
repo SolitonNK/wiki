@@ -1,18 +1,18 @@
 # Gravwell Community Edition
 
-Attention: This document has been deprecated in favor of the [universal quickstart](#!quickstart/quickstart.md). We have left this intact to keep existing links functional but will not be updating it.
+重要：この文書は、[universal quickstart](#!quickstart/quickstart.md)を支持して廃止されました。 既存のリンクを機能させるためにこれをそのままにしておきますが、更新はしません。
 
-Gravwell's Community Edition is a free licensing program intended for personal use. Unlike regular Gravwell licenses, Community Edition licenses are restricted to 2GB of ingested data per day. In our experience, we've found this to be more than enough for any home network applications (unless you decide to capture all packets and then start streaming Netflix!)
+GravwellのCommunity Editionは、個人使用を目的とした無料のライセンスプログラムです。 通常のGravwellライセンスとは異なり、Community Editionライセンスは1日あたり2GBの取り込みデータに制限されています。 私たちの経験では、これはすべてのホームネットワークアプリケーションに十分すぎることがわかりました（すべてのパケットをキャプチャしてからNetflixのストリーミングを開始する場合を除きます！）。
 
-Getting Gravwell Community Edition is straightforward. First, you'll install the software from either our Debian package repository, run the Docker container, or use the distribution-agnostic self-contained installer. Next, you'll sign up for a free license, which will be emailed to you. Finally, the newly-installed Gravwell instance will prompt you to upload the license file; once it's uploaded, you'll be ready to start using Gravwell!
+Gravwell Community Editionの入手は簡単です。 最初に、Debianパッケージリポジトリからソフトウェアをインストールするか、Dockerコンテナーを実行するか、ディストリビューションに依存しない自己完結型インストーラーを使用します。 次に、無料ライセンスにサインアップして、メールで送信します。 最後に、新しくインストールされたGravwellインスタンスにより、ライセンスファイルをアップロードするように求められます。 アップロードされると、Gravwellの使用を開始する準備が整います。
 
-## Installing the software
+## ソフトウェアのインストール
 
-Gravwell Community Edition is distributed in three ways: via a Docker container, via a distribution-agnostic self-extracting installer, and via a Debian package repository. We recommend using the Debian repository if your system runs Debian or Ubuntu, the Docker container if you have Docker setup, and the self-extracting installer otherwise.
+Gravwell Community Editionは、Dockerコンテナ、ディストリビューションに依存しない自己解凍インストーラー、Debianパッケージリポジトリの3つの方法で配布されます。 システムがDebianまたはUbuntuを実行している場合はDebianリポジトリを使用し、Dockerセットアップがある場合はDockerコンテナーを使用し、それ以外の場合は自己解凍インストーラーを使用することをお勧めします。
 
-### Debian repository
+### Debianリポジトリ
 
-Installing from the Debian repository is quite simple:
+Debianリポジトリからのインストールは非常に簡単です：
 
 ```
 # Get our signing key
@@ -25,7 +25,7 @@ sudo apt-get update
 sudo apt-get install gravwell
 ```
 
-The installation process will prompt to set some shared secret values used by components of Gravwell. We strongly recommend allowing the installer to generate random values (the default) for security.
+インストールプロセスでは、Grabwellのコンポーネントが使用するいくつかの共有シークレット値を設定するよう求められます。 セキュリティのために、インストーラーがランダムな値（デフォルト）を生成できるようにすることを強くお勧めします。
 
 ![Read the EULA](eula.png)
 
@@ -33,42 +33,42 @@ The installation process will prompt to set some shared secret values used by co
 
 ![Generate secrets](secret-prompt.png)
 
-### Docker Container
+### Dockerコンテナ
 
-Gravwell is available on Dockerhub as a single container including both the webserver and indexer. Refer to [the Docker installation instructions](#!configuration/docker.md) for detailed instructions on installing Gravwell in Docker.
+Gravwellは、Webサーバーとインデクサーの両方を含む単一のコンテナーとしてDockerhubで利用できます。 GravwellをDockerにインストールする詳細な手順については、[Dockerのインストール手順](#!configuration/docker.md)を参照してください。
 
-### Self-contained Installer
+### 自己完結型インストーラー
 
-For non-Debian systems, download the [self-contained installer](https://update.gravwell.io/files/gravwell_2.2.4.sh) and verify it:
+Debian以外のシステムの場合、[自己完結型インストーラー](https://update.gravwell.io/files/gravwell_2.2.4.sh)をダウンロードして確認します。
 
 ```
 curl -O https://update.gravwell.io/files/gravwell_2.2.4.sh
 md5sum gravwell_2.2.4.sh #should be f549d11ed30b1ca1f71a511e2454b07b
 ```
 
-Then run the installer:
+次に、インストーラーを実行します。
 
 ```
 sudo bash gravwell_2.2.4.sh
 ```
 
-Follow the prompts and, after completion, you should have a running Gravwell instance.
+プロンプトに従い、完了後、実行中のGravwellインスタンスが必要です。
 
-## Getting a License
+## ライセンスを取得する
 
-To get your license file, head on over to [https://www.gravwell.io/download](https://www.gravwell.io/download) and fill out the form. Logbot will email one to you shortly therafter.
+ライセンスファイルを取得するには、 [https://www.gravwell.io/download](https://www.gravwell.io/download)に進み、フォームに入力します。 Logbotはすぐにメールを送信します。
 
-Once Gravwell is installed, open a web browser and navigate to the server (e.g. [https://localhost/](https://localhost/)). It should prompt you to upload a license file.
+Gravwellをインストールしたら、Webブラウザーを開いてサーバーに移動します（例：[https://localhost/](https://localhost/)）。 ライセンスファイルをアップロードするよう求められます。
 
 ![Upload license](upload-license.png)
 
-Attention: The default username/password for Gravwell is admin/changeme. We highly recommend changing the admin password as soon as possible!
+重要：Gravwellのデフォルトのユーザー名/パスワードはadmin/changemeです。 できるだけ早く管理者パスワードを変更することを強くお勧めします！
 
-## Start Ingesting!
+## 取り込みを開始してください！
 
-A freshly installed Gravwell instance, by itself, is boring. You'll want some ingesters to provide data. You can either install them from the Debian repository or head over to [the Downloads page](downloads.md) to fetch self-extracting installers for each ingester.
+新たにインストールされたGravwellインスタンス自体は退屈です。 一部のインジェスターにデータを提供してもらいたいでしょう。 Debianリポジトリからインストールするか、[ダウンロードページ](downloads.md)に移動して、各期の自己解凍インストーラーを取得します。
 
-The ingesters available in the Debian repository can be viewed by running `apt-cache search gravwell`:
+Debianリポジトリで利用可能なインジェスターは、 `apt-cache search gravwell`を実行することで表示できます：
 
 ```
 root@debian:~# apt-cache search gravwell
@@ -80,26 +80,26 @@ gravwell-network-capture - Gravwell packet ingester
 gravwell-simple-relay - Gravwell simple relay ingester
 ```
 
-If you install them on the same node as the main Gravwell instance, they should be automatically configured to connect to the indexer, but you'll need to set up data sources for most. See the [ingester configuration documents](#!ingesters/ingesters.md) for instructions on that.
+メインGravwellインスタンスと同じノードにインストールする場合、インデクサーに接続するように自動的に構成する必要がありますが、ほとんどの場合、データソースを設定する必要があります。 その手順については、[ingester設定ドキュメント](#!ingesters/ingesters.md) を参照してください。
 
-We highly recommend installing the File Follow ingester (gravwell-file-follow) as a first experiment; it comes pre-configured to ingest Linux log files, so you should be able to see some entries immediately by issuing a search such as `tag=auth`:
+最初の実験として、File Follow ingester（gravwell-file-follow）をインストールすることを強くお勧めします。 Linuxログファイルを取り込むように事前に設定されているため、`tag=auth`などの検索を発行することにより、いくつかのエントリをすぐに表示できるはずです。
 
 ![Auth entries](auth.png)
 
-If you are not using a debian based repository go to the [downloads section](downloads.md) for self-contained installers.
+Debianベースのリポジトリを使用していない場合は、自己完結型インストーラーの[ダウンロードセクション](downloads.md)にアクセスしてください。
 
-### Ingester Configuration
+### インジェスターの構成
 
-Additional information about installing and configuring each ingester can be found in the [Setting Up Ingesters](/ingesters/ingesters.md) section.
+各ingesterのインストールと構成に関する追加情報は、[Ingestersのセットアップ](/ingesters/ingesters.md)セクションにあります。
 
-## Next Steps
+## 次のステップ
 
-Gravwell is a powerful and complex product. It will take time to build expertise, but by starting with simple queries and looking up more complex concepts as needed, you can start answering useful questions immediately!
+Gravwellは強力で複雑な製品です。 専門知識を構築するには時間がかかりますが、単純なクエリから開始し、必要に応じてより複雑な概念を調べることで、すぐに有用な質問に答えることができます！
 
-We recommend starting out with the continued section of the [Standard version Quickstart document](quickstart.md#Feeding_Data), particularly the [Searching section](quickstart.md#Searching), for some ideas on how to get started. You may need to refer to the [ingester configuration documents](#!ingesters/ingesters.md) to get the data you want into the system.
+開始方法のアイデアについては、[標準バージョンクイックスタートドキュメント](quickstart.md#Feeding_Data)の継続セクション、特に[検索セクション](quickstart.md#Searching)から始めることをお勧めします。 必要なデータをシステムに取り込むには、[ingester configuration documents](#!ingesters/ingesters.md) を参照する必要がある場合があります。
 
-The [search documentation](#!search/search.md) is the ultimate resource for building search queries; the [Search Modules](#!search/searchmodules.md) and [Render Modules](#!search/rendermodules.md) sections have lots of examples and exhaustive descriptions of the options for each module.
+[検索ドキュメント](#!search/search.md)は、検索クエリを構築するための究極のリソースです。 [Search Modules](#!search/searchmodules.md)および[Render Modules](#!search/rendermodules.md)セクションには、各モジュールのオプションの例と詳細な説明がたくさんあります。
 
-Finally, the [Gravwell blog](https://www.gravwell.io/blog) has case studies and examples showing real-world applications of Gravwell that may serve as inspiration.
+最後に、[Gravwellブログ](https://www.gravwell.io/blog)には、インスピレーションとして役立つ可能性のあるGravwellの実際のアプリケーションを示すケーススタディと例があります。
 
-For help, you can join our [open community on Keybase](https://keybase.io/team/gravwell.community) or email support@gravwell.io. We're excited to help others get value from their data with Gravwell!
+ヘルプが必要な場合は、[Keybaseのオープンコミュニティ](https://keybase.io/team/gravwell.community)に参加するか、support @ gravwell.ioにメールしてください。 Gravwellを使用して、他の人がデータから価値を得るのを支援できることを楽しみにしています！
