@@ -1,12 +1,12 @@
 # Math Modules
 
-Math modules operate on the pipeline to perform statistical analysis. They are also important when information is condensed over a timeline. For example, if the temperature is measured 10 times per second but the user requests it to be displayed by the second, a math module is used to condense that data.
+mathモジュールは、パイプライン上で動作して統計分析を実行します。  また、タイムラインで情報が凝縮される場合にも重要です。  たとえば、温度が1秒あたり10回測定されているが、ユーザーが1秒ごとに表示するように要求した場合、mathモジュールを使用してそのデータを圧縮します。
 
 ## Sum
 
-The sum module adds the value of the records. This is the default behavior and likely would not be invoked directly.
+sumモジュールはレコードの値を加算します。  これはデフォルトの動作であり、直接呼び出されることはおそらくないでしょう。
 
-Example search summing the data that a MAC address has sent on the network:
+MACアドレスがネットワーク上で送信したデータをまとめた検索例:
 
 ```
 tag=pcap eth.SrcMAC eth.Length | sum Length by SrcMAC | chart sum by SrcMAC
@@ -14,8 +14,8 @@ tag=pcap eth.SrcMAC eth.Length | sum Length by SrcMAC | chart sum by SrcMAC
 
 ## Mean
 
-The mean module returns the average value of the records.
-Example search charting vehicle RPM:
+meanモジュールはレコードの平均値を返します。
+車両のRPMチャートの検索チャートの例:
 
 ```
 tag=CAN canbus ID=0x2C4 | slice uint16BE(data[0:2]) as RPM | mean RPM | chart mean
@@ -23,15 +23,15 @@ tag=CAN canbus ID=0x2C4 | slice uint16BE(data[0:2]) as RPM | mean RPM | chart me
 
 ## Count
 
-The count module counts instances of records. It does not conduct any arithmetic on the data within a record.
+Countモジュールはレコードのインスタンスをカウントします。  レコード内のデータに対して算術演算を行いません。
 
-Example search counting sudo commands from a linux machine:
+Linuxマシンからのsudoコマンドのカウント例:
 
 ```
 grep sudo | regex "COMMAND=(?P<command>\S+)" | count by command | chart count by command
 ```
 
-This is an example search showing how many packets were sent by a MAC address over the network (which is different than the size of each packet as shownin the sum module example):
+これは、ネットワーク上でMACアドレスによって送信されたパケットの数を示す検索例です（sumモジュールの例に示されているように、各パケットのサイズとは異なります）:
 
 ```
 tag=pcap eth.SrcMAC eth.Length | sum Length by SrcMAC | chart sum by SrcMAC
@@ -39,9 +39,9 @@ tag=pcap eth.SrcMAC eth.Length | sum Length by SrcMAC | chart sum by SrcMAC
 
 ## Max
 
-The max module returns the maximum value seen.
+maxモジュールは最大値を返します。
 
-Example search showing a table of the maximum RPM for each vehicle in an entire fleet:
+フリート全体の各車両の最大RPMの表を示す検索例:
 
 ```
 tag=CAN canbus ID=0x2C4 | slice uint16BE(data[0:2]) as RPM | max RPM by SRC | table SRC max
@@ -49,9 +49,9 @@ tag=CAN canbus ID=0x2C4 | slice uint16BE(data[0:2]) as RPM | max RPM by SRC | ta
 
 ## Min
 
-The min module returns the minimum value seen.
+minモジュールは最小値を返します。
 
-Example search showing a table of the minimum RPM for each vehicle in an entire fleet:
+フリート全体の各車両の最小RPMの表を示す検索例:
 
 ```
 tag=CAN canbus ID=0x2C4 | slice uint16BE(data[0:2]) as RPM | min RPM by SRC | table SRC min
@@ -59,9 +59,9 @@ tag=CAN canbus ID=0x2C4 | slice uint16BE(data[0:2]) as RPM | min RPM by SRC | ta
 
 ## Variance
 
-The variance module returns the variance information of a record. This is useful for highlighting the rate of change.
+Varianceモジュールは、レコードの分散情報を返します。  これは変化率を強調するのに役立ちます。
 
-Example search charting the variance of throttle data on a Toyota vehicle.
+トヨタ車のスロットルデータの分散をグラフ化した検索例:
 
 ```
 tag=CAN canbus ID=0x2C1 | slice byte(data[6:7]) as throttle | variance throttle | chart variance
@@ -69,11 +69,11 @@ tag=CAN canbus ID=0x2C1 | slice byte(data[6:7]) as throttle | variance throttle 
 
 ## Stddev
 
-Standard Deviation
+標準偏差
 
-The stddev module returns the standard deviation information of a record. This is useful for highlighting anomalous events.
+stddevモジュールはレコードの標準偏差情報を返します。  これは異常なイベントを強調するのに役立ちます。
 
-Example search charting RPM signals that are outliers:
+外れ値であるRPM信号をグラフ化した検索例:
 
 ```
 tag=CAN canbus ID=0x2C4 | slice uint16BE(data[0:2]) as RPM | stddev RPM | chart stddev
@@ -81,7 +81,7 @@ tag=CAN canbus ID=0x2C4 | slice uint16BE(data[0:2]) as RPM | stddev RPM | chart 
 
 ## Unique
 
-The unique module eliminates duplicate entries in the query data. Simply specifying `unique` will check for duplicate entries based on the hash of each entry's data. Specifying one or more enumerated value names will cause unique to filter on the enumerated values alone. The difference can be illustrated thus:
+uniqueモジュールは、クエリデータ内の重複エントリを排除します。  単にuniqueを指定すると、各エントリのデータのハッシュに基づいて重複エントリがチェックされます。   1つ以上の列挙値の名前を指定すると、uniqueが列挙値のみをフィルタリングします。  違いは次のように説明できます:
 
 ```
 tag=pcap packet tcp.DstPort | unique
@@ -91,27 +91,27 @@ tag=pcap packet tcp.DstPort | unique
 tag=pcap packet tcp.DstPort | unique DstPort
 ```
 
-The first query will filter out duplicate packets by looking at the entire contents of the packet; because packets typically include things like sequence numbers, it will not accomplish much. The second query uses the extracted DstPort enumerated value to test uniqueness; this means that e.g. the first packet destined for TCP port 80 will pass through, but all further packets destined for port 80 will be dropped.
+最初の問い合わせはパケットの内容全体を見ることによって重複したパケットを除外します。  パケットは通常シーケンス番号のようなものを含んでいるので、それは多くを達成しないでしょう。   2番目のクエリは、抽出されたDstPort列挙値を使用して一意性をテストします。  これはつまりTCPポート80宛ての最初のパケットは通過しますが、ポート80宛てのそれ以降のパケットはすべてドロップされます。
 
-Specifying multiple arguments means unique will look for each unique combination of those arguments.
+複数の引数を指定すると、uniqueはそれらの引数のそれぞれ固有の組み合わせを探します。
 
 ```
 tag=pcap packet tcp.DstPort tcp.DstIP | eval DstPort < 1024 | unique DstPort DstIP | table DstIP DstPort
 ```
 
-The search above will output every unique combination of IP + port, provided the port is less than 1024. This is a useful way to find servers on a network, for instance.
+上記の検索では、ポートが1024未満であれば、IP +ポートのすべての固有の組み合わせが出力されます。  これは、たとえばネットワーク上のサーバーを見つけるのに便利な方法です。
 
 ## Entropy
 
-The entropy module calculates the Entropy of field values over time.  Specifying `entropy` without any arguments will generate the entropy of all entries data sections across the search range.  The entropy module supports temporal search mode allowing for charting of entropy over time.  Entropy can also operate on enumerated values and group using multiple keys similar to other math modules.  Entropy output values are between 0 and 1.
+Entropyモジュールは、フィールド値のエントロピーを経時的に計算します。  引数なしでエントロピーを指定すると、検索範囲全体のすべてのエントリーのデータセクションのエントロピーが生成されます。  エントロピーモジュールは、経時的なエントロピーの図表化を可能にする時間的検索モードをサポートする。  エントロピーは他の数学モジュールと同様に複数のキーを使用して列挙された値やグループを操作することもできます。  エントロピー出力値は0から1の間です。
 
-An example query which calculates and charts the entropy of TCP packet payloads based on port:
+ポートに基づいてTCPパケットペイロードのエントロピーを計算してチャートにするクエリの例:
 
 ```
 tag=pcap packet tcp.Port tcp.Payload | entropy Payload by Port | chart entropy by Port
 ```
 
-An example query which calculates the entropy of URLS by host and sorts the list based on highest entropy value:
+ホストごとにURLのエントロピーを計算し、最も高いエントロピー値に基づいてリストをソートするクエリの例:
 
 ```
 tag=pcap packet tcp.Port==80 ipv4.IP !~ 10.0.0.0/8 tcp.Payload | grep -e Payload GET PUT HEAD POST | regex -e Payload "[A-Z]+\s(?P<url>\S+)\sHTTP\/" | entropy url by IP | table IP entropy

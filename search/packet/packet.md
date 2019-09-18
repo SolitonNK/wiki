@@ -1,48 +1,48 @@
 ## Packet
 
-The Packet pipeline module extracts fields from Ethernet, IPv4, IPv6, TCP, and UDP packets.  Each field supports an operator which can selectively filter the packet, if no operator is provided the field is extracted if available.
+パケットパイプラインモジュールは、イーサネット、IPv4、IPv6、TCP、およびUDPパケットからフィールドを抽出します。  各フィールドは、パケットを選択的にフィルタリングすることができるオペレータをサポートしており、オペレータが提供されていない場合、利用可能であればフィールドが抽出されます。
 
-The packet module is useful both for filtering traffic down to specific protocols and for extracting specific fields from packets for analysis--see the examples for more.
+パケットモジュールは、特定のプロトコルへのトラフィックのフィルタリングと分析のためのパケットからの特定のフィールドの抽出の両方に役立ちます。  詳細は例を参照してください。
 
-Some field modules allow for flexible section where it is desirable to filter on a field that may have a source and destination.  To accomdate selection on IPs, Ports, MACs where there are both a source and destination, the special fields Port, IP, MAC are available.  If either source or destination matches an enumerated value with the field will be populated with the component that matched.  For example, tcp.Port==80 will match whenever either tcp.SrcPort or tcp.DstPort are equal to 80; tpc.Port != 80 will ensure that if either the source or destination ports are 80 the packet is filtered.
+一部のフィールドモジュールでは、送信元と宛先を持つ可能性があるフィールドをフィルタリングすることが望ましい柔軟なセクションが可能です。  送信元と宛先の両方があるIP、ポート、MACの選択に対応するために、特別なフィールドポート、IP、MACが利用可能です。  送信元または送信先のいずれかがフィールドの列挙値に一致すると、一致したコンポーネントが入力されます。  たとえば、tcp.SrcPortまたはtcp.DstPortのいずれかが80の場合は、tcp.Port == 80が一致します。  tpc.Port！= 80を指定すると、送信元ポートまたは宛先ポートのどちらかが80の場合、パケットは確実にフィルタリングされます。
 
-### Supported Options
+### サポートされているオプション
 
-* `-e <arg>`: The “-e” option operates on an enumerated value instead of on the entire record. For example, the packet processing engine can operate on extracted values such as analyzing layer 2 tunnels.`
+* `-e <arg>`: “ -e”オプションは、レコード全体ではなく列挙値に作用します。  たとえば、パケット処理エンジンは、レイヤ2トンネルの分析など、抽出された値を処理できます。
 
-### Packet Processing Operators
+### パケット処理オペレーター
 
-| Operator | Name | Description
+| オペレーター | 名 | 説明
 |----------|------|-------------
-| == | Equal | Field must be equal
-| != | Not equal | Field must not be equal
-| < | Less than | Field must be less than
-| > | Greater than | Field must be greater than
-| <= | Less than or equal | Field must be less than or equal to
-| >= | Greater than or equal | Field must be greater than or equal to
-| ~ | Subset | Field must be a member of
-| !~ | Not subset | Field must not be a member of
+| == | 等しい | フィールドは等しくなければなりません
+| != | 等しくない | フィールドは等しくてはいけません
+| < | 未満 | フィールドはより小さい
+| > | より大きい | フィールドはより大きくなければなりません
+| <= | 以下 | フィールドは以下でなければなりません
+| >= | 以上 | フィールドは以上でなければなりません
+| ~ | サブセット | フィールドはメンバーでなければなりません
+| !~ | サブセットではない | フィールドはメンバーであってはいけません
 
-### Packet Processing submodules
-The packet processor supports a growing list of submodules which allow for breaking out specific fields in a packet.  Each submodule and field supports a set of operators that allow the packet processor to also filter events based on the subfields.  The following sub modules are available:
+### パケット処理サブモジュール
+パケットプロセッサは、パケット内の特定のフィールドを分割することを可能にする、増え続けるサブモジュールのリストをサポートします。  各サブモジュールおよびフィールドは、パケットプロセッサがサブフィールドに基づいてイベントをフィルタリングすることも可能にする一連の演算子をサポートします。  以下のサブモジュールが利用可能です:
 
-| Submodule | Description |
+| サブモジュール | 説明 |
 |-----------|-------------|
-| eth | Ethernet frames |
-| ipv4 | IP Version 4 packets |
-| ipv6 | IP Version 6 packets |
-| tcp | TCP packets |
-| udp | UDP packets |
-| icmpv4 | ICMP packets |
-| dot1q | VLAN tagged frames |
-| dot11 | 802.11 Wireless packets |
-| modbus | modbus/TCP packets |
+| eth | イーサネットフレーム |
+| ipv4 | IPバージョン4パケット |
+| ipv6 | IPバージョン6パケット |
+| tcp | TCPパケット |
+| udp | UDPパケット |
+| icmpv4 | ICMPパケット |
+| dot1q | VLANタグ付きフレーム |
+| dot11 | 802.11ワイヤレスパケット |
+| modbus | modbus / TCPパケット |
 
-### Packet Processing Submodules
+### パケット処理サブモジュール
 
-#### Ethernet
+#### イーサネット
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | eth | SrcMAC | == != | eth.SrcMAC==DE:AD:BE:EF:11:22 
 | eth | DstMAC | == != | eth.DstMAC != DE:AD:BE:EF:11:22 
@@ -53,26 +53,26 @@ The packet processor supports a growing list of submodules which allow for break
 
 #### VLAN dot1q
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | dot1q | VLANID | > < <= >= == != | dot1q.VLANID > 1024
 | dot1q | Priority | > < <= >= == != | dot1q.Priority < 2
 | dot1q | Type | > < <= >= == != | dot1q.Type == 2
 | dot1q | DropEligible |  == != | dot1q.DropEligible == true
 
-The dot1q packet submodule is designed to enable parsing of VLAN tagged packets.
+dot1qパケットサブモジュールは、VLANタグ付きパケットの解析を可能にするように設計されています。  VLANヘッダーを持つパケットは、VLAN解析機能を自動的に呼び出すことはなく、dot1qモジュールがないとパケットエンジンによってドロップされる可能性があります。  VLANタグ付きの値が必要ない場合でも、モジュールをクエリに追加してVLANタグ付きのパケットをサポートする必要があります。
 
-##### Example Search
+##### 検索例
 
-An example search that shows all mac addresses routing multiple IPv4 addresses with VLAN tagged packets:
+VLANタグ付きパケットで複数のIPv4アドレスをルーティングするすべてのMACアドレスを表示する検索例:
 
 ```
 tag=pcap packet dot1q.Drop==false eth.SrcMAC ipv4.SrcIP | unique SrcMAC SrcIP | count by SrcMAC | eval count > 1 | table SrcMAC count
 ```
 
-#### 802.11 Wireless
+#### 802.11無線LAN
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | dot11 | Address1 | == != | dot11.Address1==DE:AD:BE:EF:11:22 
 | dot11 | Address2 | == != | dot11.Address2 != DE:AD:BE:EF:11:22 
@@ -85,7 +85,7 @@ tag=pcap packet dot1q.Drop==false eth.SrcMAC ipv4.SrcIP | unique SrcMAC SrcIP | 
 
 #### IPv4
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例
 |-----|-------|-----------|---------
 | ipv4 | Version | == != < > <= >= | ipv4.Version != 0b11 
 | ipv4 | IHL | == != < > <= >= | ipv4.IHL == 08 
@@ -104,7 +104,7 @@ tag=pcap packet dot1q.Drop==false eth.SrcMAC ipv4.SrcIP | unique SrcMAC SrcIP | 
 
 #### IPv6
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | ipv6 | Version | == != < > <= >= | ipv6.Version == 0x08 
 | ipv6 | TrafficClass | == != < > <= >= | ipv6.TrafficClass != 20 
@@ -119,7 +119,7 @@ tag=pcap packet dot1q.Drop==false eth.SrcMAC ipv4.SrcIP | unique SrcMAC SrcIP | 
 
 #### TCP
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | tcp | SrcPort | == != < > <= >= | tcp.SrcPort > 1024 
 | tcp | DstPort | == != < > <= >= | tcp.DstPort <= 1024 
@@ -135,7 +135,7 @@ tag=pcap packet dot1q.Drop==false eth.SrcMAC ipv4.SrcIP | unique SrcMAC SrcIP | 
 
 #### UDP
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | udp | SrcPort | == != < > <= >= | udp.SrcPort > 0xfff 
 | udp | DstPort | == != < > <= >= | udp.DstPort < 1024 
@@ -147,7 +147,7 @@ tag=pcap packet dot1q.Drop==false eth.SrcMAC ipv4.SrcIP | unique SrcMAC SrcIP | 
 
 #### ICMP V4
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | icmpv4 | Type | == != < > <= >= | icmpv4.Type < 0x10 
 | icmpv4 | Code | == != < > <= >= | icmpv4.Code ==0x2 
@@ -158,7 +158,7 @@ tag=pcap packet dot1q.Drop==false eth.SrcMAC ipv4.SrcIP | unique SrcMAC SrcIP | 
 
 #### ICMP V6
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | icmpv6 | Type | == != < > <= >= | icmpv6.Type < 0x10 
 | icmpv6 | Code | == != < > <= >= | icmpv6.Code != 0x2
@@ -167,7 +167,7 @@ tag=pcap packet dot1q.Drop==false eth.SrcMAC ipv4.SrcIP | unique SrcMAC SrcIP | 
 
 #### Modbus
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | modbus | Transaction | == != < > <= >= | modbus.Transaction==0x120
 | modbus | Protocol | == != < > <= >= | modbus.Protocol==1
@@ -178,19 +178,19 @@ tag=pcap packet dot1q.Drop==false eth.SrcMAC ipv4.SrcIP | unique SrcMAC SrcIP | 
 | modbus | ReqResp | | modbus.ReqResp
 | modbus | Payload | | modbus.Payload
 
-For example, the following command will find all DNS queries for tumblr:
+たとえば、次のコマンドはtumblrのすべてのDNSクエリを検索します:
 
 ```
 tag=pcap packet udp.DstPort==53 udp.Payload | grep -e Payload "tumblr" | text
 ```
 
-The `udp.DstPort==53` component specifies that we should only match on packets destined for UDP port 53, while the `udp.Payload` component specifies that the payload portion of each packet should be extracted into an enumerated value. We then use the `grep` module to search the payload for the word “tumblr” and send the results to the `text` renderer for display.
+`udp.DstPort == 53`コンポーネントは、UDPポート53宛てのパケットでのみ一致することを指定し、`udp.Payload`コンポーネントは、各パケットのペイロード部分を列挙値に抽出することを指定します。   次に、`grep`モジュールを使用してペイロードから単語" tumblr "を検索し、結果を表示のために`text`レンダラーに送信します。
 
 #### MPLS
 
-The packet search module can decode MPLS headers and allows for selective filtering.  The following MPLS fields are available.
+パケット検索モジュールはMPLSヘッダーをデコードでき、選択的なフィルタリングが可能です。次のMPLSフィールドが使用可能です。
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | mpls | Label | == != < > <= >= | mpls.Label==0x10
 | mpls | TrafficClass | == != < > <= >= | mpls.TrafficClass==4
@@ -198,20 +198,20 @@ The packet search module can decode MPLS headers and allows for selective filter
 | mpls | TTL | == != < > <= >= | mpls.TTL>1
 | mpls | Payload | == != ~ !~ | mpls.Payload~foo
 
-For example, the following command will filter all traffic which contains MPLS headers and a traffic Label of 5
+たとえば、次のコマンドは、MPLSヘッダーと5のトラフィックラベルを含むすべてのトラフィックをフィルターします。
 
 ```
 tag=pcap packet mpls.Label==5 mpls.TrafficClass mpls.Payload | grep -e Payload "HTTP" | count by TrafficClass | table TrafficClass count
 ```
 
-Note: The MPLS package module will only look at the first MPLS layer, if there are multiple layers you will need to use the [packetlayer](#!search/packetlayer/packetlayer.md) module to decode the additional layers by referencing the Payload enumerated value.
+注：複数のレイヤーがある場合、MPLSパッケージモジュールは最初のMPLSレイヤーのみを参照します。[packetlayer](#!search/packetlayer/packetlayer.md)モジュールを使用して、ペイロードを参照して追加のレイヤーをデコードする必要があります。
 
 <!---
 ### ICS-specific protocols
 
-Gravwell includes basic protocol crackers for Modbus, Ethernet/IP, and CIP. Due to the complexity of Ethernet/IP and CIP, only basic decoding is available, but this can still help establish baselines and detect anomalies.
+Gravwelには、Modbus、Ethernet / IP、およびCIP用の基本的なプロトコルクラッカーが含まれています。  イーサネット/ IPとCIPの複雑さのために、基本的なデコーディングだけが利用可能ですが、これはまだベースラインを確立して異常を検出するのを助けることができます。
 
-| Packet type | Field | Operators | Example 
+| パケットタイプ | フィールド | オペレータ | 例 
 |-----|-------|-----------|---------
 | modbus | Transaction | == != < > <= >= | modbus.Transaction != 0
 | modbus | Protocol | == != < > <= >= | modbus.Protocol != 0

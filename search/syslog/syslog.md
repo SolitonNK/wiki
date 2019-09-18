@@ -1,49 +1,51 @@
 # Syslog
 
-The syslog processor extracts fields from [RFC 5424-formatted](https://tools.ietf.org/html/rfc5424) syslog messages as ingested with the [Simple Relay ingester](#!ingesters/ingesters.md) (be sure to set the Keep-Priority flag on your listener, or it won't work).
+syslogプロセッサは、[RFC 5424形式](https://tools.ietf.org/html/rfc5424)の syslogメッセージから[Simple Relayインジェスタ](#!ingesters/ingesters.md)を使って取り込まれたフィールドを抽出します（必ずリスナーにKeep-Priorityフラグを設定しないと、機能しません）。
 
-## Supported Options
+## サポートされているオプション
 
-* `-e`: The “-e” option specifies that the syslog module should operate on an enumerated value.  Operating on enumerated values can be useful when you have extracted a syslog record using upstream modules.  You could e.g. extract syslog records from raw PCAP and pass the records into the syslog module.
+* `-e`: “ -e”オプションは、syslogモジュールが列挙値で動作するように指定します。  列挙値を操作すると、アップストリームモジュールを使用してsyslogレコードを抽出した場合に便利です。  たとえば、生のPCAPからsyslogレコードを抽出し、そのレコードをsyslogモジュールに渡すことができます。
 
-## Processing Operators
+## 処理オペレータ
 
-Each syslog field supports a set of operators that can act as fast filters.  The filters supported by each operator are determined by the data type of the field.
+各syslogフィールドは、高速フィルタとして機能できる一連の演算子をサポートします。  各演算子でサポートされているフィルタは、フィールドのデータ型によって決まります。
 
-| Operator | Name | Description |
-|----------|------|-------------|
-| == | Equal | Field must be equal
-| != | Not equal | Field must not be equal
-| < | Less than | Field must be less than
-| > | Greater than | Field must be greater than
-| <= | Less than or equal | Field must be less than or equal to
-| >= | Greater than or equal | Field must be greater than or equal to
+| オペレーター | 名 | 説明
+|----------|------|-------------
+| == | 等しい | フィールドは等しくなければなりません
+| != | 等しくない | フィールドは等しくてはいけません
+| < | 未満 | フィールドはより小さい
+| > | より大きい | フィールドはより大きくなければなりません
+| <= | 以下 | フィールドは以下でなければなりません
+| >= | 以上 | フィールドは以上でなければなりません
+| ~ | サブセット | フィールドはメンバーでなければなりません
+| !~ | サブセットではない | フィールドはメンバーであってはいけません
 
-## Data Fields
+## データフィールド
 
-The syslog module extracts individual fields from an RFC 5424-formatted syslog record. It makes a best-effort attempt to parse from left to right, meaning that if a field is missing, only those fields to the right of it will be available for a given record.
+Tsyslogモジュールは、RFC 5424形式のsyslogレコードから個々のフィールドを抽出します。  左から右に解析するベストエフォートの試みを行います。 つまり、フィールドが欠落している場合、そのレコードの右側にあるフィールドのみが利用可能になります。
 
-| Field | Description | Supported Operators | Example |
+| フィールド | 説明 | サポートされている演算子 | 例 |
 |-------|-------------|---------------------|---------|
-| Facility | Numeric code indicating the facility from which the message originates | > < <= >= == != | Facility == 0
-| Severity | Numeric code indicating the severity of the message, with 0 being the most severe and 7 the least | > < <= >= == != | Severity < 3
-| Priority | The message priority, defined as (20*Facility)+Severity | > < <= >= == != | Priority >= 100
-| Version | The version of the syslog protocol in use | > < <= >= == != | Version != 1
-| Timestamp | A string representation of the timestamp provided in the log message | == != | |
-| Hostname | The hostname of the machine which originally sent the syslog message | == != | Hostname != "myhost"
-| Appname | The application which originally sent the syslog message, e.g. `systemd` | == != | Appname != "dhclient"
-| ProcID | A string representing the process which sent the message, often a PID | == != | ProcID != "7053"
-| MsgID | A string representing the type of message | == != | MsgID == "TCPIN"
-| Message | The log message itself | == != | Message == "Critical error!" |
-| StructuredID | A string containing the structured data ID for the structured data element (see below) | == != | StructuredID == "ourSDID@32473"
+| Facility | メッセージの発信元のファシリティを示す数値コード | > < <= >= == != | Facility == 0
+| Severity | メッセージの重要度を示す数値コード。 0が最も重要度が高く、7が最も重要度が低くなります。 | > < <= >= == != | Severity < 3
+| Priority | メッセージの優先順位。（20 * Facility）+ Severityとして定義されます。 | > < <= >= == != | Priority >= 100
+| Version | 使用中のsyslogプロトコルのバージョン | > < <= >= == != | Version != 1
+| Timestamp | ログメッセージで提供されたタイムスタンプの文字列表現 | == != | |
+| Hostname | 最初にsyslogメッセージを送信したマシンのホスト名 | == != | Hostname != "myhost"
+| Appname | syslogメッセージを最初に送信したアプリケーション、例えば`systemd` | == != | Appname != "dhclient"
+| ProcID | メッセージを送信したプロセスを表す文字列。しばしばPID | == != | ProcID != "7053"
+| MsgID | メッセージの種類を表す文字列 | == != | MsgID == "TCPIN"
+| Message | ログメッセージ自体 | == != | Message == "Critical error!" |
+| StructuredID | 構造化データ要素の構造化データIDを含む文字列（下記参照） | == != | StructuredID == "ourSDID@32473"
 
-Consider the following syslog record (sourced from [https://github.com/influxdata/go-syslog](https://github.com/influxdata/go-syslog)):
+次のsyslogレコードを考えてみましょう。(ソース:[https://github.com/influxdata/go-syslog](https://github.com/influxdata/go-syslog)):
 
 ```
 <165>4 2018-10-11T22:14:15.003Z mymach.it e - 1 [ex@32473 iut="3" foo="bar"] An application event log entry...
 ```
 
-The syslog module would extract the following fields:
+syslogモジュールは以下のフィールドを抽出します:
 
 * Facility: 20
 * Severity: 5
@@ -56,11 +58,11 @@ The syslog module would extract the following fields:
 * MsgID: "1"
 * Message: "An application event log entry..."
 
-The portion `[ex@32473 iut="3" foo="bar"]` is the *Structured Data* section. Structured Data sections contain the structured value ID ("ex@32473", extracted with the `StructuredID` keyword) and any number of key-value pairs. To access a value using the syslog module, specify the key: executing `syslog iut` will set an enumerated value named `iut` containing the value "3". Similarly, `syslog StructuredID foo` would extract `StructuredID` containing "ex@32473" and `foo` containing "bar".
+`[ex @ 32473 iut =" 3 "foo =" bar "]`の部分は* Structured Data *セクションです。  構造化データセクションには、構造化値ID（"ex @ 32473"、"StructuredID"キーワードで抽出）および任意の数のキーと値のペアが含まれます。  syslogモジュールを使用して値にアクセスするには、キーを指定します。 `syslog iut`を実行すると、値"3"を含む`iut`という名前の列挙値が設定されます。 同様に、`syslog StructuredID foo`は"ex @ 32473"を含む`StructuredID`と"bar"を含む`foo`を抽出します。
 
-## Examples
+## 例
 
-### Number of events by severity
+### 重大度別のイベント数
 
 ```
 tag=syslog syslog Severity | count by Severity | chart count by Severity
@@ -68,7 +70,7 @@ tag=syslog syslog Severity | count by Severity | chart count by Severity
 
 ![Number of events by severity](severity.png)
 
-### Number of events at each severity level by application
+### アプリケーションごとの重大度別のイベント数
 
 ```
 tag=syslog syslog Appname Severity | count by Appname,Severity | table Appname Severity count

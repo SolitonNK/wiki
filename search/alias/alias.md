@@ -1,6 +1,6 @@
 # Alias
 
-The alias module can assign additional names to existing enumerated values. Modifying the new enumerated value does not change the original. This can be particularly useful when you wish to pre-populate the extracted enumerated value for the `lookup` module:
+aliasモジュールは、既存の列挙値に追加の名前を割り当てることができます。 新しい列挙値を変更しても、元の値は変わりません。これは、ルックアップモジュール用に抽出された列挙値を事前に設定したい場合に特に便利です:
 
 ```
 tag=pcap packet ipv4.SrcIP | ip SrcIP ~ PRIVATE | alias SrcIP src_host | lookup -r hosts SrcIP ip hostname as src_host | count by src_host | table src_host SrcIP count
@@ -8,4 +8,4 @@ tag=pcap packet ipv4.SrcIP | ip SrcIP ~ PRIVATE | alias SrcIP src_host | lookup 
 
 ![](alias.png)
 
-The alias module takes exactly two arguments: source, and destination. Thus, in the example above, the existing enumerated 'SrcIP' is aliased to 'src_host'. When the lookup module writes its results out into the 'src_host' enumerated value, it does not change the original 'SrcIP' value.
+aliasモジュールは、sourceとdestinationの2つの引数を取ります。 したがって、上記の例では、既存の列挙された 'SrcIP'は 'src_host'にエイリアスされています。 検索モジュールがその結果を 'src_host'列挙値に書き出しても、元の 'SrcIP'値は変更されません。

@@ -1,8 +1,8 @@
 ## Limit
 
-The limit module allows a specified number of entries through and no more. This may be especially useful during the process of building a query, for example while testing regular expressions; by inserting a `limit 50` into the pipeline, the results displayed will be less overwhelming.
+制限モジュールは、指定された数のエントリを通過させます。  これは、たとえば正規表現をテストしている間など、クエリを構築するプロセスの間に特に便利です。  `limit 50`パイプラインにa を挿入することによって、表示される結果を減らすことができます。
 
-The syntax is simple: `limit <n>`, where `n` is the maximum number of entries to allow through. To look at the payload of 10 packets:
+構文は簡単です`limit <n>`、`n`は、通過を許可するエントリの最大数です。10パケットのペイロードを見るには:
 
 ```
 tag=pcap packet tcp.Payload | limit 10 | table Payload

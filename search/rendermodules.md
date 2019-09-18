@@ -1,14 +1,14 @@
 # Renderer Modules
 
-Renderer modules are in charge of receiving data from the search module pipeline and organizing it for display to the user. When possible, the renderers provide for a second order temporal index. This allows for moving around and zeroing in on time spans within the original search. Renderers can optionally save search results, which can be reopened and viewed or even passed to another instance of Gravwell. This is useful for archiving a view of data or saving the results which survive well after stored data is expired or purposefully deleted.
+レンダラーモジュールは、検索モジュールパイプラインからデータを受信し、ユーザーに表示するためにそれを整理する役割を担います。  可能な場合、レンダラーは2次の一時インデックスを提供します。  これにより、元の検索内で時間範囲内を移動し、ゼロに合わせることができます。  レンダラーは、オプションで検索結果を保存できます。  検索結果は、再度開いて表示したり、Gravwellの別のインスタンスに渡すこともできます。  これは、データのビューをアーカイブしたり、保存されたデータの有効期限が切れたり、意図的に削除された後も結果を保存するのに役立ちます。
 
-Every search module has universal enumerated values for records.
+すべての検索モジュールには、レコードの汎用列挙値があります。
 
-* SRC -- the source of the data.
-* TAG -- the Tag attached to the data.
-* TIMESTAMP -- the timestamp associated with the entry
+* SRC -- データのソース
+* TAG -- データに添付されたタグ
+* TIMESTAMP -- エントリに関連付けられたタイムスタンプ
 
-## Renderer Module list
+## レンダラーモジュールリスト
 
 * [chart](chart/chart.md)
 * [fdg](fdg/fdg.md)
