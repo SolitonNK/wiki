@@ -1,10 +1,10 @@
 ## Upper / Lower
 
-upper���W���[����lower���W���[���́A�e�L�X�g��啶���܂��͏������ɕϊ����܂��B  �P��`upper`�i�܂���`lower`�j���Ăяo���ƁA�G���g���̐��f�[�^���啶���ɕϊ�����܂��B  1�ȏ�̗񋓒l�̖��O�̃��X�g���g�p���ă��W���[�����Ăяo���ƁA�����̗񋓒l�͂��ׂđ啶���܂��͏������ɕϊ�����܂��B  �����`unique`�Ȃǂ̃��W���[���ɓn���O�Ƀf�[�^�𐳋K������̂ɖ𗧂��܂��B
+upperモジュールとlowerモジュールは、テキストを大文字または小文字に変換します。  単に`upper`（または`lower`）を呼び出すと、エントリの生データが大文字に変換されます。  1つ以上の列挙値の名前のリストを使用してモジュールを呼び出すと、それらの列挙値はすべて大文字または小文字に変換されます。  これは`unique`などのモジュールに渡す前にデータを正規化するのに役立ちます。
 
-### �g�p��
+### 使用例
 
-���̗�ł́A`upper`�J�E���g�O��Shodan�f�[�^�𐳋K�����邽�߂Ƀ��W���[�����g�p���Ă��܂��B
+この例では、`upper`カウント前にShodanデータを正規化するためにモジュールを使用しています。
 
 ```
 tag=shodan json location.region_code | upper region_code | count by region_code | table region_code count

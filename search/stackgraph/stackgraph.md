@@ -1,17 +1,17 @@
 # Stackgraph
 
-�X�^�b�N�O���t�����_���́A�ςݏd�˂�ꂽ�f�[�^�|�C���g���������_�O���t��\�����邽�߂Ɏg�p����܂��B  �X�^�b�N�O���t�́A��A�̃^�O�ɂ킽���ĕ����̃R���|�[�l���g����ݐς��ꂽ���ʂ̑傫����\������̂ɖ𗧂��܂��B  stackgraph�����_���[�̓A�L�������[�^�ł��B  �܂�A�㗬�̌������W���[���̓�������߂��A�T�u�Z���N�V�����Ɋ�Â��Č��ʂ��Čv�Z���邱�Ƃ��ł��܂��B  Gravwell�̗p��ł́Astackgraph��2�������ƑI�����T�|�[�g���Ă��܂��B
+スタックグラフレンダラは、積み重ねられたデータポイントを持つ水平棒グラフを表示するために使用されます。  スタックグラフは、一連のタグにわたって複数のコンポーネントから累積された結果の大きさを表示するのに役立ちます。  stackgraphレンダラーはアキュムレータです。  つまり、上流の検索モジュールの動作を解釈し、サブセレクションに基づいて結果を再計算することができます。  Gravwellの用語では、stackgraphは2次検索と選択をサポートしています。
 
-Stackgraph�̌Ăяo���ɂ�3�̈������K�v�ł��B  ����͏㗬�̌����R���|�[�l���g�ɂ���Ē��o���ꂽ�񋓒l�̖��O�łȂ���΂Ȃ�܂���B  ����1�́AIP�A�h���X�ȂǁA�X�̐����o�[�ɖ��O��t����񋓒l���w�肵�܂��B  ����2�́A�Ⴆ��TCP�|�[�g�̂悤�ɁA�e�����o�[�̌X�̗v�f��^����񋓒l���w�肵�܂��B  ����3�́A�����o�[���̊e�X�^�b�N�l�̑傫���̐�����\���傫���̒l�ł��B  �}�O�j�`���[�h�����̗�́Acount�Asum�Astddev�Asum�Amax�Amin�ł��B  �����̋c�_�𗝉�����ł��ȒP�ȕ��@�́A�ȉ��̗�𒲂ׂ邱�Ƃł��B
+Stackgraphの呼び出しには3つの引数が必要です。  これは上流の検索コンポーネントによって抽出された列挙値の名前でなければなりません。  引数1は、IPアドレスなど、個々の水平バーに名前を付ける列挙値を指定します。  引数2は、例えばTCPポートのように、各水平バーの個々の要素を与える列挙値を指定します。  引数3は、水平バー内の各スタック値の大きさの成分を表す大きさの値です。  マグニチュード成分の例は、count、sum、stddev、sum、max、minです。  これらの議論を理解する最も簡単な方法は、以下の例を調べることです。
 
-���F�f�[�^��stackgraph�ɑ��M����O�Ƀ\�[�g���Ă��A�]�݂ǂ���̂��Ƃ͂ł��܂���B  ���Ȃ���IP->�|�[�g�̃y�A�̐��������Ă��āA���̐��Ɋ�Â��ă\�[�g���Ă���X�^�b�N�O���t�i�Ⴆ��count by SrcIP,DstPort | sort by count desc | table SrcIP DstPort count�j�ɑ��邱�Ƃɋ���������Ȃ�A���X�g�̍ŏ��̍��ڂ͔��ɍ������������Ă��܂���1�݂̂̃|�[�gIP ���Ƃ��΁A�|�[�gIP 10.0.0.1���J�E���g10000�̃|�[�g443�ŁA����8�̃G���g����8�̈قȂ�IP�ŁA���ׂ�9000�͈̔͂̃|�[�g80���g�p���Ă���Ƃ���ƁA�|�[�g443�̓O���t��ŏ������Ȃ�܂��B
+注：データをstackgraphに送信する前にソートしても、望みどおりのことはできません。  あなたがIP->ポートのペアの数を持っていて、その数に基づいてソートしてからスタックグラフ（例えばcount by SrcIP,DstPort | sort by count desc | table SrcIP DstPort count）に送ることに興味があるなら、リストの最初の項目は非常に高い数を持っていますが1つのみのポートIP たとえば、ポートIP 10.0.0.1がカウント10000のポート443で、次の8つのエントリが8つの異なるIPで、すべて9000の範囲のポート80を使用しているとすると、ポート443はグラフ上で小さくなります。
 
-## ��
+## 例
 
-�X�^�b�N�O���t���L�q����őP�̕��@�́A�J�b�v����\�����邱�Ƃł��B  
+スタックグラフを記述する最善の方法は、カップルを表示することです。  
 
 
-### IP����у|�[�g�ʂ̃g���t�B�b�N��
+### IPおよびポート別のトラフィック量
 
 ```
 tag=netflow netflow Src ~ PRIVATE Port < 1024 Bytes as traffic |  sum traffic by Src,Port | stackgraph Src Port sum
@@ -19,7 +19,7 @@ tag=netflow netflow Src ~ PRIVATE Port < 1024 Bytes as traffic |  sum traffic by
 
 ![IP Port Traffic Volumes](IPPortTraffic.png)
 
-### Port����э��ɂ��ʐM��
+### Portおよび国による通信量
 
 ```
 tag=netflow netflow Src ~ PRIVATE Dst  Bytes as traffic Port |  geoip Dst.CountryName | sum traffic by Port, CountryName | stackgraph CountryName Port sum
@@ -27,7 +27,7 @@ tag=netflow netflow Src ~ PRIVATE Dst  Bytes as traffic Port |  geoip Dst.Countr
 
 ![Country Traffic by Port](CountryPortTraffic.png)
 
-### ���ʂ���ю��s���[�U�[�ʂ�SSH���O�C�����s
+### 国別および試行ユーザー別のSSHログイン失敗
 
 ```
 tag=syslog grep sshd | regex "Failed password for (?P<user>\S+) from (?P<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) " | geoip ip.Country | count by user,Country | stackgraph Country user count
@@ -35,7 +35,7 @@ tag=syslog grep sshd | regex "Failed password for (?P<user>\S+) from (?P<ip>\d{1
 
 ![Failed SSH Logins by Country](SSHUserCountry.png)
 
-### ���ʂ���ю��s���[�U�[�ʂ�SSH���O�C�����s�i�����폜�j
+### 国別および試行ユーザー別のSSHログイン失敗（中国削除）
 
 ```
 tag=syslog grep sshd | regex "Failed password for (?P<user>\S+) from (?P<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) " | geoip ip.Country != CN | count by user,Country | stackgraph Country user count

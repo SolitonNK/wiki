@@ -1,28 +1,28 @@
 # Searching with Gravwell
 
-�����p�C�v���C����Gravwell�̋@�\�̒��j�ł��B ����("upstream")�Ńf�[�^�\�[�X���w�肵�A�\���̂��߂Ɂu"downstream"�̃����_���[�ɍŏI�I�ɓ��B����O�Ƀf�[�^���ʉ߂���K�v������t�B���^�[�̐����w�肵�܂��B ���Ƃ��΁A���̃N�G����"reddit"�ƃ^�O�t�����ꂽ�f�[�^���擾���Ajson���W���[�����g�p����Body�Ƃ����t�B�[���h�𒊏o���Aeval���W���[�����g�p����20�����𒴂���Body�t�B�[���h�����G���g�����t�B���^�[�ŏ��O���A�Ō�Ƀe�[�u�������_���[���g�p���ĕ\�����܂� Body�t�B�[���h�̓��e�F
+検索パイプラインはGravwellの機能の中核です。 左側("upstream")でデータソースを指定し、表示のために「"downstream"のレンダラーに最終的に到達する前にデータが通過する必要があるフィルターの数を指定します。 たとえば、次のクエリは"reddit"とタグ付けされたデータを取得し、jsonモジュールを使用してBodyというフィールドを抽出し、evalモジュールを使用して20文字を超えるBodyフィールドを持つエントリをフィルターで除外し、最後にテーブルレンダラーを使用して表示します Bodyフィールドの内容：
 
 ```
 tag=reddit json Body | eval len(Body) < 20 | table Body
 ```
 
-## �񋓒l
+## 列挙値
 
-�񋓒l�́A�����p�C�v���C�����ō쐬����юg�p�������ʂȃf�[�^�v�f�ł��B  �ȉ��̃p�C�v���C���ł́A�������̗񋓒l���쐬����Ă��܂��B
+列挙値は、検索パイプライン内で作成および使用される特別なデータ要素です。  以下のパイプラインでは、いくつかの列挙値が作成されています。
 
 ```
 tag=reddit json Body | langfind -e Body | count by lang | sort by count desc | table lang count
 ```
 
-�ŏ��ɁAjson���W���[���͐��̃G���g����JSON����͂��A"Body"�v�f�������o���āA"Body"�Ƃ������O�̗񋓒l�Ɋi�[���܂��B  ����langfind���W���[����`Body`�񋓒l�ɃA�N�Z�X���A�g�p����Ă��錾��̕��͂����݂܂��B  ���ʂ�`lang`�ƌĂ΂��V�����񋓒l�ɓ���܂��B  ���ɁA`count`���W���[����`lang`�񋓒l��ǂݎ��A�e�l���o������񐔂��J�E���g��`count`�Ƃ������O�̗񋓒l�Ɍ��ʂ�ۑ����܂��B  �p�C�v���C���̎c��̕����́A�J�E���g�Ɋ�Â��Č��ʂ���בւ��A`lang`��`count`�̗񋓒l����e�[�u�����쐬���܂�
+最初に、jsonモジュールは生のエントリのJSONを解析し、"Body"要素を引き出して、"Body"という名前の列挙値に格納します。  次にlangfindモジュールは`Body`列挙値にアクセスし、使用されている言語の分析を試みます。  結果を`lang`と呼ばれる新しい列挙値に入れます。  次に、`count`モジュールは`lang`列挙値を読み取り、各値が出現する回数をカウントし`count`という名前の列挙値に結果を保存します。  パイプラインの残りの部分は、カウントに基づいて結果を並べ替え、`lang`と`count`の列挙値からテーブルを作成します
 
-�h�L�������g�S�̂̂���Ȃ��́A�񋓒l�̎g�p�𖾊m�ɂ���̂ɖ𗧂͂��ł��B
+ドキュメント全体のさらなる例は、列挙値の使用を明確にするのに役立つはずです。
 
-## ���p�ƃg�[�N����
+## 引用とトークン化
 
-Gravwell���W���[���Ɉ������w�肷��Ƃ��́A���ꕶ���ɒ��ӂ��Ă��������B  �قƂ�ǂ̃��W���[���́A�X�y�[�X�A�^�u�A���s�A����ю��̕�������؂蕶���Ƃ��Ĉ����܂�:!#$%&'()*+,-./:;<=>?@
+Gravwellモジュールに引数を指定するときは、特殊文字に注意してください。  ほとんどのモジュールは、スペース、タブ、改行、および次の文字を区切り文字として扱います:!#$%&'()*+,-./:;<=>?@
 
-�����̕����̂����ꂩ���܂ރ��W���[���Ɉ������w�肷��ꍇ�A�������d���p���ň݂͂܂�:
+これらの文字のいずれかを含むモジュールに引数を指定する場合、引数を二重引用符で囲みます:
 
 ```
 json "search-id"
@@ -32,20 +32,20 @@ json "search-id"
 grep "dank memes"
 ```
 
-��d���p�����g�p����K�v������ꍇ�́A���Ƃ��΁A������Ō���Ďg�p����Ă���_�C�A���O�^�O�����ʂ��邽�߂ɁA�V�[�P���X`",`�������ł��܂��B
+二重引用符を使用する必要がある場合は、たとえば、文字列で誤って使用されているダイアログタグを識別するために、シーケンス`",`を検索できます。
 
 ```
 grep "\","
 ```
 
-## �������W���[��
+## 検索モジュール
 
-�������W���[���́A�f�[�^�G���g���̕��́A�s�v�ȃf�[�^�̃t�B���^�����O�A�܂��̓f�[�^�̋����[�������̒��o�Ɏg�p����܂��B  �����p�C�v���C���ɂ́A�����̌������W���[�������X�Ɋ܂܂�A���ꂼ�ꂪ�O�̃��W���[���̌��ʂ𑀍삵�܂��B
+検索モジュールは、データエントリの分析、不要なデータのフィルタリング、またはデータの興味深い部分の抽出に使用されます。  検索パイプラインには、多くの検索モジュールが次々に含まれ、それぞれが前のモジュールの結果を操作します。
 
-[�������W���[���̊��S�ȃh�L�������g�ɂ��Ă͂������N���b�N](searchmodules.md)
+[検索モジュールの完全なドキュメントについてはここをクリック](searchmodules.md)
 
-## �����_�����O���W���[��
+## レンダリングモジュール
 
-�����_�����O���W���[���́A�������W���[���ɂ���Đ������ꂽ���ʂ��擾���A�O���t�B�J���Ƀ��[�U�[�ɒ񎦂��܂��B  �����p�C�v���C���ɂ́A�p�C�v���C���̍Ō��1�̃����_�[���W���[���݂̂��܂܂�܂��B
+レンダリングモジュールは、検索モジュールによって生成された結果を取得し、グラフィカルにユーザーに提示します。  検索パイプラインには、パイプラインの最後に1つのレンダーモジュールのみが含まれます。
 
-[�����_�[���W���[���̊��S�ȃh�L�������g�ɂ��Ă͂������N���b�N](rendermodules.md)
+[レンダーモジュールの完全なドキュメントについてはここをクリック](rendermodules.md)

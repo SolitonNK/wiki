@@ -1,35 +1,35 @@
 # Require
 
-require���W���[���́A�p�C�v���C�����̃G���g���𒲂ׂāA����̗񋓌^�t�B�[���h�������Ȃ��G���g�����폜����P���ȃt�B���^�ł��B  ���[�X�P�[�X�̗�́A�A�b�v�X�g���[�����W���[�������^�f�[�^�𒊏o���Ă��邪�A�K�v�Ȃ��ׂĂ̖��O����ɓ��͂���Ƃ͌���Ȃ��ꍇ�̑�2���x���̃t�B���^�����O�ł��B  [�K�{]��I������ƁA���ۂɖړI�̋@�\�Z�b�g�����G���g���݂̂����W���[����ʉ߂���悤�Ɍ�������܂��B
+requireモジュールは、パイプライン内のエントリを調べて、特定の列挙型フィールドを持たないエントリを削除する単純なフィルタです。  ユースケースの例は、アップストリームモジュールがメタデータを抽出しているが、必要なすべての名前を常に入力するとは限らない場合の第2レベルのフィルタリングです。  [必須]を選択すると、実際に目的の機能セットを持つエントリのみがモジュールを通過するように検索されます。
 
-�f�t�H���g�ł́A�񋓒l�̃��X�g���w�肷��ƁArequire���W���[���́A�񋓒l�̖��O�̂������Ȃ��Ƃ�1���܂܂�Ă���΁A�G���g�����p�C�v���C���ɓn���܂��B  ���̓���́A���Ɏ����悤�Ƀt���O���g���ĕύX�ł��܂��B
+デフォルトでは、列挙値のリストを指定すると、requireモジュールは、列挙値の名前のうち少なくとも1つが含まれていれば、エントリをパイプラインに渡します。  この動作は、次に示すようにフラグを使って変更できます。
 
-## �T�|�[�g����Ă���I�v�V����
+## サポートされているオプション
 
-* `-s`: `-s`���̃I�v�V�����͌����ȑ�����w�肵�܂��B  �񋓂��ꂽ�񋓒l�́A1�����ł͂Ȃ����ׂđ��݂��Ȃ���΂Ȃ�܂���B  ��{�I�ɁA���W���[����_��OR���Z����_��AND�ɕύX���܂��B
-* `-v `: `-v`�I�v�V�����́A�{���I�Ɂu�����̗񋓒l�̂����ꂩ�������ׂẴG���g�����폜����v�ƌ����āA�v�����W�b�N���t�ɂ��܂��B  ���̃t���O�̓t���O���Ӗ���-s�܂��B  �㗬�̃��W���[�������炩�̃t�B�[���h�𒊏o���邩������Ȃ����A���Ȃ���������Ȃ��A�����Ă��Ȃ����t�B�[���h�������Ă��Ȃ������G���g���[�������������Ƃ��A�v�����W���[�����t�ɂ��邱�Ƃ͖��ɗ����Ƃ��ł��܂��B
+* `-s`: `-s`このオプションは厳密な操作を指定します。  列挙された列挙値は、1つだけではなくすべて存在しなければなりません。  基本的に、モジュールを論理OR演算から論理ANDに変更します。
+* `-v `: `-v`オプションは、本質的に「これらの列挙値のいずれかを持つすべてのエントリを削除する」と言って、要件ロジックを逆にします。  このフラグはフラグを意味し-sます。  上流のモジュールが何らかのフィールドを抽出するかもしれないし、しないかもしれない、そしてあなたがフィールドを持っていなかったエントリーだけを見たいとき、要求モジュールを逆にすることは役に立つことができます。
 
-## �g�p��
+## 使用例
 
-���̌����̓p�P�b�g�G���g�����擾���A "SrcPort"�񋓒l���ݒ肳��Ă��Ȃ����̂��폜���Ă���A�e���M���|�[�g���o�������񐔂��J�E���g���܂��B  �����TCP�g���t�B�b�N�ł͂Ȃ����ׂẴp�P�b�g��r��������ʂ�����܂�:
+次の検索はパケットエントリを取得し、 "SrcPort"列挙値が設定されていないものを削除してから、各送信元ポートが出現した回数をカウントします。  これはTCPトラフィックではないすべてのパケットを排除する効果があります:
 
 ```
 tag=pcap packet tcp.SrcPort | require SrcPort | count by SrcPort | table SrcPort count
 ```
 
-���̌����ł́AA�t�B�[���h���񋓒l�ɑ��݂��邷�ׂẴG���g�����폜���邱�Ƃɂ���āAIPv4�������������Ȃ�����DNS�v����T���܂�:
+次の検索では、Aフィールドが列挙値に存在するすべてのエントリを削除することによって、IPv4解決が成功しなかったDNS要求を探します:
 
 ```
 tag=dns json Question.Hdr.Name Question.A | require -v A | count by Name | table Name count
 ```
 
-���̌����́ATCP���M���|�[�g�܂���UDP���M���|�[�g�̂����ꂩ���w�肳��Ă���p�P�b�g��ʉ߂��܂�:
+この検索は、TCP送信元ポートまたはUDP送信元ポートのいずれかが指定されているパケットを通過します:
 
 ```
 tag=pcap packet tcp.SrcPort as tsp udp.SrcPort as usp | require tsp usp | table tsp usp
 ```
 
-���̌����́AIPv4���M��IP �� TCP���M���|�[�g�̗����������Ȃ��p�P�b�g�����ׂăh���b�v���܂�:
+この検索は、IPv4送信元IP と TCP送信元ポートの両方を持たないパケットをすべてドロップします:
 
 ```
 tag=pcap packet tcp.SrcPort ipv4.SrcIP | require -s SrcPort SrcIP | table SrcPort SrcIP

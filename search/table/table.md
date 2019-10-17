@@ -1,27 +1,27 @@
 # Table
 
-�e�[�u�������_���[�̓e�[�u�����쐬���邽�߂Ɏg�p����܂��B  �e�[�u�����\�z����ɂ́A�e�[�u�������_���[�Ɉ�����n���܂��B  �����͗񋓒l�ATAG�ATIMESTAMP�A�܂���SRC�łȂ���΂Ȃ�܂���B  �����̓e�[�u���̗�Ƃ��Ďg�p����܂��B
+テーブルレンダラーはテーブルを作成するために使用されます。  テーブルを構築するには、テーブルレンダラーに引数を渡します。  引数は列挙値、TAG、TIMESTAMP、またはSRCでなければなりません。  引数はテーブルの列として使用されます。
 
-��������w�肵�Ȃ��ƁAtable�͂��ׂĂ̗񋓒l���Ƃ��ĕ\�����܂��B  ����͒����ɖ𗧂��܂��B
+列引数を指定しないと、tableはすべての列挙値を列として表示します。  これは調査に役立ちます。
 
-## �T�|�[�g����Ă���I�v�V����
+## サポートされているオプション
 
-* `-save <destination>`: ���ʂ̃e�[�u����lookup���W���[���p�̃��\�[�X�Ƃ��ĕۑ����܂��B  ����́A���錟���̌��ʂ�ۑ����iDHCP���O����MAC����IP�ւ̃}�b�s���O�𒊏o����Ȃǁj�A��̌����Ŏg�p����̂ɕ֗��ȕ��@�ł��B
-* `-csv`: -save�t���O�Ƒg�ݍ��킹�āA�l�C�e�B�u��Gravwell�`���ł͂Ȃ�CSV�`���Ńe�[�u����ۑ����܂��iCSV�̓��b�N�A�b�v���W���[���Ƃ��݊���������܂��j�B �f�[�^���G�N�X�|�[�g����Ƃ��ɕ֗��ł��B
-* `-update <key>`: `-save`�t���O�Ƒg�ݍ��킹�āA�����̃e�[�u�����㏑������̂ł͂Ȃ��X�V���܂��B ����́A�X�P�W���[���������g�p���āA���Ƃ��� �l�b�g���[�N�ł���܂łɌ���ꂽ���ׂĂ�MAC�A�h���X�̃��X�g�B �����̃��b�N�A�b�v�e�[�u���̗�́A�����Ƃ��Ďw�肳�ꂽ��ƈ�v����K�v������܂��B "key"�I�v�V�����́A�����ꂩ�̗�̖��O�ł��B �Â����b�N�A�b�v�e�[�u���ƐV�������b�N�A�b�v�e�[�u�����}�[�W����Ƃ��A�Â��e�[�u���̍s�́A���̃L�[�t����̒l���V�����e�[�u���ɑ��݂��Ȃ��ꍇ�ɂ̂݊܂܂�܂��B
-* `-nt`: �e�[�u����non-temporal���[�h�ɂ��܂��B ����ɂ��A�㗬�̐��w���W���[���́A�e�[�u���Ɏ��s������̂ł͂Ȃ��A���ʂ����k���܂��B ����ɂ��A�ꎞ�I�ȕ��I�����s�v�ȏꍇ�ɁA��ʂ̃f�[�^�̌�����啝�ɍ������ł��܂��B ���݁A[stats module](#!search/stats/stats.md)���g�p����ꍇ�ɂ��K�v�ł��B
+* `-save <destination>`: 結果のテーブルをlookupモジュール用のリソースとして保存します。  これは、ある検索の結果を保存し（DHCPログからMACからIPへのマッピングを抽出するなど）、後の検索で使用するのに便利な方法です。
+* `-csv`: -saveフラグと組み合わせて、ネイティブのGravwell形式ではなくCSV形式でテーブルを保存します（CSVはルックアップモジュールとも互換性があります）。 データをエクスポートするときに便利です。
+* `-update <key>`: `-save`フラグと組み合わせて、既存のテーブルを上書きするのではなく更新します。 これは、スケジュール検索を使用して、たとえば ネットワークでこれまでに見られたすべてのMACアドレスのリスト。 既存のルックアップテーブルの列は、引数として指定された列と一致する必要があります。 "key"オプションは、いずれかの列の名前です。 古いルックアップテーブルと新しいルックアップテーブルをマージするとき、古いテーブルの行は、そのキー付き列の値が新しいテーブルに存在しない場合にのみ含まれます。
+* `-nt`: テーブルをnon-temporalモードにします。 これにより、上流の数学モジュールは、テーブルに実行させるのではなく、結果を圧縮します。 これにより、一時的な副選択が不要な場合に、大量のデータの検索を大幅に高速化できます。 現在、[stats module](#!search/stats/stats.md)を使用する場合にも必要です。
 
-## �T���v���N�G��
+## サンプルクエリ
 
-### ��{�e�[�u���p
+### 基本テーブル用
 
-Netflow���R�[�h���炢�����̗v�f�𒊏o���āA�e�[�u���ɂ����������I�ɕ\�������܂�:
+Netflowレコードからいくつかの要素を抽出して、テーブルにそれらを自動的に表示させます:
 
 ```
 tag=netflow netflow Src Dst SrcPort DstPort | table
 ```
 
-�u���[�g�t�H�[�XSSH�U����������:
+ブルートフォースSSH攻撃を見つける:
 
 ```
 tag=syslog grep sshd | regex "authentication error for (?P<user>\S+)" | count by user | table user count
@@ -29,23 +29,23 @@ tag=syslog grep sshd | regex "authentication error for (?P<user>\S+)" | count by
 
 ![](table-render.png)
 
-### -nt�I�v�V�������g�p����
+### -ntオプションを使用する
 
-��ʂ̃f�[�^������󋵂ł́Acount���W���[��������Ɍ��ʂ����k����悤�ɁAtable��non-temporal���[�h�ɋ������܂�:
+大量のデータがある状況では、countモジュールが代わりに結果を圧縮するように、tableをnon-temporalモードに強制します:
 
 ```
 tag=jsonlogs json source | count by source | table -nt source count
 ```
 
-### -save�I�v�V�������g�p����
+### -saveオプションを使用する
 
-DHCP���O���g�p���āAIP����MAC�ւ̃}�b�s���O���܂ރ��b�N�A�b�v�e�[�u�����쐬���܂�:
+DHCPログを使用して、IPからMACへのマッピングを含むルックアップテーブルを作成します:
 
 ```
 tag=syslog regex "DHCPACK on (?P<ip>\S+) to (?P<mac>\S+)" | unique ip mac | table -save ip2mac ip mac
 ```
 
-�����āA���b�N�A�b�v�e�[�u�����g����SSH���O�C���Ɋ֘A����MAC�������܂�:
+そして、ルックアップテーブルを使ってSSHログインに関連するMACを見つけます:
 
 ```
 tag=syslog grep sshd | regex "Accepted .* for (?P<user>\S+) from (?P<ip>\S+)" | lookup -r ip2mac ip ip mac as mac |table user ip mac
@@ -53,11 +53,11 @@ tag=syslog grep sshd | regex "Accepted .* for (?P<user>\S+) from (?P<ip>\S+)" | 
 
 ![](table-ipmac.png)
 
-### -update�I�v�V�������g�p����
+### -updateオプションを使用する
 
-���̗�ł́A���[�J���l�b�g���[�N�Ō�����IP�A�h���X���܂ރe�[�u�����쐬���A����ɍX�V���܂��B
+この例では、ローカルネットワークで見られるIPアドレスを含むテーブルを作成し、さらに更新します。
 
-�ŏ��ɁA192.168.2.0/24�l�b�g���[�N�Ō������ӂ̃v���C�x�[�gIPv4�A�h���X�����ׂĊ܂ރe�[�u�����쐬���܂��B
+最初に、192.168.2.0/24ネットワークで見られる一意のプライベートIPv4アドレスをすべて含むテーブルを作成します。
 
 ```
 tag=pcap packet ipv4.SrcIP ~ PRIVATE | unique SrcIP | subnet SrcIP /24 | eval subnet == toIP("192.168.2.0") | table -save test -csv SrcIP
@@ -65,7 +65,7 @@ tag=pcap packet ipv4.SrcIP ~ PRIVATE | unique SrcIP | subnet SrcIP /24 | eval su
 
 ![](update1.png)
 
-���ʂ̃��\�[�X�i'test'�Ƃ������O�j���_�E�����[�h����ƁA�\�z�����e�[�u�����\������܂��B:
+結果のリソース（'test'という名前）をダウンロードすると、予想されるテーブルが表示されます。:
 
 ```
 SrcIP
@@ -76,7 +76,7 @@ SrcIP
 192.168.2.61
 ```
 
-���ɁA192.168.0.0/24�T�u�l�b�g�Ō�����IP��*�ǉ�*���邽�߂ɕʂ̌��������s���܂�:
+次に、192.168.0.0/24サブネットで見られるIPを*追加*するために別の検索を実行します:
 
 ```
 tag=pcap packet ipv4.SrcIP ~ PRIVATE | unique SrcIP | subnet SrcIP /24 | eval subnet == toIP("192.168.0.0") | table -update SrcIP -save test -csv SrcIP
@@ -84,7 +84,7 @@ tag=pcap packet ipv4.SrcIP ~ PRIVATE | unique SrcIP | subnet SrcIP /24 | eval su
 
 ![](update2.png)
 
-*�\��*����Ă���e�[�u���ɂ͐V����IP�A�h���X�݂̂��\������Ă��܂����A���\�[�X�ɂ͗����̌������ʂ��܂܂�Ă��܂�:
+*表示*されているテーブルには新しいIPアドレスのみが表示されていますが、リソースには両方の検索結果が含まれています:
 
 ```
 SrcIP
@@ -105,4 +105,4 @@ SrcIP
 192.168.2.61
 ```
 
-update�̈����Ƃ���'SrcIP'��n���܂����B����͏d���r���Ɏg�p����܂��B SrcIP���V�����e�[�u���̍s�ƈ�v����Â��e�[�u���̍s�́A�X�V���ꂽ���\�[�X�Ɋ܂܂�܂���B
+updateの引数として'SrcIP'を渡しました。これは重複排除に使用されます。 SrcIPが新しいテーブルの行と一致する古いテーブルの行は、更新されたリソースに含まれません。

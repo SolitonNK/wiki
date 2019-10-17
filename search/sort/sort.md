@@ -1,23 +1,23 @@
 ## Sort
 
-�f�t�H���g�ł́AGravwell�����p�C�v���C�����̂��ׂĂ̂��̂��ꎞ�I�Ƀ\�[�g����Ă��܂��B  Web�C���^�[�t�F�[�X�́A�����o�b�N�G���h�ł̈ꎞ�I�\�[�g�̐��̗͂��ێ����Ȃ���A�������̒ǉ��̃\�[�g�@�\��񋟂��܂��B
+デフォルトでは、Gravwell検索パイプライン内のすべてのものが一時的にソートされています。  Webインターフェースは、検索バックエンドでの一時的ソートの生の力を維持しながら、いくつかの追加のソート機能を提供します。
 
-�������Asort���W���[���̓��[�U�[�����̒l�Ń\�[�g���邱�Ƃ��\�ɂ��܂��B  ����͏��𐮗�����̂ɔ��ɖ𗧂��܂��B  ���Ƃ��΁Adnsmasq�f�[��������v�����ꂽ�g�b�v�h���C���̃e�[�u����\������N�G���́A���̂悤�ɂȂ�܂�:
+しかし、sortモジュールはユーザーが他の値でソートすることを可能にします。  これは情報を整理するのに非常に役立ちます。  たとえば、dnsmasqデーモンから要求されたトップドメインのテーブルを表示するクエリは、次のようになります:
 
 ```
 tag=syslog grep dnsmasq | regex ".*query\[A\]\s(?P<dnsquery>[a-zA-Z0-9\.\-]+)" | count by dnsquery | sort by count desc | table dnsquery count
 ```
 
-�\����`sort [by sortparam] [asc/desc]`�ł��B  `sortparam`�͕��בւ��̊�ƂȂ�p�����[�^�[�ŁA` time`�A `tag`�A` src`�A�܂��͗񋓒l�̂����ꂩ�ł��B  sort�p�����[�^�[�̓I�v�V�����ł��B �w�肳��Ȃ��ꍇ�A�f�t�H���g�Łu���ԁv�ɂȂ�܂��B  ����1�̃p�����[�^�[�́A�����i`asc`�j�܂��͍~���i`desc`�j�̂ǂ��炩�Ń\�[�g�̕�����I�����܂��B  �w�肳��Ă��Ȃ��ꍇ�A�f�t�H���g�ł͎��Ԃ̍~���Ń\�[�g����A���̂��ׂẴp�����[�^�[�̏����Ń\�[�g����܂��B
+構文は`sort [by sortparam] [asc/desc]`です。  `sortparam`は並べ替えの基準となるパラメーターで、` time`、 `tag`、` src`、または列挙値のいずれかです。  sortパラメーターはオプションです。 指定されない場合、デフォルトで「時間」になります。  もう1つのパラメーターは、昇順（`asc`）または降順（`desc`）のどちらかでソートの方向を選択します。  指定されていない場合、デフォルトでは時間の降順でソートされ、他のすべてのパラメーターの昇順でソートされます。
 
-�\�[�g�Ăяo���̗�:
+ソート呼び出しの例:
 
-| �R�}���h | ���� |
+| コマンド | 説明 |
 |---------|-------------|
-| `sort` | ���Ԃ̍~���ŕ��בւ� |
-| `sort by tag` | �G���g���^�O�ŏ����ɕ��בւ� |
-| `sort by count asc` | "count"�Ƃ����񋓒l�ŏ����ɕ��בւ� |
-| `sort asc` | ���Ԃ̏����ŕ��בւ� |
-| `sort by src desc` | ���͌��ō~���ɕ��בւ� |
+| `sort` | 時間の降順で並べ替え |
+| `sort by tag` | エントリタグで昇順に並べ替え |
+| `sort by count asc` | "count"という列挙値で昇順に並べ替え |
+| `sort asc` | 時間の昇順で並べ替え |
+| `sort by src desc` | 入力元で降順に並べ替え |
 
-���F���בւ����W���[���̓p�C�v���C����܂肽���݁A���ׂẴ����_���[��2���I�Ȉꎞ�����𐧌��ł��܂��B  �܂�AWeb�C���^�[�t�F�[�X�ł̊T�v�O���t�ƃ^�C���X���C�X�̑I���́A�ꎞ�I�ł͂Ȃ��\�[�g���ꂽ�����ɂ͉e�����܂���B  ���בւ���̃p�C�v���C�����W���[������ꎞ�I�ɏ����t����ꂽ�f�[�^�����҂���悤�ɒ��ӂ���K�v������܂��B
+注：並べ替えモジュールはパイプラインを折りたたみ、すべてのレンダラーの2次的な一時検索を制限できます。  つまり、Webインターフェースでの概要グラフとタイムスライスの選択は、一時的ではないソートされた検索には影響しません。  並べ替え後のパイプラインモジュールが非一時的に順序付けられたデータを期待するように注意する必要があります。

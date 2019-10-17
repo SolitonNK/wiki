@@ -1,36 +1,36 @@
 # Stats Module
 
-���v���W���[���́A�X�̐��w���W���[����1�̑��삾�������s����ꍇ�ɁA���[�U�[�������ɕ����̓��v��������s���邱�Ƃ��\�ɂ��܂��B  stats���W���[���̕W���I�ȗ�́A�G���[�o�[���O���t�ɕ\�����邽�߂ɒl�̕��ςƕW���΍����v�Z���邱�Ƃł��B
+統計モジュールは、個々の数学モジュールが1つの操作だけを実行する場合に、ユーザーが同時に複数の統計操作を実行することを可能にします。  statsモジュールの標準的な例は、エラーバーをグラフに表示するために値の平均と標準偏差を計算することです。
 
-## �\��
+## 構文
 
-stats���W���[���̌Ăяo���́A���̂��̂ō\������Ă��܂�:
+statsモジュールの呼び出しは、次のもので構成されています:
 
-* ���W���[���� (`stats`)
-* �ǂ̗񋓒l�𑀍삷�邩���w�肷�鑀��̃��X�g�A����уI�v�V�����ŏo�̖͂��O (`mean(length)`, `count as foo`)
-* �I�v�V������"by"�����Bby�����̊e�g�ݍ��킹�ɑ΂��ČʂɎ��s���邱�Ƃ��w�肵�܂��i `mean�iLength�jby SrcIP`�̂悤�Ɂj
+* モジュール名 (`stats`)
+* どの列挙値を操作するかを指定する操作のリスト、およびオプションで出力の名前 (`mean(length)`, `count as foo`)
+* オプションの"by"引数。by引数の各組み合わせに対して個別に実行することを指定します（ `mean（Length）by SrcIP`のように）
 
-�����̍\���v�f�ɂ��Ă͌�q���܂��B
+これらの構成要素については後述します。
 
-## ���w���Z�d�l
+## 数学演算仕様
  
-����́A���얼�A���ʓ��Ɋ܂܂��"�\�[�X"�񋓒l�A����уI�v�V�����ŏo�͗񋓒l�̕ʂ̖��O�ō\������܂��B
+操作は、操作名、括弧内に含まれる"ソース"列挙値、およびオプションで出力列挙値の別の名前で構成されます。
 
-�ȉ��̑��얼���T�|�[�g����Ă��܂�:
+以下の操作名がサポートされています:
 
-* count: �G���g����
-* sum: ���v�����l��Ԃ�
-* mean: ���ϒl���v�Z����
-* stddev: �W���΍����v�Z����
-* variance: ���U���v�Z����
-* min: �ŏ��l��Ԃ�
-* max: �ő�l��Ԃ�
+* count: エントリ数
+* sum: 合計した値を返す
+* mean: 平均値を計算する
+* stddev: 標準偏差を計算する
+* variance: 分散を計算する
+* min: 最小値を返す
+* max: 最大値を返す
 
-����̓\�[�X�񋓒l�ɑ΂��Ď��s����܂��B  ���������āA�w��`stats sum(Bytes)`����ƁAstats���W���[����Bytes�񋓒l�����v��`sum`�A���v���܂ނƂ������O�̗񋓒l�����P��̃G���g�����o�͂���悤�Ɏw������܂��B
+操作はソース列挙値に対して実行されます。  したがって、指定`stats sum(Bytes)`すると、statsモジュールにBytes列挙値を合計し`sum`、合計を含むという名前の列挙値を持つ単一のエントリを出力するように指示されます。
 
-���F�\�[�X���w�肳��Ă��Ȃ��ꍇ�́A����ɃG���g���[�̖{�̂ɑ΂��đ��삪���s����܂��B  �w��stats sum���邱�Ƃ�`stats sum(DATA)`���w�肷�邱�ƂƓ����ł�
+注：ソースが指定されていない場合は、代わりにエントリーの本体に対して操作が実行されます。  指定stats sumすることは`stats sum(DATA)`を指定することと同等です
 
-�����̑�����w��ł��܂�:
+複数の操作を指定できます:
 
 ```
 stats sum(Bytes) mean(Bytes)
@@ -40,51 +40,51 @@ stats sum(Bytes) mean(Bytes)
 stats mean(Bytes) stddev(bytes) min(Length)
 ```
 
-�I�y���[�V�����̏o�͂́A�f�t�H���g�ł́A�I�y���[�V�����̖��O�ƂƂ��ɗ񋓒l�Ɋ��蓖�Ă��܂��B  ���������āA`stats sum�iBytes�j`�́A�o�͂�ێ����邽�߂�`sum`�Ƃ������O�̗񋓒l���쐬���܂��B  �����`as`�I�v�V�����ŕύX�ł��܂��F
+オペレーションの出力は、デフォルトでは、オペレーションの名前とともに列挙値に割り当てられます。  したがって、`stats sum（Bytes）`は、出力を保持するために`sum`という名前の列挙値を作成します。  これは`as`オプションで変更できます：
 
 ```
 stats mean(Bytes) as BytesAvg
 ```
 
-����́A�����̈قȂ�񋓒l�ɑ΂��ē�����������s����Ƃ��ɓ��ɕ֗��ł�:
+これは、複数の異なる列挙値に対して同じ操作を実行するときに特に便利です:
 
 ```
 stats mean(Bytes) as BytesAvg mean(Length) as LengthAvg
 ```
 
-## "By"�����̎w��
+## "By"引数の指定
 
-���[�U���قȂ�IP���ƂɕʁX�Ɏ��s����鑀���K�v�Ƃ���ꍇ�́A"by����"���w�肷��K�v������܂��B
+ユーザが異なるIPごとに別々に実行される操作を必要とする場合は、"by引数"を指定する必要があります。
 
 ```
 stats mean(Bytes) stddev(Bytes) by SrcIP
 ```
 
-����́A�e�ŗL��SrcIP�l�ɂ��ĕʁX�̕��ϒl�ƕW���΍����v�Z����悤��stats���W���[���Ɏw�����܂��B  ���ʂ́A������eSrcIP�ɑ΂���1�G���g���ɂȂ�A���ꂼ��ɓK�؂�SrcIP�A���ϒl�A�����stddev�񋓒l���܂܂�܂��B
+これは、各固有のSrcIP値について別々の平均値と標準偏差を計算するようにstatsモジュールに指示します。  結果は、見られる各SrcIPに対して1エントリになり、それぞれに適切なSrcIP、平均値、およびstddev列挙値が含まれます。
 
-�K�v�Ȃ��������Ŏw��ł��܂�:
+必要なだけ引数で指定できます:
 
 ```
 stats mean(Bytes) stddev(Bytes) by SrcIP DstIP DstPort
 ```
 
-���W���[���́ASrcIP�ADstIP�A�����DstPort�̂��ׂĂ̑g�ݍ��킹�ɑ΂��āA�ʁX�̕��ςƕW���΍����v�Z���܂��B
+モジュールは、SrcIP、DstIP、およびDstPortのすべての組み合わせに対して、別々の平均と標準偏差を計算します。
 
-�d�v�F�������[�������Ă���V�X�e���Ŕ��ɑ傫�ȃf�[�^�Z�b�g�������ꍇ�Astats���W���[�������S�����̑g�ݍ��킹���������[���ɕێ����悤�Ƃ��邽�߁A�����ő�������w�������ƃ������[�s���ɂȂ���\��������܂��B
+重要：メモリーが限られているシステムで非常に大きなデータセットを扱う場合、statsモジュールが何百万もの組み合わせをメモリー内に保持しようとするため、引数で多すぎる指定をするとメモリー不足につながる可能性があります。
 
-### ���G��"By"�����̎g�p
+### 複雑な"By"引数の使用
 
-�P���"by"�����݂̂��񋟂���A���ꂪ�Ō�̑���ɓK�p�����ꍇ�A���v���͂��ׂĂ̑���ɓK�p����܂��B ����͊ȒP�ȕ��@�ł��B���ׂĂ̑���ɓK�p�������Ȃ��ꍇ�́A�Ō�̑����"by"�������Ȃ����Ƃ��m�F���Ă��������B
+単一の"by"引数のみが提供され、それが最後の操作に適用される場合、統計情報はすべての操作に適用されます。 これは簡単な方法です。すべての操作に適用したくない場合は、最後の操作に"by"引数がないことを確認してください。
 
-���Ƃ��΁A�ȉ���`SrcIP DstIP DstPort`���L�[�Ƃ��Ďg�p����"mean"��������s���܂����Astddev����̓L�[�Ȃ��œK�p����܂�:
+たとえば、以下は`SrcIP DstIP DstPort`をキーとして使用して"mean"操作を実行しますが、stddev操作はキーなしで適用されます:
 
 ```
 stats mean(Bytes) by SrcIP DstIP DstPort stddev(Bytes)
 ```
 
-stats���W���[���͕��G�ȃL�[�C���O���g�p���đ�������s�ł��܂��B �܂�A���ׂĂ̑���ɑ΂��ăL�[�Z�b�g�i�܂��̓L�[�Z�b�g�̌��@�j��񋟂ł��܂��B  ����́A�P��̃e�[�u���܂��̓`���[�g�ňقȂ�L�[���g�p���ĕ����̑����\������ꍇ�ɕ֗��ł��B
+statsモジュールは複雑なキーイングを使用して操作を実行できます。 つまり、すべての操作に対してキーセット（またはキーセットの欠如）を提供できます。  これは、単一のテーブルまたはチャートで異なるキーを使用して複数の操作を表示する場合に便利です。
 
-���Ƃ��΁AIP���Ƃ̃p�P�b�g�T�C�Y�̍��v�����s���邪�A���ׂẴp�P�b�g�̃x�[�X���C�����v���񋟂���N�G���͎��̂Ƃ���ł�:
+たとえば、IPごとのパケットサイズの合計を実行するが、すべてのパケットのベースライン合計も提供するクエリは次のとおりです:
 
 ```
 tag=pcap packet ipv4.IP ~ 10.10.10.0/24 | length | stats sum(length) by IP sum(length) as total | chart total sum by IP 
@@ -92,20 +92,20 @@ tag=pcap packet ipv4.IP ~ 10.10.10.0/24 | length | stats sum(length) by IP sum(l
 
 ![complex keys](complexkey.png)
 
-## �^�C���E�B���h�E�̎w��
+## タイムウィンドウの指定
 
-stats���W���[���́Acondensed�܂���temporal��2�̃��[�h�œ���ł��܂��B
+statsモジュールは、condensedまたはtemporalの2つのモードで動作できます。
 
-condensed���[�h�ł́A���ʂ�1�񂾂��o�͂��܂��B  ����́A�e�L�X�g�����_���[�̎g�p���A�܂��̓e�[�u�������_���[��`-nt`�t���O���n���ꂽ�Ƃ��Ɏ����I�ɔ������܂��B
+condensedモードでは、結果を1回だけ出力します。  これは、テキストレンダラーの使用時、またはテーブルレンダラーに`-nt`フラグが渡されたときに自動的に発生します。
 
-temporal���[�h�ł́Astats���W���[���͎��Ԙg�œ��삵�A�f�t�H���g��1�b�ł��B  �f�[�^��1�b���ƂɁA���W���[���͌��ʃG���g���̃Z�b�g�𔭍s���܂��B  ����́A�f�[�^���`���[�g�����_���[�ɑ��M����Ƃ��Ɏg�p����܂��B
+temporalモードでは、statsモジュールは時間枠で動作し、デフォルトは1秒です。  データの1秒ごとに、モジュールは結果エントリのセットを発行します。  これは、データをチャートレンダラーに送信するときに使用されます。
 
-�f�t�H���g�̃E�B���h�E��1�b�ł����A�E�B���h�E�T�C�Y��"over"�I�v�V�����ŕύX�ł��܂�:
+デフォルトのウィンドウは1秒ですが、ウィンドウサイズは"over"オプションで変更できます:
 
 ```
 stats mean(Bytes) stddev(Bytes) by SrcIP over 5m
 ```
 
-�`���[�g���W���[���ɑ��M�����ƁA���ʂ͕W����1�b�ł͂Ȃ�5���ԂŌv�Z����܂��B
+チャートモジュールに送信されると、結果は標準の1秒ではなく5分間で計算されます。
 
-���F�w��ł��鎞�Ԙg��1�����ŁA���̎��Ԙg�͂��ׂĂ̑���ɓK�p����܂��B  timewindow�́Astats��LAST�����ł�����K�v������܂�
+注：指定できる時間枠は1つだけで、その時間枠はすべての操作に適用されます。  timewindowは、statsのLAST引数でもある必要があります

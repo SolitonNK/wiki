@@ -1,22 +1,22 @@
 ## Length
 
-`length`���W���[���́A�G���g���f�[�^�܂��͗񋓒l�̂����ꂩ�̒����i�o�C�g�P�ʁj���Z�o���܂��B  �\���͎��̂Ƃ���ł�:
+`length`モジュールは、エントリデータまたは列挙値のいずれかの長さ（バイト単位）を算出します。  構文は次のとおりです:
 
 ```
 length [-t target] [source]
 ```
 
-`source`�p�����[�^�����삷���̔C�ӂ̗񋓒l�̖��O�ł��B  �\�[�X���w�肳��Ă��Ȃ��ꍇ�Alength�͐��̃G���g���f�[�^���g�p���܂��B  ����ł́A�f�[�^�܂��͗񋓒l�̒����� "length"�Ƃ����񋓒l�ɏ������܂�܂��B  `target`���w�肷��ƁA����ɂ��̖��O�̗񋓒l�ɒ������������܂�܂��B
+`source`パラメータが動作する上の任意の列挙値の名前です。  ソースが指定されていない場合、lengthは生のエントリデータを使用します。  既定では、データまたは列挙値の長さは "length"という列挙値に書き込まれます。  `target`を指定すると、代わりにその名前の列挙値に長さが書き込まれます。
 
-### �T�|�[�g����Ă���I�v�V����
+### サポートされているオプション
 
-* `-t <target>`: �Z���ꂽ�������f�t�H���g�� "length"�Ƃ������O�ł͂Ȃ��A�w�肳�ꂽ�񋓒l�ɏ������݂܂��B
+* `-t <target>`: 算された長さをデフォルトの "length"という名前ではなく、指定された列挙値に書き込みます。
 
-### �g�p��
+### 使用例
 
-| Command | ���� |
+| Command | 説明 |
 |---------|-------------|
-| length | �G���g���f�[�^�̒������o�C�g���Ŏ擾���A���̌��ʂ��f�t�H���g�̗񋓒l`length`�Ɋi�[���܂��B |
-| length -t foo | �G���g���f�[�^�̒������v�Z���A`length`�̑���Ɏw��̖��O�i�����ł�`foo`)�̗񋓒l�Ɍ��ʂ��i�[���܂��B  |
-| length Payload | �񋓒l`Payload`�̒������A`length`�Ƃ������O�̗񋓒l�Ɋi�[���܂��B   |
-| length -t foo Payload | �񋓒l`Payload`�̒������A�񋓒l`foo`�ɕۑ����܂��B  |
+| length | エントリデータの長さをバイト数で取得し、その結果をデフォルトの列挙値`length`に格納します。 |
+| length -t foo | エントリデータの長さを計算し、`length`の代わりに指定の名前（ここでは`foo`)の列挙値に結果を格納します。  |
+| length Payload | 列挙値`Payload`の長さを、`length`という名前の列挙値に格納します。   |
+| length -t foo Payload | 列挙値`Payload`の長さを、列挙値`foo`に保存します。  |

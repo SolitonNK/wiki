@@ -1,41 +1,41 @@
 ## Lookup
 
-Lookup���W���[���́A���\�[�X�Ɋi�[����Ă���ÓI�f�[�^�\�[�X����f�[�^�̏[���ƕϊ����s�����߂Ɏg�p����܂��B
+Lookupモジュールは、リソースに格納されている静的データソースからデータの充実と変換を行うために使用されます。
 
 ```
 lookup -r <resource name> <enumerated value> <column to match> <column to extract> as <valuename>
 ```
 
-���F�\���� ```as <valuename>```�̒ǉ���񋟂��Ȃ��ꍇ�A���b�N�A�b�v�͗񋓒l�����b�N�A�b�v���璊�o�����l�ɒu�������܂��B
+注：構文に ```as <valuename>```の追加を提供しない場合、ルックアップは列挙値をルックアップから抽出した値に置き換えます。
 
-�ǉ��̑�����܂Ƃ߂ĕ����񉻂��邱�ƂŁAlookup���W���[����1��̌Ăяo���ŕ�����lookup������w��ł��܂��B
+追加の操作をまとめて文字列化することで、lookupモジュールの1回の呼び出しで複数のlookup操作を指定できます。
 
-### �T�|�[�g����Ă���I�v�V����
-* `-r <arg>`: "-r"�I�v�V�����́A�ǂ̌������\�[�X���g�p���ăf�[�^���[�������邩���������W���[���ɒʒm���܂��B
-* `-s`: "-s"�I�v�V�����́A�������W���[�����A�w�肳�ꂽ���ׂĂ̑��삪�������邱�Ƃ�v�����邱�Ƃ��w�肵�܂��B
-* `-v`: "-v"�t���O�́A���b�N�A�b�v���W���[�����̐��䃍�W�b�N�𔽓]���܂��B  �܂�A����������v�͗}������A��v���Ȃ�������v�͓n����܂��B  "-v"�� "-s"�t���O��g�ݍ��킹�Ċ�{�I�ȃz���C�g���X�g���쐬���A�w�肳�ꂽ���b�N�A�b�v�e�[�u���ɑ��݂��Ȃ��l�݂̂�n�����Ƃ��ł��܂��B
+### サポートされているオプション
+* `-r <arg>`: "-r"オプションは、どの検索リソースを使用してデータを充実させるかを検索モジュールに通知します。
+* `-s`: "-s"オプションは、検索モジュールが、指定されたすべての操作が成功することを要求することを指定します。
+* `-v`: "-v"フラグは、ルックアップモジュール内の制御ロジックを反転します。  つまり、成功した一致は抑制され、一致しなかった一致は渡されます。  "-v"と "-s"フラグを組み合わせて基本的なホワイトリストを作成し、指定されたルックアップテーブルに存在しない値のみを渡すことができます。
 
-### lookupdata���\�[�X��ݒ肷��
+### lookupdataリソースを設定する
 
-���b�N�A�b�v�f�[�^�́A�݊����̂��郌���_�����O���W���[���i�Ⴆ�΁A�e�[�u�����W���[���j����_�E�����[�h����A�_�E�����[�h����ы��L����ї��p�̂��߂Ƀ��\�[�X�Ɋi�[���꓾��B  �������ʃy�[�W�̃��j���[���g�p���āA "LOOKUPDATA"��I�����Ă��̃t�H�[�}�b�g�̌������ʂ̕\���_�E�����[�h���邱�Ƃ�I���ł��܂��B
+ルックアップデータは、互換性のあるレンダリングモジュール（例えば、テーブルモジュール）からダウンロードされ、ダウンロードおよび共有および利用のためにリソースに格納され得る。  検索結果ページのメニューを使用して、 "LOOKUPDATA"を選択してこのフォーマットの検索結果の表をダウンロードすることを選択できます。
 
 ![Lookup Download](lookup-download.png)
 
-[�e�[�u�������_��](#!search/table/table.md)�ɂ� `-save`�I�v�V�������p�ӂ���Ă���A��Ō����Ŏg�p���邽�߂Ɍ������ʃe�[�u�������\�[�X�Ƃ��Ď����I�ɕۑ����܂�:
+[テーブルレンダラ](#!search/table/table.md)には `-save`オプションも用意されており、後で検索で使用するために検索結果テーブルをリソースとして自動的に保存します:
 
 ```
 tag=syslog regex "DHCPACK on (?P<ip>\S+) to (?P<mac>\S+)" | unique ip mac | table -save ip2mac ip mac
 ```
 
-��L�̗�ł́A�e�[�u�������_����DHCP���O����h������MAC�A�h���X�ւ�IP�A�h���X�̃}�b�s���O���܂� `ip2mac`�Ƃ������O�̃��\�[�X�������I�ɍ쐬���܂�
+上記の例では、テーブルレンダラはDHCPログから派生したMACアドレスへのIPアドレスのマッピングを含む `ip2mac`という名前のリソースを自動的に作成します
 
 #### CSV
 
-CSV�f�[�^�����b�N�A�b�v���W���[���Ɏg�p�ł��܂��B  Gravwell�����������W���[����csv�t�@�C�������\�[�X�Ƃ��Ďg�p����ɂ́ACSV�ɗ�̈�ӂ̃w�b�_�[���܂܂�Ă���K�v������܂��B
+CSVデータもルックアップモジュールに使用できます。  Gravwell検索検索モジュールでcsvファイルをリソースとして使用するには、CSVに列の一意のヘッダーが含まれている必要があります。
 
-### ������
+### 検索例
 
-���̗�ł́A����csv����쐬���ꂽ "macresolution"�Ƃ������\�[�X���g�p���܂�:
+この例では、次のcsvから作成された "macresolution"というリソースを使用します:
 ```
 mac,hostname
 mobile-device-1,40:b0:fa:d7:af:01
@@ -44,13 +44,13 @@ mobile-device-2,40:b0:fa:d7:ae:02
 desktop-2,64:bc:0c:87:9a:11
 ```
 
-���ꂩ��A�p�P�b�g�f�[�^�̌����𔭍s���Alookup���W���[�����g�p���ăf�[�^�X�g���[�����������A�z�X�g�����܂߂܂��B  ���̏ꍇ�A�z�X�g���� "devicename"�񋓒l�Ɋ��蓖�Ă��܂��B
+それから、パケットデータの検索を発行し、lookupモジュールを使用してデータストリームを強化し、ホスト名を含めます。  この場合、ホスト名は "devicename"列挙値に割り当てられます。
 
 ```
 tag=pcap packet eth.SrcMAC | count by SrcMAC | lookup -r macresolution SrcMAC mac hostname as devicename |  table SrcMAC devicename count
 ```
 
-����ɂ��A���̋������ꂽ�f�[�^���܂ރe�[�u�����쐬����܂�
+これにより、次の強化されたデータを含むテーブルが作成されます
 ```
 64:bc:0c:87:bc:71	|	desktop-1       	|	52183
 40:b0:fa:d7:ae:02	|	mobile-device-2 	|	21278
@@ -58,12 +58,12 @@ tag=pcap packet eth.SrcMAC | count by SrcMAC | lookup -r macresolution SrcMAC ma
 40:b0:fa:d7:af:01	|	mobile-device-1 	|	  927
 ```
 
-#### ���b�N�A�b�v�e�[�u�����g�p�����z���C�g���X�g����̗�
+#### ルックアップテーブルを使用したホワイトリスト操作の例
 ```
 tag=pcap packet eth.SrcMAC | count by SrcMAC | lookup -v -s -r macresolution SrcMAC mac hostname |  table SrcMAC count
 ```
 
-����ɂ��A���b�N�A�b�v���X�g�Ɋ܂܂�Ă��Ȃ��������ׂĂ�MAC�A�h���X���܂ރe�[�u���������܂��B  �V�X�e���Ǘ��҂́A " - v"�� " - "�t���O���g�p���āA�l�b�g���[�N��̐V�����f�o�C�X�܂��̓C�x���g�X�g���[�����̐V�������O�̊�{�I�ȃz���C�g���X�g�Ǝ��ʂ�񋟂ł��܂��B
+これにより、ルックアップリストに含まれていなかったすべてのMACアドレスを含むテーブルが得られます。  システム管理者は、 " - v"と " - "フラグを使用して、ネットワーク上の新しいデバイスまたはイベントストリーム内の新しいログの基本的なホワイトリストと識別を提供できます。
 ```
 64:bc:0c:87:bc:60	|	24382
 40:b0:fa:d7:ae:13	|	93485
