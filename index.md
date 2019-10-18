@@ -4,7 +4,7 @@
 
 # Soliton NK
 
-Soliton NKは[Gravwell](https://www.gravwell.io/)をベースに開発されたログ分析製品です。
+Soliton NKは[Gravwell社](https://www.gravwell.io/)のデータ分析プラットフォーム技術を使用しています。
 以下はGravwellのドキュメントの日本語訳です。
 
 # Gravwell
