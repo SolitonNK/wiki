@@ -2,6 +2,11 @@
 
 ![](logo-name.png)
 
+# Soliton NK
+
+Soliton NKは[Gravwell](https://www.gravwell.io/)をベースに開発されたログ分析製品です。
+以下はGravwellのドキュメントの日本語訳です。
+
 # Gravwell
 
 このサイトには、Gravwellのドキュメントに加えて、変更ログなどの他のリソースが含まれています。
