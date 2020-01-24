@@ -2,53 +2,61 @@
 
 ![](logo-name.png)
 
-# Soliton NK
-
-Soliton NKは[Gravwell社](https://www.gravwell.io/)のデータ分析プラットフォーム技術を使用しています。
-以下はGravwellのドキュメントの日本語訳です。
-
 # Gravwell
 
-このサイトには、Gravwellのドキュメントに加えて、変更ログなどの他のリソースが含まれています。
+このサイトには、Gravwellのドキュメントに加えて、変更履歴などの他のリソースが含まれています。
 
-Gravwellを始めたばかりの場合は、最初に[Quickstart](quickstart/quickstart.md)を読んでから、[Search pipeline](search/search.md)ドキュメントに進んで詳細を確認することをお勧めします。
+Gravwellを始めたばかりの場合は、最初に[クイックスタート](quickstart/quickstart.md)を読んでから、[サーチパイプライン](search/search.md)ドキュメントに進んで詳細を確認することをお勧めします。
 
-Gravwellは無料の[Community Edition](https://www.gravwell.io/download)を発表します。
+Gravwellは無料の[Community Edition](https://www.gravwell.io/download)を提供しています。
 
+## クイックスタートとダウンロード
 
-[クイックスタート](quickstart/quickstart.md)
+  * [クイックスタート](quickstart/quickstart.md)
 
   * [ダウンロード](quickstart/downloads.md)
 
-[Gravwellによる検索方法](search/search.md)
+## Gravwellで検索する
+
+  * [検索の概要](search/search.md)
 
   * [検索モジュール](search/searchmodules.md)
 
-  * [レンダリングモジュール](search/rendermodules.md)
+  * [[レンダリングモジュール](search/rendermodules.md)
 
-[Gravwellシステムアーキテクチャ](architecture/architecture.md)
+## システムアーキテクチャー
 
-[Ingesters設定](ingesters/ingesters.md)
+  * [Gravwelシステムアーキテクチャー](architecture/architecture.md)
 
-  * [サービス インテグレーション](ingesters/integrations.md)
+    * [Gravwellが使用するネットワークポート](configuration/networking.md)
 
-[Gravwellのインストールと構成](configuration/configuration.md)
+  * [リソースシステム](resources/resources.md)
 
-  * [Dockerの展開](configuration/docker.md)
+## インジェスター構成：Gravwellにデータを取り込む
+
+  * [インジェスターの設定](ingesters/ingesters.md)
+
+    * [File Follower Ingester](ingesters/file_follow.md)
+
+    * [Simple Relay Ingester](ingesters/simple_relay.md)
+    
+    * [Windows Events Ingester](ingesters/ingesters.md#Windows_Event_Service)
+
+    * [Netflow/IPFIX Ingester](ingesters/ingesters.md#Netflow_Ingester)
+
+    * [Collectd](ingesters/ingesters.md#collectd_Ingester)
+
+  * [サービス統合](ingesters/integrations.md)
+
+## 高度なGravwellのインストールと構成
+
+  * [Gravwellのインストールと設定](configuration/configuration.md)
+
+  * [Dockerデプロイメント](configuration/docker.md)
 
   * [TLS/HTTPSのセットアップ](configuration/certificates.md)
-  
-  * [エクストラクターのセットアップ](configuration/autoextractors.md)
-  
-  * [データエイジアウト](configuration/ageout.md)
- 
-  * [データアーカイブ](configuration/archive.md)
 
-  * [データ複製](configuration/replication.md)
-
-  * [クエリ高速化](configuration/accelerators.md)
-
-[//]: # (* [データの自動抽出](configuration/autoextractors.md))
+  * [Gravwellクラスターの構築](distributed/cluster.md)
 
   * [分散フロントエンド](distributed/frontend.md)
 
@@ -56,20 +64,44 @@ Gravwellは無料の[Community Edition](https://www.gravwell.io/download)を発�
 
   * [詳細な構成パラメーター](configuration/parameters.md)
 
-[リソースシステム](resources/resources.md)
+  * [シングルサインオン](configuration/sso.md)
 
-[オーケストレーション](scripting/scriptingsearch.md)
+## クエリアクセラレーション/自動抽出/データ管理
+  
+  * [自動抽出機能の設定](configuration/autoextractors.md)
+  
+  * [クエリアクセラレーション(インデックスとブルームフィルター)](configuration/accelerators.md)
 
-  * [スクリプティング](scripting/scripting.md)
+  * [データレプリケーション](configuration/replication.md)
 
-[GUIユーザー設定](configuration/gui.md)
+  * [データエージアウト](configuration/ageout.md)
 
-[コマンドラインクライアントの使用](cli/cli.md)
+  * [データ圧縮](configuration/compression.md)
 
-[API](api/api.md)
+  * [データアーカイブ](configuration/archive.md)
 
-[ライセンス](license/license.md)
+## オーケストレーション
 
-[変更ログ](changelog/list.md)
+  * [スケジュール検索](scripting/scheduledsearch.md)
 
-ドキュメント バージョン 2.0
+  * [スクリプト](scripting/scripting.md)
+
+    * [スケジュールされたスクリプト](scripting/scriptingsearch.md)
+
+## ユーザーインターフェース
+
+  * [GUIユーザー設定](configuration/gui.md)
+
+  * [[コマンドラインクライアントの使用](cli/cli.md)
+
+## API
+
+  * [API](api/api.md)
+
+## その他
+
+  * [ライセンス](license/license.md)
+
+  * [変更履歴](changelog/list.md)
+
+Documentation version 2.0

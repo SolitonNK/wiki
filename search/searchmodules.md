@@ -11,6 +11,7 @@
 * `-r <resource name>` [resources](#!resources/resources.md)システム内のリソースを指定します。これは通常、[geoip](geoip/geoip.md)モジュールが使用するGeoIPマッピングテーブルなど、モジュールが使用する追加データを保存するために使用されます
 * `-v` 通常のパス/ドロップロジックを反転する必要があることを示します。例えば、[grep](grep/grep.md)モジュールは通常、与えられたパターンにマッチするエントリを渡し、マッチしないものを削除します。`-v`フラグを指定すると、一致するエントリを削除し、一致しないエントリを渡します。
 * `-s` "厳密な"モードを示します。いくつかの条件のうちのどれか1つでも満たされている場合、モジュールが通常エントリがパイプラインを進むことを許可する場合、strictフラグを設定することは、すべての条件が満たされた場合にのみエントリが進むことを意味します。たとえば、[require](require/require.md)モジュールは通常、必要な列挙値のいずれかが含まれている場合は`-s`エントリを渡しますが、フラグが使用されている場合は、指定された*すべて*の列挙値を含むエントリのみを渡します。
+* `-p` "許容"モードを示します。 パターンとフィルターが一致しないときにモジュールが通常エントリーをドロップする場合、permissiveフラグはモジュールが通過できるようにモジュールに指示します。 [regex](regex/regex.md)および[grok](grok/grok.md)モジュールは、permissiveフラグが有用な良い例です。
 
 ## ユニバーサル列挙値
 
@@ -39,6 +40,7 @@
 * [fields](fields/fields.md)
 * [geoip](geoip/geoip.md)
 * [grep](grep/grep.md)
+* [grok](grok/grok.md)
 * [hexlify](hexlify/hexlify.md)
 * [ip](ip/ip.md)
 * [ipexist](ipexist/ipexist.md)
@@ -75,4 +77,5 @@
 * [upper](upperlower/upperlower.md)
 * [variance](math/math.md#Variance)
 * [winlog](winlog/winlog.md)
+* [words](words/words.md)
 * [xml](xml/xml.md)

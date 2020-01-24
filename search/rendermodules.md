@@ -10,10 +10,18 @@
 
 ## レンダラーモジュールリスト
 
-* [chart](chart/chart.md)
-* [fdg](fdg/fdg.md)
-* [raw](raw/raw.md)
-* [stackgraph](stackgraph/stackgraph.md)
-* [text](text/text.md)
-* [table](table/table.md)
-* [pointmap / heatmap](map/map.md)
+### チャート、グラフ、およびゲージ
+* [chart](chart/chart.md) - データを折れ線グラフ、棒グラフなどとしてレンダリングします。
+* [fdg](fdg/fdg.md) - 強制指向グラフ。
+* [stackgraph](stackgraph/stackgraph.md) - スタックグラフ。
+* [gauge](gauge/gauge.md) - ゲージと数値カード。
+
+### Tables and Text
+* [table](table/table.md) - 列挙値の表を表示します。
+* [text](text/text.md) - 最小限のフォーマットでエントリの本文を出力します。
+* [raw](raw/raw.md) - 完全にフォーマットされていないデータを出力します。
+* [pcap](pcap/pcap.md) - ネットワークパケットの内容の概要を表示します。
+
+### マップ
+* [pointmap / heatmap](map/map.md) - マップ上のヒートマップまたは個々のポイントを表示します。
+* [point2point](point2point/point2point.md) - 発信元と宛先の両方を持つデータエントリを表示します。

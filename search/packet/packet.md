@@ -36,6 +36,7 @@
 | icmpv4 | ICMPパケット |
 | dot1q | VLANタグ付きフレーム |
 | dot11 | 802.11ワイヤレスパケット |
+| dot11info | 802.11 情報要素 |
 | modbus | modbus / TCPパケット |
 
 ### パケット処理サブモジュール
@@ -82,6 +83,12 @@ tag=pcap packet dot1q.Drop==false eth.SrcMAC ipv4.SrcIP | unique SrcMAC SrcIP | 
 | dot11 | ToDS | == ! | dot11.ToDS == true
 | dot11 | FromDS | == ! | dot11.FromDS != false
 | dot11 | Payload | | dot11.Payload
+
+#### 802.11情報要素
+
+| パケットタイプ | フィールド | オペレータ | 例
+|-----|-------|-----------|---------
+| dot11info | SSID | == != | dot11.SSID != xfinitywifi
 
 #### IPv4
 

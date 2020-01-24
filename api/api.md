@@ -14,6 +14,7 @@ APIの大部分はRESTfulです。この規則の例外は、検索からのデ�
 * [Search Controls](searchctrl.md)
 * [Downloading Search Results](download.md)
 * [Search History](searchhistory.md)
+* [Search Library](searchlibrary.md)
 * [Logging](loglevel.md)
 * [Resources](resources.md)
 * [Scheduled Searches](scheduledsearches.md)

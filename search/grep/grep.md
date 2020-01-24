@@ -53,7 +53,7 @@ tag=reddit json Subreddit | grep -v -e Subreddit "Ask*" "foo"
 GMozillaとWindowsを含むユーザーエージェントだけを抽出
 
 ```
-tag=apache grep -s Mozilla Apache
+tag=apache grep -s Mozilla Windows
 ```
 
 ### 単語一致の使用

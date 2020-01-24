@@ -96,6 +96,22 @@ autoextractorsをリストするには、 `/api/autoextractors`でGETを実行�
 
 `FileExists`フラグは、提案された抽出がディスク上の既存の抽出を上書きすることを示します。 通常、「TagExists」が設定されている場合にのみ設定されます。 新しいエクストラクターの作成時にはエラーとして扱われ、更新時には無視されます。
 
+##ファイルのアップロード
+
+自動抽出の定義は、TOML形式でディスクに保存されます。 この形式は人間が読める形式であり、抽出定義を配布する便利な方法です。 以下に例を示します。
+
+`` `
+[[抽出]]
+	tag="bro-conn"
+	name="bro-conn"
+	desc="Bro conn logs"
+	module="fields"
+	args='-d "\t"'
+	params="ts, uid, orig, orig_port, resp, resp_port, proto, service, duration, orig_bytes, dest_bytes, conn_state, local_orig, local_resp, missed_bytes, history, orig_pkts, orig_ip_pkts, resp_pkts, resp_ip_bytes, tunnel_parents"
+```
+
+このファイルを解析してJSON構造を生成するのではなく、このタイプの定義は、 `/ api / autoextractors / upload`へのPOSTリクエストで送信されるマルチパートフォームを介してWebサーバーに直接アップロードできます。 フォームには、エクストラクター定義の内容を保持する「extraction」という名前のファイルフィールドが含まれている必要があります。 定義が有効で正常にインストールされた場合、サーバーは200応答で応答します。
+
 ## 削除中
 
 既存の自動抽出の削除は、DELETEリクエストを `/api/autoextractors/{id}`に発行することで実行されます。idは自動抽出に関連付けられたタグです。 たとえば、タグ「syslog」に関連付けられている自動抽出を削除するには、リクエストは `/api/autoextractors/syslog`に移動します。 自動抽出プログラムが存在しないか、それを削除するエラーがある場合、Webサーバーは応答本文に200以外の応答とエラーを返します。 削除をインデクサーに配布するときにエラーが発生すると、200の応答と警告のリストが表示されます。

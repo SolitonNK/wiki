@@ -41,7 +41,9 @@ IPFIXヘッダーのすべての要素は、より一般的なデータ要素の
 ### IPFIXデータレコード項目
 
 どんな与えられたIPFIXフロー記録にも入れることができる多くの可能な分野があります。  [IANA
-](https://www.iana.org/assignments/ipfix/ipfix.xhtml#ipfix-information-elements)は何百もの定義をしています。  私たちは最も一般的ないくつかのためにフィルタリングを実装しました：
+](https://www.iana.org/assignments/ipfix/ipfix.xhtml#ipfix-information-elements)は何百もの定義をしています。  私たちは最も一般的ないくつかのためにフィルタリングを実装しました。
+
+重要：IPFIXはテンプレートベースであるため、特定のデータレコードには、以下で説明するフィールドが含まれる場合と含まれない場合があります。 あなたが抽出しようとする場合 "sourceIPv4PrefixLength"が空の結果を取得しますが、IPFIXレコードにそのフィールドが含まれていない可能性があります。
 
 | フィールド |       説明        | サポートされている演算子 | 例 |
 |-------|--------------------------|---------------------|---------|
@@ -65,6 +67,16 @@ IPFIXヘッダーのすべての要素は、より一般的なデータ要素の
 
 注: 私たちが使う名前は、netflowやパケットパーサーで使われているものほど短くはありませんが、[仕様で割り当てられている名前](https://www.iana.org/assignments/ipfix/ipfix.xhtml#ipfix-information-elements)と完全に一致します。
 
+また、このモジュールは、便宜上、いくつかの"ショートカット"を提供します:
+
+| フィールド |       説明        | サポートされている演算子 | 例 |
+|-------|--------------------------|---------------------|---------|
+| src | このフローの送信元アドレス（IPv4またはIPv6） | ~ !~ == != | src == ::1
+| dst | このフローの宛先アドレス（IPv4またはIPv6） | ~ !~ == != | dst !~ PRIVATE
+| ip | フィルターに一致する最初のIPを抽出します。 フィルターが指定されていない場合、Srcが使用されます | ~ !~ == != | ip ~ 10.0.0.0/24
+| port |フィルターに一致する最初のポートを抽出します。 フィルターが指定されていない場合、送信元ポートが使用されます | > < <= >= == != | port == 80
+| vlan | フィルタに一致する最初のVLANを抽出します。VLANは、vlanIdまたはdot1qVlanIdフィールドから取得できます。 | > < <= >= == != | vlan == 100
+
 上記で指定したフィールドのほかに、[ここ](https://www.iana.org/assignments/ipfix/ipfix.xhtml#ipfix-information-elements)に指定されているように、他の公式IPFIX情報要素名を抽出することもできます（ただし、フィルターはかけません）。  エンタープライズIDとフィールドIDをコロンで区切って指定することにより、非標準フィールドを指定することもできます。  "0x1ad7:0x15"  これをより便利な名前`ipfix 0x1ad7:0x15 as foo`に抽出することをお勧めします。
 
 ## 例
@@ -76,3 +88,9 @@ tag=ipfix ipfix destinationIPv4Address as Dst destinationTransportPort==443 | co
 ```
 
 ![Number of flows by ip](flowcount.png)
+
+### ポート80を使用しているIPを調べる
+
+```
+tag=ipfix ipfix port==80 ip ~ PRIVATE | unique ip | table ip
+```
