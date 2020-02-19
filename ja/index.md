@@ -22,7 +22,7 @@ Gravwellは無料の[Community Edition](https://www.gravwell.io/download)を提�
 
   * [検索モジュール](search/searchmodules.md)
 
-  * [[レンダリングモジュール](search/rendermodules.md)
+  * [レンダリングモジュール](search/rendermodules.md)
 
 ## システムアーキテクチャー
 
@@ -92,7 +92,7 @@ Gravwellは無料の[Community Edition](https://www.gravwell.io/download)を提�
 
   * [GUIユーザー設定](configuration/gui.md)
 
-  * [[コマンドラインクライアントの使用](cli/cli.md)
+  * [コマンドラインクライアントの使用](cli/cli.md)
 
 ## API
 
