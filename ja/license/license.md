@@ -33,8 +33,6 @@ Gravwellライセンスの更新は、Gravwellを再起動せずにCLIまたはG
 3. 取り込みが無効
 4. 検索が無効
 
-Prior to expiring Gravwell will post a notification in the GUI warning that the license is about to expire, once the expiration date is reached there is a 14 day grace period where Gravwell is fully functional.  The grace period allows you to continue using Gravwell, but if you restart the Gravwell indexer or webserver it will stop and wait for a valid license.  Once the Grace period has expired Gravwell will disable ingest, in this state you can still query your data but Gravwell will not ingest any new data.  After the query grace period expires Gravwell will disable search functionality.
-
 有効期限が切れる前に、Gravwellは、ライセンスの有効期限が切れることをGUIに通知します。有効期限に達すると、Gravwellが完全に機能する14日間の猶予期間があります。猶予期間によってGravwellの使用を続けることができますが、GravwellインデクサーまたはWebサーバーを再起動すると、Gravwellは停止して有効なライセンスを待ちます。Gravwellが期限切れになると、Gravwellは取り込みを無効にします。この状態でもデータを照会できますが、Gravwellは新しいデータを取り込みません。クエリ猶予期間が終了すると、Gravwellは検索機能を無効にします。
 
 Gravwellは、ライセンスの有効期限のためにデータを削除することは決してなく、すべての保存データ、リソース、ダッシュボード、そしてクエリ履歴は保持されます。新しいライセンスがインストールされた場合、すべてはあなたがそれを残したところで正しいでしょう。
