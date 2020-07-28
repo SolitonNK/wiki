@@ -1,28 +1,82 @@
-# Orchestration and Scripting Searches
+# Automation Scripts
 
-Gravwell provides a robust scripting engine in which you can run searches, update resources, send alerts, or take action.  The orchestration engine allows for automating the tedious steps in an investigation and taking action based on search results without the need to involve a human.  
+Gravwell provides a robust scripting engine in which you can run searches, update resources, send alerts, or take action.  The engine can run searches and examine data automatically, taking action based on search results without the need to involve a human.  
 
-Orchestration scripts can be run [on a schedule](scheduledsearch.md) or by hand from the [command line client](#!cli/cli.md). Because the CLI allows the script to be re-executed interactively, we recommend developing and testing scripts in the CLI before creating a scheduled search.
+Automation scripts can be run [on a schedule](scheduledsearch.md) or by hand from the [command line client](#!cli/cli.md). Because the CLI allows the script to be re-executed interactively, we recommend developing and testing scripts in the CLI before creating a scheduled search.
 
 ## Built-in functions
 
-Scripted searches can use built-in functions that mostly match those available for the [anko](#!scripting/anko.md) module, with some additions for launching and managing searches. The functions are listed below in the format `functionName(<functionArgs>) <returnValues>`.
+Scripts can use built-in functions that mostly match those available for the [anko](#!scripting/anko.md) module, with some additions for launching and managing searches. The functions are listed below in the format `functionName(<functionArgs>) <returnValues>`.
 
-### Resources and persistent data
+## Controlling Versions
+
+Gravwell is constantly adding new modules, methods, and functionality.  It is often desirable to be able to validate that a given script will work with the current version.  This is achieved through two built-in scripting functions which specify the minimum and maximum versions of Gravwell that they are compatible with.  If either assertion fails, the script will fail immediately with an error indicating that the version is incompatible.
+
+* `MinVer(major, minor, point)` Ensures that Gravwell is at least a particular version.
+* `MaxVer(major, minor, point)` Ensures that Gravwell is no newer than a particular version.
+
+## Libraries and external functions
+
+Version 3.3.1 of Gravwell now allows automation scripts to include external scripting libraries.  Two functions are provided for including additional libraries:
+
+* `include(path, commitid, repo) error` Includes a library file. The repo and commitid arguments are optional.  If the include fails, the failure reason is returned.
+* `require(path, commitid, repo)` Identical behavior to `include`, but if it fails the script is halted and the failure reason is attached to the script's results.
+
+Both `include` and `require` can optionally specify an exact repository or commitid.  If the `repo` argument is ommitted the Gravwell default library repo of `https://github.com/gravwell/libs` is used.  If the `commitid` is ommitted then the `HEAD` commit is used.  Repos should be accessible by the Gravwell webserver via the schema defined (either `http://`, `https://`, or `git://`) in the repo path.  The scripting system will automatically go get repos as needed: if a commit id is requested that isn't currently known Gravwell will attempt to update the repo.
+
+If you are in an airgapped system, or otherwise do not want Gravwell to have access to github, you can specify an internal mirror and/or default commit in the `gravwell.conf` file using the `Library-Repository` and `Library-Commit` configuration variables.  For example:
+
+```
+Library-Repository="https://github.com/foobar/baz" #override the default library
+Library-Commit=da4467eb8fe22b90e5b2e052772832b7de464d63
+```
+
+The Library-Repository can also be a local folder that is readable by the Gravwell webserver process.  For example, if you are running Gravwell in a completely airgapped environment, you may still want access to the libs and the ability to update them.  Just unpack the git repository and set `Library-Repository` to that path.
+
+```
+Library-Repository="/opt/gitstuff/gravwell/libs"
+```
+
+The `include` and `require` can be disabled (thereby disallowing external code) by setting `Disable-Library-Repository` in the `gravwell.conf` file.
+
+## Global configuration
+
+* `loadConfig(resource) (map[string]interface, error)` loads the specified resource and attempts to parse it as a JSON structure, returning the results in a map. If the resource contains `{"foo":"bar","a":1}`, this function will return a map where "foo" → "bar" and "a" → 1.
+
+If you have many automation scripts on the system, you may find it useful to keep a repository of configuration values somewhere for use across all the scripts. Suppose you wanted to use a particular revision of the email alerting library across all your scripts; you could put the following into a resource named "script-config":
+
+```
+{
+"email_lib_revision":"14ceec90b69943992f4efae8fc9e24c3f4767944"
+}
+```
+
+and then use the following code in your scripts:
+
+```
+cfg, err = loadConfig("script-config")
+if err != nil {
+	return nil
+}
+require(`alerts/email.ank`, cfg.email_lib_revision)
+```
+
+## Resources and persistent data
 
 * `getResource(name) []byte, error` returns the slice of bytes is the content of the specified resource, while the error is any error encountered while fetching the resource.
 * `setResource(name, value) error` creates (if necessary) and updates a resource named `name` with the contents of `value`, returning an error if one arises.
 * `setPersistentMap(mapname, key, value)` stores a key-value pair in a map which will persist between executions of a scheduled script.
 * `getPersistentMap(mapname, key) value` returns the value associated with the given key from the named persistent map.
 * `delPersistentMap(mapname, key)` deletes the specified key/value pair from the given map.
+* `persistentMap(mapname)` returns the entire named map, changes to the returned map will persist automatically on successful execution.
 
-### Search entry manipulation
+## Search entry manipulation
 
 * `setEntryEnum(ent, key, value)` sets an enumerated value on the specified entry.
 * `getEntryEnum(ent, key) value, error` reads an enumerated value from the specified entry.
 * `delEntryEnum(ent, key)` deletes the specified enumerated value from the given entry.
 
-### General utilities
+## General utilities
 
 * `len(val) int` returns the length of val, which can be a string, slice, etc.
 * `toIP(string) IP` converts string to an IP, suitable for comparing against IPs generated by e.g. the packet module.
@@ -31,9 +85,12 @@ Scripted searches can use built-in functions that mostly match those available f
 * `toInt(val) int64` converts val to an integer if possible. Returns 0 if no conversion is possible.
 * `toFloat(val) float64` converts val to a floating point number if possible. Returns 0.0 if no conversion is possible.
 * `toBool(val) bool` attempts to convert val to a boolean. Returns false if no conversion is possible. Non-zero numbers and the strings “y”, “yes”, and “true” will return true.
+* `toHumanSize(val) string` attempts to convert val into an integer, then represent it as a human-readable byte count, e.g. `toHumanSize(15127)` will be converted to "14.77 KB".
+* `toHumanCount(val) string` attempts to convert val into an integer, then represent it as a human-friendly number, e.g. `toHumanCount(15127)` will be converted to "15.13 K".
 * `typeOf(val) type` returns the type of val as a string, e.g. “string”, “bool”.
+* `hashItems(val...) (uint64, ok)` hashes one or more items into a uint64 using the siphash algorithm. 'ok' is true if at least one of the items could be hashed. Note that the hash function can really only hash scalars; passing slices or maps will typically not work.
 
-### Search management
+## Search management
 
 Due to the way Gravwell's search system works, some of the functions in this section return Search structs (written as `search` in the parameters) while others return search IDs (written as `searchID` in the parameters). Each Search struct contains a search ID which can be accessed as `search.ID`.
 
@@ -65,7 +122,44 @@ When executing a search via the startSearch or startBackgroundSearch functions t
 * `Background` - A boolean indicating whether the search was started as a background search
 * `Name` - An optional string with a search name.
 
-### Sending results
+## Script Information
+
+The following functions let you get information about scheduled scripts/searches and the current script:
+
+* `scheduledSearchInfo() ([]ScheduledSearch, error)` returns all scheduled searches or scripts visible to the user, including the currently-running script. See below for a description of the ScheduledSearch type.
+* `thisScriptID() int32` returns the ID number of the currently-running script.
+
+The ScheduledSearch structure contains the following fields:
+
+* `ID` - A 32-bit integer containing the ID number of this scheduled search.
+* `Owner` - A 32-bit integer representing the scheduled search's owner. 
+* `Groups` - An array of 32-bit group IDs which may view this scheduled search.
+* `Name` - A string containing the scheduled search's name.
+* `Description` - A string describing the search.
+* `Labels` - An array of strings giving further labels to the search.
+* `Schedule` - A cron-format string defining the run schedule.
+* `Updated` - A timestamp set when the scheduled search was last modified.
+* `Disabled` - Boolean, set to true if the search is disabled.
+* `SearchString` - If this is a scheduled search (not a script), contains the search string to run.
+* `Duration` - Number of seconds into the past to search (only if SearchString is set).
+* `Script` - The contents of the script to be run.
+
+* `LastRun` - The time at which the most recent run occurred.
+* `LastRunDuration` - The number of nanoseconds the most recent run took.
+* `LastSearchIDs` - An array of strings listing the IDs of any searches created during the last run.
+* `LastError` - A string containing any error results from the previous run of the script/search.
+
+## Querying Infrastructure Information
+
+The automation scripting system can also be used to monitor the state of the Gravwell installation using API calls.  This allows you to monitor ingester status, system loads, and indexer connectivity within the platform.  The following calls can provide information about the physical deployment:
+
+* `ingesters` - Returns a map containing an ingester status block for each indexer.
+* `indexers` - Returns a map containing a well status for each indexer.
+* `indexerStates` - Returns a map with a boolean indicating whether the indexer is healthy.
+* `systemStates` - Returns a map with disk, CPU, and memory loads for each system.
+* `systems` - Returns a map with physical system information such as CPU, memory, disk, and software versions.
+
+## Sending results
 
 The scripting system provides several methods for transmitting script results to external systems.
 
@@ -79,13 +173,31 @@ More elaborate HTTP operations are possible with the "net/http" library. See the
 If the user has configured their personal email settings within Gravwell, the `email` function is a very simple way to send an email:
 
 * `email(from, to, subject, message) error` sends an email via SMTP. The `from` field is simply a string, while `to` should be a slice of strings containing email addresses. The `subject` and `message` fields are also strings which should contain the subject line and body of the email.
+  * The email function also takes an optional list of attachments.
+  * Attachments can be sent as a byte array, and they will be given an automatic file name
+  * If the attachment parameter is a map, the key is the file name and the value is the attachment
+
+Example sending an email with attachments:
+```
+#easy way just throwing text into an attachment named "attachment1"
+email(`user@example.com`, `bob@accounting.org`, "Hey bob", "We need to talk", "A random attachement")
+
+#Adding a list of attached files with specific names
+mp = map[interface]interface{}
+mp["stuff.txt"] = "this is some stuff"
+mp["things.csv"] = CsvData
+
+subj="Forgot attachments"
+body="Forgot to send the stuff and things files"
+email(`user@example.com`, `bob@accounting.org`, subj, body, mp)
+```
 
 The following functions are deprecated but still available, allowing emails to be sent without configuring the user's email options:
 
 * `sendMail(hostname, port, username, password, from, to, subject, message) error` sends an email via SMTP. `hostname` and `port` specify the SMTP server to use; `username` and `password` are for authentication to the server. The `from` field is simply a string, while the `to` field should be a slice of strings containing email addresses. The `subject` and `message` fields are also strings which should contain the subject line and body of the email.
 * `sendMailTLS(hostname, port, username, password, from, to, subject, message, disableValidation) error` sends an email via SMTP using TLS. `hostname` and `port` specify the SMTP server to use; `username` and `password` are for authentication to the server. The `from` field is simply a string, while the `to` field should be a slice of strings containing email addresses. The `subject` and `message` fields are also strings which should contain the subject line and body of the email.  The disableValidation argument is a boolean which disables TLS certificate validation.  Setting disableValidation to true is insecure and may expose the email client to man-in-the-middle attacks.
 
-### Creating Notifications
+## Creating Notifications
 
 Scripts may create notifications targeted at the script owner. A notification consists of an integer ID, a string message, an optional HTTP link, and an expiration. If the expiration is in the past, or more than 24 hours in the future, Gravwell will instead set the expiration to be 12 hours.
 
@@ -93,7 +205,7 @@ Scripts may create notifications targeted at the script owner. A notification co
 
 The notification ID uniquely identifies the notification. This allows the user to update existing notifications by calling the function again with the same notification ID, but it also allows the user to add multiple simultaneous notifications by specifying different IDs.
 
-### Creating and Ingesting Entries
+## Creating and Ingesting Entries
 
 It is possible to ingest new entries into the indexers from within a script using the following functions:
 
@@ -118,9 +230,11 @@ if condition == true {
 }
 ```
 
-### Other Network Functions
+## Other Network Functions
 
 A set of wrapper functions provide access to SSH and SFTP clients. See [the ssh library documentation](https://godoc.org/golang.org/x/crypto/ssh) and [the sftp library documentation](https://godoc.org/github.com/pkg/sftp) for information about the method which can be called on the structures these return.
+
+Attention: The clients returned by these functions *must* be closed via their Close() method when you're done using them. See examples below.
 
 * `sftpConnectPassword(hostname, username, password, hostkey) (*sftp.Client, error)`establishes an SFTP session on the given ssh server with the specified username and password. If the hostkey parameter is non-nil, it will be used as the expected public key from the host to perform host-key verification. If the hostkey parameter is nil, host key verification will be skipped.
 * `sftpConnectKey(hostname, username, privkey, hostkey) (*sftp.Client, error)` establishes an SFTP session on the specified ssh server with the given username, using the provided private key (a string or []byte) to authenticate.
@@ -131,9 +245,11 @@ Note: The hostkey parameter should be in the known_hosts/authorized_keys format,
 
 A telnet library is also available; no direct wrappers are provided, but it can be used by importing `github.com/ziutek/telnet` in the script and calling telnet.Dial, etc. An example below demonstrates a simple use of the telnet library.
 
+We also provide access to the [github.com/RackSec/srslog](https://github.com/RackSec/srslog) syslog package, which lets scripts send notifications via syslog. An example is shown below.
+
 Finally, the low-level Go [net library](https://golang.org/pkg/net) is available. The listener functions are disabled, but scripts may use the IP parsing functions as well as dial functions such as Dial, DialIP, DialTCP, etc. See below for an example.
 
-#### SFTP example
+### SFTP example
 
 This script connects to an SFTP server using password authentication and no host-key checking. It logs in as the user "sshtest", prints the contents of that user's home directory, and creates a new file named "hello.txt".
 
@@ -146,21 +262,21 @@ if err != nil {
 
 w = conn.Walk("/home/sshtest")
 for w.Step() {
-    if w.Err() != nil {
-        continue
-    }
-    println(w.Path())
+	if w.Err() != nil {
+		continue
+	}
+	println(w.Path())
 }
 
 f, err = conn.Create("/home/sshtest/hello.txt")
 if err != nil {
-    conn.Close()
+	conn.Close()
 	println(err)
 	return
 }
 _, err = f.Write("Hello world!")
 if err != nil {
-    conn.Close()
+	conn.Close()
 	println(err)
 	return
 }
@@ -168,7 +284,7 @@ if err != nil {
 // check it's there
 fi, err = conn.Lstat("hello.txt")
 if err != nil {
-    conn.Close()
+	conn.Close()
 	println(err)
 	return
 }
@@ -176,7 +292,7 @@ println(fi)
 conn.Close()
 ```
 
-#### SSH example
+### SSH example
 
 This script connects to a server using public-key authentication; note that the private key block is shortened for readability here. It also does host-key verification. It then runs `/bin/ps aux` and prints the results.
 
@@ -201,7 +317,7 @@ if err != nil {
 
 session, err = conn.NewSession()
 if err != nil {
-    println("Failed to create session: ", err)
+	println("Failed to create session: ", err)
 	return err
 }
 
@@ -211,15 +327,16 @@ var b = make(bytes.Buffer)
 session.Stdout = &b
 err = session.Run("/bin/ps aux")
 if err != nil {
-    println("Failed to run: " + err.Error())
+	println("Failed to run: " + err.Error())
 	return err
 }
 println(b.String())
 
 session.Close()
+conn.Close()
 ```
 
-#### Telnet example
+### Telnet example
 
 This script connects to a telnet server, logs in as root with the password "testing", and then prints everything it receives, up until a prompt (`$ `).
 
@@ -243,7 +360,23 @@ for {
 }
 ```
 
-#### Net example
+### Syslog example
+
+Use the Dial function to get a connection to a syslog server, then call Alert and other functions to send messages. See [the godoc](https://pkg.go.dev/github.com/RackSec/srslog?tab=doc) for a list of available functions; note that the `NewLogger` and `New` functions are not enabled, because they would write messages to the local system only, which is typically not useful.
+
+```
+var syslog = import("github.com/RackSec/srslog")
+
+c, err = syslog.Dial("tcp", "localhost:601", syslog.LOG_ALERT|syslog.LOG_DAEMON, "gravalerts")
+if err != nil {
+    println(err)
+    return err
+}
+c.Alert("Detected something bad")
+c.Close()
+```
+
+### Net example
 
 This script connects to localhost at TCP port 7778 and writes "foo" to the connection. You could test this against netcat by running `nc -l 7778`.
 
@@ -403,28 +536,28 @@ start = time.Now().Add(-72 * time.Hour)
 end = time.Now()
 s, err = startSearch("tag=gravwell", start, end)
 if err != nil {
-        return err
+		return err
 }
 for {
-        f, err = isSearchFinished(s)
-        if err != nil {
-                return err
-        }
-        if f {
-                break
-        }
+		f, err = isSearchFinished(s)
+		if err != nil {
+				return err
+		}
+		if f {
+				break
+		}
 		time.Sleep(1*time.Second)
 }
 
 # Get a handle on the search results
 rhandle, err = getDownloadHandle(s.ID, "text", start, end)
 if err != nil {
-        return err
+		return err
 }
 # Build the request
-req, err = http.NewRequest("POST", "http://example.org:3002/", body)
+req, err = http.NewRequest("POST", "http://example.org:3002/", rhandle)
 if err != nil {
-        return err
+		return err
 }
 # Add a header
 req.Header.Add("My-Header", "gravwell")
@@ -438,4 +571,109 @@ req.AddCookie(&cookie)
 resp, err = http.DefaultClient.Do(req)
 detachSearch(s)
 return err
+```
+
+## CSV Helpers
+
+CSV is a pretty common export format for resources and just generatlly getting data out of Gravwell.  The CSV library provided by `encoding/csv` is robust and flexible but a little verbose.  We have wrapped the CSV writer to provide a simpler interface for use within the Gravwell scripting system.  To create a simplified CSV builder, import the `encoding/csv` package and instead of invoking `NewWriter` call `NewBuilder` without any arguments.
+
+The CSV builder manages its own internal buffers and returns a byte array upon executing `Flush`.  This can simplify the process of building up CSVs for exporting or saving.  Here is an example script that uses the simplified csv Builder to create a resource comprised of two table columns:
+
+```
+csv = import("encoding/csv")
+time = import("time")
+
+query = `tag=pcap packet ipv4.SrcIP ipv4.DstIP ipv4.Length | sum Length by SrcIP DstIP | table SrcIP DstIP sum`
+end = time.Now()
+start = end.Add(-1 * time.Hour)
+
+ents, err = executeSearch(query, start, end)
+if err != nil {
+	return err
+}
+
+bldr = csv.NewBuilder()
+err = bldr.WriteHeaders([`src`, `dst`, `total`])
+if err != nil {
+	return err
+}
+
+for ent in ents {
+	src, err = getEntryEnum(ent, "SrcIP")
+	if err != nil {
+		return err
+	}
+	dst, err = getEntryEnum(ent, "DstIP")
+	if err != nil {
+		return err
+	}
+	sum, err = getEntryEnum(ent, "sum")
+	if err != nil {
+		return err
+	}
+	err = bldr.Write([src, dst, sum])
+	if err != nil {
+		return err
+	}
+}
+
+buff, err = bldr.Flush()
+if err != nil {
+	return err
+}
+return setResource("csv", buff)
+```
+
+
+## IPExist Datasets
+
+The [ipexist](#!search/ipexist/ipexist.md) search module is designed to test whether an IPv4 address exists in a set, this module is a simple filtering module that is designed for one thing and one thing only: speed.  Under the hood, `ipexist` uses a highly optimized bitmap system so that its possible for a modest machine to represent the entirety of the IPv4 address space in it's filter system.  IPExist is a great tool for holding threatlists and performing initial filtering operations on very large sets of data before performing more expensive lookups using the [iplookup](#!search/iplookup/iplookup.md) module.
+
+The Gravwell scripting system has access to the ipexist builder functions, enabling you to generate high speed ip membership tables from existing data.  The ipexist builder functions are open source and available on [github](https://github.com/gravwell/ipexist).  Below is a basic script which generates an ip membership resource using a query:
+
+```
+ipexist = import("github.com/gravwell/ipexist")
+bytes = import("bytes")
+time = import("time")
+
+query = `tag=ipfix ipfix port==22 src dst | stats count by src dst | table`
+end = time.Now()
+start = end.Add(-1 * time.Hour)
+
+ipe = ipexist.New()
+
+ents, err = executeSearch(query, start, end)
+if err != nil {
+	return err
+}
+
+for ent in ents {
+	ip, err = getEntryEnum(ent, "src")
+	if err != nil {
+		return err
+	}
+	err = ipe.AddIP(toIP(ip))
+	if err != nil {
+		return err
+	}
+	
+	ip, err = getEntryEnum(ent, "dst")
+	if err != nil {
+		 return err
+	}
+	err = ipe.AddIP(toIP(ip))
+	if err != nil {
+		return err
+	}
+}
+
+bb = bytes.NewBuffer(nil)
+err = ipe.Encode(bb)
+if err != nil {
+	return err
+}
+ipe.Close()
+buff = bb.Bytes()
+println("buffer", len(buff))
+return setResource("sshusers", buff)
 ```

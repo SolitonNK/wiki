@@ -4,6 +4,10 @@ As introduced in [the search modules documentation](#!search/searchmodules.md#An
 
 See the generic description of the scripting languaged used in [the Anko scripting language documentation](scripting.md) for more details about the language itself.
 
+### Disabling network functions in anko scripts
+
+By default, anko scripts are allowed to use network utilities such as the http and net libraries, sftp, and ssh. You may not want to give Gravwell users network access; setting the option `Disable-Network-Script-Functions=true' in `/opt/gravwell/etc/gravwell.conf` will disable this.
+
 ## Managing anko scripts
 
 In order to run an anko script in a search, the text file containing the script must be uploaded as a resource. See the [resources section](#!resources/resources.md) for information on how to create and upload a resource.
@@ -28,9 +32,13 @@ If a `Main` function is defined, it will be called only once; the programmer mus
 
 We strongly recommend writing scripts with `Process` instead of `Main` whenever possible, because it is conceptually much simpler.
 
+### Optional function definitions
+
 The script may also contain functions named `Parse` and `Finalize`.
 
 The `Parse` function is called before `Process` or `Main` and is given the command line arguments as an array of arguments. The `Parse` function indicates that the arguments have been successfully processed by returning nil; any non-nil return is treated as an error and presented to the user. See the sample script below for a sample of how to parse script arguments.
+
+Attention: The Parse function MUST explicitly return a value. Returning nil signals a successful parse; returning anything else indicates an error. In case of an error, we recommend returning a string describing the problem.
 
 The `Finalize` function is called after `Process` or `Main` have completed. It is the last code executed in the script; this is a good place to create resources if desired.
 
@@ -177,7 +185,11 @@ Anko provides built-in utility functions, listed below in the format `functionNa
 * `toInt(val) int64` converts val to an integer if possible. Returns 0 if no conversion is possible.
 * `toFloat(val) float64` converts val to a floating point number if possible. Returns 0.0 if no conversion is possible.
 * `toBool(val) bool` attempts to convert val to a boolean. Returns false if no conversion is possible. Non-zero numbers and the strings “y”, “yes”, and “true” will return true.
+* `toHumanSize(val) string` attempts to convert val into an integer, then represent it as a human-readable byte count, e.g. `toHumanSize(15127)` will be converted to "14.77 KB".
+* `toHumanCount(val) string` attempts to convert val into an integer, then represent it as a human-friendly number, e.g. `toHumanCount(15127)` will be converted to "15.13 K".
 * `typeOf(val) type` returns the type of val as a string, e.g. “string”, “bool”.
+* `producesEnum(val)` Informs the pipeline that the script plans to produce an Enumerated Value of that name.  Should be called in the Parse() function.
+* `consumesEnum(val)` Informs the pipeline that the script plans to consume the Enumerated Value of that name.  Should be called in the Parse() function.
 
 The following functions are only available in scripts implementing the `Process` function:
 
@@ -191,13 +203,24 @@ The following functions are only available in scripts implementing the `Main` fu
 * `readEntry() entry, error` returns the next entry and an error (if any). It will return an error when no entries remain.
 * `writeEntry(ent) error` writes out the given entry down the pipeline, returning an error if any.
 * `cloneEntry(ent) entry` returns a copy of the specified entry.
+* `newEntry() entry` creates an entirely new entry, with the timestamp set to the current time.
 * `setEntryEnum(ent, key, value)` sets an enumerated value on the specified entry.
 * `getEntryEnum(ent, key) value, error` reads an enumerated value from the specified entry.
 * `hasEntryEnum(ent, key) bool` returns whether the entry contains the enumerated value.
 * `delEntryEnum(ent, key)` deletes the specified enumerated value from the given entry.
 * `setEntryData(ent, value)` sets the data portion of an entry.
+* `setEntrySrc(ent, ip)` sets the source field of an entry.
+* `setEntryTimestamp(ent, time)` sets the timestamp of an entry.
 
 Note: The `setEnum`, `hasEnum`, and `delEnum` functions differ for scripts using `Process` functions vs. `Main` functions, because the `Process` function is implicitly operating on a particular entry.
+
+## Built-in variables
+
+The following variables are pre-defined for anko scripts:
+
+* `START`: the start time of the query.
+* `END`: the end time of the query.
+* `TAGMAP`: a map of string tag names to entry.EntryTag tag numbers. This only contains tags used in the current query, so if you say `tag=default,foo` TAGMAP will contain 'default'→0 and 'foo'→1. Use this in conjunction with the `cloneEntry` or `newEntry` functions.
 
 ## Available packages
 
@@ -241,7 +264,8 @@ For most purposes, you will create a Request with the NewRequest function, then 
 
 ```
 req, _ = http.NewRequest("GET", "http://example.org/foo", nil)
-http.DefaultClient.Do(req)
+resp, _ = http.DefaultClient.Do(req)
+resp.Body.Close()
 ```
 
 Additional headers or cookies can be set on the request before sending:
@@ -255,5 +279,8 @@ cookie = make(http.Cookie)
 cookie.Name = "foo"
 cookie.Value = "bar"
 req.AddCookie(&cookie)
-http.DefaultClient.Do(req)
+resp, _ = http.DefaultClient.Do(req)
+resp.Body.Close()
 ```
+
+Warning: You *must* close the http.Response's Body field when you are finished, as shown above. Leaving the Body open will leave a network connection open, eventually causing the search agent to run out of sockets. The `httpGet` and `httpPost` functions will close the Body automatically; please consider using those wherever possible.

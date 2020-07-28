@@ -1,6 +1,6 @@
 ## Netflow
 
-The netflow processor is designed to extract and filter raw netflow data frames, allowing for quickly identfying network flows, filtering on ports, or generally monitoring the behavior of aggregate flows.  Gravwell has a native netflow ingester which is open source and avialable at https://github.com/gravwell/ingesters or as an installer in the [quickstart section](/#!quickstart/downloads.md).
+The netflow processor is designed to extract and filter raw netflow data frames, allowing for quickly identfying network flows, filtering on ports, or generally monitoring the behavior of aggregate flows.  Gravwell has a native netflow ingester which is open source and avialable at https://github.com/gravwell/ingesters or as an installer in the [quickstart section](#!quickstart/downloads.md).
 
 ### Supported Options
 
@@ -40,6 +40,7 @@ The netflow search module is designed to process raw netflow frames.  A single n
 | EngineID | The ID for the flow sensing engine | > < <= >= == != | EngineID == 0x00
 | SampleMode | 2 bit ID for the Sampling mode of the sensing engine | > < <= >= == != | SampleMode == 0x01
 | SampleInterval | 14 bit value represening the sampling interval of the sensing engine | > < <= >= == != | SampleInterval > 0x100
+| Timestamp | Helper extractor that converts Sec and NSec to a friendly timestamp value. Filtering is NOT supported. | |
 
 #### Netflow v5 Record Data Items
 
@@ -64,7 +65,8 @@ The netflow search module is designed to process raw netflow frames.  A single n
 | SrcAs | Source Autonomous System Number of the flow | > < <= >= == != | SrcAS == 15169
 | DstAs | Source Autonomous System Numer of the flow | > < <= >= == != | DstAs != 15169
 | SrcMask | Source IPv4 address mask bits | > < <= >= == != | SrcMask > 24
-| DstMask | Destination IPv4 address mask bits | > < <= >= == != | | DstMask <= 16
+| DstMask | Destination IPv4 address mask bits | > < <= >= == != | DstMask <= 16
+| Duration | Helper value that converts UptimeFirst and UptimeLast into a duration | > < <= >= == != | Duration > 100ms
 
 ### Examples
 

@@ -44,6 +44,12 @@ Default Value:	`false`
 Example:		`Insecure-Disable-HTTPS=true`
 Description:	By default Gravwell operates in HTTPS mode. Setting `Insecure-Disable-HTTPS=true` instructs Gravwell to instead use plaintext HTTP, listening on `Web-Port`.
 
+**Webserver-Domain**
+Applies to:		Webserver
+Default Value:	0
+Example:		`Webserver-Domain=17`
+Description: The `Webserver-Domain` parameter controls the [resources](#!resources/resources.md) domain on the webserver. If two webservers are configured with the same domain, have differing resource sets, are connected to the same indexer(s), and are *not* synchronized via the datastore, the indexer(s) will thrash between the two sets of resources. Putting the webservers in different domains allows them both to use the same indexer without resource conflicts.
+
 **Control-Listen-Address**
 Applies to:        Indexer
 Default Value:
@@ -369,11 +375,11 @@ Default Value:	`false`
 Example:		`Docker-Secrets=true`
 Description:	The Docker-Secrets parameter tells Gravwell that it should attempt to read the ingest, control, and search agent secrets from [Docker secrets](https://docs.docker.com/engine/swarm/secrets/). It expects the secrets to be named `ingest_secret`, `control_secret`, and `search_agent_secret`, respectively, and they should be accessible from within the VM in the `/run/secrets/` directory.
 
-**HTTP-Proxy***
+**HTTP-Proxy**
 Applies to:		Webserver
 Default Value:
-Example:		`HTTP-Proxy=http://wwwproxy.example.com:8080/`
-Description:	The HTTP-Proxy parameter configures a proxy to be used for HTTP and HTTP requests by the webserver. It is effectively equivalent to setting the environment variable $http_proxy and allows the same syntax.
+Example:		`HTTP-Proxy=wwwproxy.example.com:8080`
+Description:	The HTTP-Proxy parameter configures a proxy to be used for HTTP and HTTP requests by the webserver. It is effectively equivalent to setting the environment variable $http_proxy and allows the same syntax.  The specified proxy value will be used for both `HTTP` and `HTTPS` requests.
 
 **Webserver-Ingest-Groups**
 Applies to:		Webserver
@@ -381,17 +387,17 @@ Default Value:
 Example:		`Webserver-Ingest-Groups=ingestUsers`
 Description:	The Webserver-Ingest-Groups parameter is a list parameter which specifies groups whose users are allowed to ingest entries directly via the Gravwell web API. As a list parameter, it can be specified multiple times to enable multiple groups to ingest via web API.
 
-**Autoextract-Definition-Path**
-Applies to:		Webserver and Indexer
-Default Value:	`/opt/gravwell/extractions` 
-Example:		`Autoextract-Definition-Path=/tmp/extractions`
-Description:	The Autoextract-Definition-Path parameter specifies a directory which will contain autoextractor definitions.
-
 **Disable-Update-Notification**
 Applies to:		Webserver
 Default Value:	`false`
 Example:		`Disable-Update-Notification=false`
 Description:	If Disable-Update-Notification is set to true, the web UI will not present a notification when a new version of Gravwell is available.
+
+**Disable-Stats-Report**
+Applies to: Webserver
+Default Value: false
+Example: `Disable-Stats-Report=true`
+Description:	Setting this parameter to true will tell the webserver's [metrics reporting routine](#!metrics.md) to send only minimal information about the license, omitting the broader system statistics.
 
 **Temp-Dir**
 Applies to:		Webserver
@@ -434,3 +440,99 @@ Applies to:		Webserver
 Default Value:	``
 Example:		`Webserver-Content-Security-Policy="default-src https:"`
 Description:	This parameter allows the administrator to defined a Content-Security-Policy header which will be sent with all Gravwell pages. This is an important security option and should be set for your organization based on your deployment requirements, such as requiring https-only.
+
+**Default-Language**
+Applies to:		Webserver
+Default Value:		`en-US`
+Example:		`Default-Language=en-US`
+Description:		Setting the Default-Language parameter controls what is provided on the unauthenticated API at /api/language and is used by the GUI to determine which language should be default in deployments with multiple languages. This is the fallback if the user has not chosen a language and their browser is not providing a preferred language via `window.navigator.language`.
+
+**Disable-Map-Tile-Server-Proxy**
+Applies to:		Webserver
+Default Value:	`false`
+Example:		`Disable-Map-Tile-Server-Proxy=true`
+Description:	This parameter controls Gravwell's built-in maps proxy. To avoid placing undue load on map servers, the Gravwell webserver caches map tiles. However, use of the proxy means that the requests sent to the actual map servers originate from the Gravwell webserver rather than the user's web browser; if the Gravwell installation is on a locked-down network, this may fail due to outgoing HTTP being disabled. Setting `Disable-Map-Tile-Server-Proxy` to true will disable the built-in proxy and cause the GUI to make map requests directly. If the proxy is disabled and the `Map-Tile-Server` parameter is also set, the GUI will make its requests to that server.
+
+**Map-Tile-Server**
+Applies to:		Webserver
+Default Value:	``
+Example:		`Map-Tile-Server=https://maps.example.com/osm/`
+Description:	The Map-Tile-Server parameter allows the administrator to define a different source for map tiles. By default, Gravwell will fetch tiles from a Gravwell map server, falling back to OpenStreetMap servers if necessary. Setting this parameter forces Gravwell to use *only* the specified server. The URL specified should be a prefix to the standard OpenStreetMap tile server format as defined [here](https://wiki.openstreetmap.org/wiki/Tile_servers), leaving out the z/x/y coordinate parameters. For example, if tiles may be accessed at `https://maps.wikimedia.org/osm-intl/${z}/${x}/${y}.png`, e.g. https://maps.wikimedia.org/osm-intl/0/1/2.png, you could set `Map-Tile-Server=https://maps.wikimedia.org/osm-intl/`.
+
+**Gravwell-Tile-Server-Cooldown-Minutes**
+Applies to:		Webserver
+Default Value:	5
+Example:		`Gravwell-Tile-Server-Cooldown-Minutes=1`
+Description:	When the Gravwell tile proxy is operating in normal mode (not disabled, `Map-Tile-Server` parameter not set), it will attempt to fetch map tiles from a Gravwell-operated server. If a request send to that server fails, the proxy will instead fall back to openstreetmap.org servers for the duration of the cooldown. Setting this parameter to 0 disables the cooldown.
+
+**Gravwell-Tile-Server-Cache-MB**
+Applies to:		Webserver
+Default Value:	4
+Example:		`Gravwell-Tile-Server-Cache-MB=32`
+Description:	The Gravwell tile proxy maintains a cache of recently-accessed tiles to speed up map rendering. This parameter controls how many megabytes of storage the cache may use.
+
+**Gravwell-Tile-Server-Cache-Timeout-Days**
+Applies to:		Webserver
+Default Value:	7
+Example:		`Gravwell-Tile-Server-Cache-Timeout-Days=2`
+Description:	The Gravwell tile proxy maintains a cache of recently-accessed tiles to speed up map rendering. This parameter controls the maximum number of days a cached tile should be considered valid; after that time has elapsed, the tile will be purged and re-fetched from the upstream server.
+
+**Disable-Single-Indexer-Optimization**
+Applies to:		Webserver
+Default Value:	false
+Example:		`Disable-Single-Indexer-Optimization=true`
+Description:	When Gravwell is used with a single indexer, it will by default run all modules (except for the render module) on the *indexer* to reduce the amount of data transferred from the indexer to the webserver. This option disables that optimization. We strongly recommend leaving this option set to `false` unless instructed by Gravwell support.
+
+**Library-Dir**
+Applies to:		Webserver
+Default Value:	`/opt/gravwell/libs`
+Example:		`Library-Dir=/scratch/libs`
+Description:	Scheduled scripts may import additional libraries using the `include` function. These libraries are fetched from an external repository and cached locally; this configuration option sets the directory in which the cached libraries are stored.
+
+**Library-Repository**
+Applies to:		Webserver
+Default Value:	`https://github.com/gravwell/libs`
+Example:		`Library-Repository=https://github.com/example/gravwell-libs`
+Description:	Scheduled scripts may import additional libraries using the `include` function. These libraries are loaded from files found in the repository specified by this parameter. By default, it points to a Gravwell-maintained repository of convenient libraries. If you wish to provide your own set of libraries, set this parameter to point at a git repository you control.
+
+**Library-Commit**
+Applies to:		Webserver
+Default Value:
+Example:		`Library-Commit=19b13a3a8eb877259a06760e1ee35fae2669db73`
+Description:	Scheduled scripts may import additional libraries using the `include` function. These libraries are loaded from files found in the repository specified by the `Library-Repository` option. By default, Gravwell uses the latest version. If a git commit string is specified, Gravwell will attempt to use the specified version of the repository instead.
+
+**Disable-Library-Repository**
+Applies to:		Webserver
+Default Value:	false
+Example:		`Disable-Library-Repository=true`
+Description:	Scheduled scripts may import additional libraries using the `include` function. Setting `Disable-Library-Repository` to true disables this functionality.
+
+**Password-Control**
+Applies to:		Webserver
+Example:
+```
+[Password-Control]
+	Min-Length=8
+	Require-Uppercase=true
+	Require-Lowercase=true
+	Require-Special=true
+	Require-Special=true
+```
+Description:	A new configuration block that is specified in the `gravwell.conf` file that can be used to enforce password complexity rules when users are created or passwords are changed.  These complexity configuration rules do not apply when using Single Sign On.
+
+**Gravwell-Kit-Server**
+Applies to:	Webserver
+Default Value:	https://kits.gravwell.io/kits
+Example:	http://internal.mycompany.io/gravwell/kits
+Description:	Allows for overriding the Gravwell kitserver host, this can be useful in airgapped or segmented deployments where you host a mirror of the Gravwell kitserver.  Set this value to an empty string to completely disable access to the remote kitserver.
+Example:
+```
+Gravwell-Kit-Server="" #disable remote access to gravwell kitserver
+Gravwell-Kit-Server="http://gravwell.mycompany.com/kits" #override to use internal mirror
+```
+
+**Kit-Verification-Key**
+Applies to: Webserver
+Default Value:
+Example: /opt/gravwell/etc/kits-pub.pem
+Description:	Specifies a file containing a public key to use when verifying kits from the kitserver. Set this value if you have specified an alternate Gravwell-Kit-Server; it is not necessary when using Gravwell's official kit server. Keys suitable for signing kits can be generated with the [gencert](https://github.com/gravwell/gencert) utility.

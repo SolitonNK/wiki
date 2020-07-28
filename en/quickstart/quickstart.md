@@ -9,9 +9,7 @@ Note: Community Edition users will need to obtain their own license from [https:
 ## Installation
 Installing Gravwell on a single machine is quite simple--just follow the instructions in this section. For more advanced environments involving multiple systems, review the Advanced Topics section.
 
-### Install the Gravwell Indexer & Frontend
-
-Gravwell is distributed in three ways: via a Docker container, via a distribution-agnostic self-extracting installer, and via a Debian package repository. We recommend using the Debian repository if your system runs Debian or Ubuntu, the Docker container if you have Docker setup, and the self-extracting installer otherwise. Gravwell has been tested on all of the major Linux distributions and runs well, but Ubuntu Server LTS is preferred. Help installing Ubuntu can be found at https://tutorials.ubuntu.com/tutorial/tutorial-install-ubuntu-server.
+Gravwell is distributed in four ways: via a Docker container, via a distribution-agnostic self-extracting installer, via a Debian package repository, and via a Redhat package repository. We recommend using the Debian repository if your system runs Debian or Ubuntu, the Redhat packages if your system runs RHEL, CentOS, or SuSE, and the self-extracting installer otherwise. The Docker distribution is also useful for those familiar with Docker. Gravwell has been tested on all of the major Linux distributions and runs well, but Ubuntu Server LTS is preferred. Help installing Ubuntu can be found at https://tutorials.ubuntu.com/tutorial/tutorial-install-ubuntu-server.
 
 ### Debian repository
 
@@ -32,6 +30,33 @@ The installation process will prompt to set some shared secret values used by co
 ![Accept the EULA](eula2.png)
 
 ![Generate secrets](secret-prompt.png)
+
+### Redhat/CentOS Repositories
+
+Gravwell is available as a `yum` repository for both Redhat and CentOS Linux distributions. To use the Gravwell yum repository, add the following stanza to your `yum.conf` (located in `/etc/yum.conf`)
+
+```
+[gravwell]
+name=gravwell
+baseurl=https://update.gravwell.io/rhel 
+gpgkey=https://update.gravwell.io/rhel/gpg.key
+```
+
+Next perform the following:
+
+```
+yum update
+yum install -y gravwell
+```
+
+Once installed you will have to bump the centOS firewall for webports, executing the following:
+
+```
+sudo firewall-cmd --zone=public --add-service=http
+sudo firewall-cmd --zone=public --add-service=https
+```
+
+You should now be able to access the Gravwell web interface on the IP assigned to the centOS/RHEL system.
 
 ### Docker Container
 
@@ -302,7 +327,45 @@ The outbound traffic chart shows a pretty big spike for an otherwise quiet syste
 
 ![network dashboard, zoomed in](network-dashboard-zoomed.png)
 
+## Updating Gravwell
+
+Upgrading Gravwell is an uneventful affair, we take great pains to ensure that the installation and upgrade process is fast and easy.  The upgrade process is different depending on your original installation method.  If you are using one of the package repositories, such as Debian, Gravwell is upgraded like any other application:
+
+
+```
+apt update
+apt upgrade
+```
+
+
+If your original installation method was the self-contained shell installer, you simply download and run the latest version of the installer.  The self-contained installers act as both installation and upgrade systems, they will detect an existing installation and skip over any steps that do not apply to an upgrade.
+
+
+### Upgrade Tips
+
+There are a few tips to upgrading that can help in some installations.
+
+
+* Cluster configurations should cascade indexer upgrades so that ingesters can continue normal operation during the upgrade
+ * The same is true for distributed webserver configurations, the load balancer will shift users as needed
+* If possible, time upgrades to the search agent when there are no large automated script jobs running
+* Distribution package managers will sometimes prompt about upstream configuration file changes, keep your configs
+ * Its ok to check what changed, we are usually just adding configurations for new features
+ * If you accept upstream configuration files it may overwrite your configurations and cause components failures
+
+
+After an upgrade it is always a good practice to check the state of Gravwell by ensuring that all indexers are present and accounted for and that ingesters have reconnected and are reporting the expected version numbers.
+
+
+![Ingester status](ingesters.png)
+
+
+
 ## Advanced Topics
+
+### Crash Reporting and Metrics
+
+The Gravwell software has automated crash reporting & metrics reporting built in. For more information about what gets sent back to us at Gravwell, see the [crash reporting and metrics page](#!metrics.md)
 
 ### Clustered Configurations
 
