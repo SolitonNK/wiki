@@ -3,18 +3,19 @@
 
 ユーザー設定APIは、ログイン間およびデバイス間で持続するためのGUI設定を格納するために使用されます。
 
-/ api / users / {id} / preferencesを取得すると、大量のJSONが返されます。管理者は任意のユーザー設定を要求でき、ユーザーは自分のセッションのみを要求できます。設定が存在しない場合は、nullを返します。
+/api/users/{id}/preferencesを取得すると、大量のJSONが返されます。管理者は任意のユーザー設定を要求でき、ユーザーは自分のセッションのみを要求できます。設定が存在しない場合は、nullを返します。
 
-/ api / users / preferencesをGETすると、すべてのユーザー設定が返されます。
+/api/users/preferencesをGETすると、すべてのユーザー設定が返されます。
 
-ユーザー設定を更新するには、/ api / users / {id} / preferencesを入力します。設定が存在しない場合は、とにかく提供されているJSONで更新してください。このAPIにPOSTは発生しません。PUTメソッドのペイロードはJSON BLOBになります。
+ユーザー設定を更新するには、/api/users/{id}/preferencesを入力します。設定が存在しない場合は、とにかく提供されているJSONで更新してください。このAPIにPOSTは発生しません。PUTメソッドのペイロードはJSON BLOBになります。
 
 GETとPUTが唯一の関連メソッドです。各ユーザーは本質的に唯一の好みJSONブロブを持つべきです。
 
-/ api / users / {id} / preferencesをDELETEすると、設定が削除されます（管理者または自分専用の場合）。
+/api/users/{id}/preferencesをDELETEすると、設定が削除されます（管理者または自分専用の場合）。
 
 
-例ではGETでJSONが返されました。
+例ではGETでJSONが返されました:
+
 ```json
 {
      "foo": "bar",
