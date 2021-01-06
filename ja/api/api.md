@@ -51,7 +51,7 @@ API の大部分は RESTful です。このルールの例外は検索APIで、�
 
 他のいくつかの統計情報は、REST呼び出し、アクセスすることができます。
 
-[REST 統計 API](stats-json.md)
+[REST 統計 API(stats-json.md)
 
 ## APIのテスト
 
