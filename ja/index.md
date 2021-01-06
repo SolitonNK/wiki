@@ -4,11 +4,11 @@
 
 # Gravwell
 
-このサイトには、Gravwellのドキュメントに加えて、変更履歴などの他のリソースが含まれています。
+このサイトでは、Gravwellのドキュメントと、Changelogsなどの他のリソースが含まれています。
 
-Gravwellを始めたばかりの場合は、最初に[クイックスタート](quickstart/quickstart.md)を読んでから、[サーチパイプライン](search/search.md)ドキュメントに進んで詳細を確認することをお勧めします。
+Gravwellを使い始めたばかりの方は、まず[クイックスタート](quickstart/quickstart.md)を読んでから、[パイプラインを検索](search/search.md)のドキュメントを読んで詳細を知ることをお勧めします。
 
-Gravwellは無料の[Community Edition](https://www.gravwell.io/download)を提供しています。
+Gravwellは、無料の[コミュニティ版](https://www.gravwell.io/download)を発表しました。
 
 ## クイックスタートとダウンロード
 
@@ -16,83 +16,101 @@ Gravwellは無料の[Community Edition](https://www.gravwell.io/download)を提�
 
   * [ダウンロード](quickstart/downloads.md)
 
-## Gravwellで検索する
+## Gravwellで検索
 
-  * [検索の概要](search/search.md)
+  * [検索概要](search/search.md)
 
-  * [検索モジュール](search/searchmodules.md)
+  * [抽出モジュールの検索](search/extractionmodules.md)
 
-  * [レンダリングモジュール](search/rendermodules.md)
+  * [検索処理モジュール](search/processingmodules.md)
 
-## システムアーキテクチャー
+  * [レンダーモジュールの検索](search/rendermodules.md)
 
-  * [Gravwelシステムアーキテクチャー](architecture/architecture.md)
+  * [全パイプラインモジュールのアルファベット順リスト](search/complete-module-list.md)
 
-    * [Gravwellが使用するネットワークポート](configuration/networking.md)
+## システムアーキテクチャ
+
+  * [Gravwellシステムアーキテクチャ](architecture/architecture.md)
+
+    * [Gravwell が使用するネットワークポート](configuration/networking.md)
+
 
   * [リソースシステム](resources/resources.md)
 
-## インジェスター構成：Gravwellにデータを取り込む
+## インジェスターの設定 : Gravwellへのデータ取り込み
 
   * [インジェスターの設定](ingesters/ingesters.md)
 
-    * [File Follower Ingester](ingesters/file_follow.md)
+    * [File Follower インジェスター](ingesters/file_follow.md)
 
-    * [Simple Relay Ingester](ingesters/simple_relay.md)
+    * [Simple Relay インジェスター](ingesters/simple_relay.md)
     
-    * [Windows Events Ingester](ingesters/ingesters.md#Windows_Event_Service)
+    * [Windows Events インジェスター](ingesters/ingesters.md#Windows_Event_Service)
 
-    * [Netflow/IPFIX Ingester](ingesters/ingesters.md#Netflow_Ingester)
+    * [Netflow/IPFIX インジェスター](ingesters/ingesters.md#Netflow_Ingester)
 
     * [Collectd](ingesters/ingesters.md#collectd_Ingester)
 
-  * [サービス統合](ingesters/integrations.md)
+  * [インジェスター前処理](ingesters/preprocessors/preprocessors.md)
 
-## 高度なGravwellのインストールと構成
+  * [サービスの統合](ingesters/integrations.md)
+
+## 高度なGravwellのインストールと設定
 
   * [Gravwellのインストールと設定](configuration/configuration.md)
 
   * [Dockerデプロイメント](configuration/docker.md)
 
-  * [TLS/HTTPSのセットアップ](configuration/certificates.md)
+  * [TLS/HTTPSの設定](configuration/certificates.md)
 
-  * [Gravwellクラスターの構築](distributed/cluster.md)
+  * [Gravwellクラスタの構築](distributed/cluster.md)
 
   * [分散フロントエンド](distributed/frontend.md)
 
+    * [監視](distributed/overwatch.md)
+
+
   * [環境変数](configuration/environment-variables.md)
 
-  * [詳細な構成パラメーター](configuration/parameters.md)
+  * [詳細設定パラメータ](configuration/parameters.md)
 
   * [シングルサインオン](configuration/sso.md)
 
-## クエリアクセラレーション/自動抽出/データ管理
-  
-  * [自動抽出機能の設定](configuration/autoextractors.md)
-  
-  * [クエリアクセラレーション(インデックスとブルームフィルター)](configuration/accelerators.md)
+  * [Gravwellの堅牢化](configuration/hardening.md)
 
-  * [データレプリケーション](configuration/replication.md)
+## クエリの高速化、自動抽出、データ管理
+  
+  * [自動抽出器の設定](configuration/autoextractors.md)
+  
+  * [クエリの高速化（インデックス化とブルームフィルタ）](configuration/accelerators.md)
 
-  * [データエージアウト](configuration/ageout.md)
+  * [データ複製](configuration/replication.md)
+
+  * [データエイジアウト](configuration/ageout.md)
 
   * [データ圧縮](configuration/compression.md)
 
   * [データアーカイブ](configuration/archive.md)
 
-## オーケストレーション
+## 自動化
 
-  * [スケジュール検索](scripting/scheduledsearch.md)
+  * [スケジュールされた検索とスクリプト](scripting/scheduledsearch.md)
 
-  * [スクリプト](scripting/scripting.md)
+  * [スクリプトの概要](scripting/scripting.md)
 
-    * [スケジュールされたスクリプト](scripting/scriptingsearch.md)
+    * [オートメーションスクリプトのAPIと例](scripting/scriptingsearch.md)
 
 ## ユーザーインターフェース
 
-  * [GUIユーザー設定](configuration/gui.md)
+  * [Gravwell Web GUI](gui/gui.md)
 
-  * [コマンドラインクライアントの使用](cli/cli.md)
+    * [検索インターフェイス](gui/queries/queries.md)
+
+    * [ラベルとフィルタリング](gui/labels/labels.md)
+
+		* [キット](kits/kits.md)
+
+  * [コマンドラインクライアント](cli/cli.md)
 
 ## API
 
@@ -102,6 +120,12 @@ Gravwellは無料の[Community Edition](https://www.gravwell.io/download)を提�
 
   * [ライセンス](license/license.md)
 
-  * [変更履歴](changelog/list.md)
+  * [メトリクスとクラッシュレポート](metrics.md)
+
+  * [Changelogs](changelog/list.md)
+
+  * [Gravwell EULA](eula.md)
+
+  * [オープンソースライセンス](open_source.md)
 
 Documentation version 2.0

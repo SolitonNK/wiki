@@ -27,6 +27,7 @@ func Process() {
 	} else {
 		setEnum("postlen", "long")
 	}
+	return true
 }
 ```
 
@@ -35,7 +36,8 @@ func Process() {
 ```
 tag=reddit json Body | anko CheckPostLen | count by postlen | table postlen count
 ```
+プロセス`関数`は、ankoモジュールに到達する検索項目ごとに1回実行され、列挙された値 `Body` の長さをチェックし、ボディの長さに基づいて新しい列挙値 `postlen` を設定します。
 
-この`Process`関数は、ankoモジュールに到達する検索エントリごとに1回実行され、列挙値の長さを確認して、本体の長さに基づいて`Body`、新しい列挙値`postlen`を設定します。
+注意: プロセス関数の最後の `return true` は重要です。プロセス関数は、エントリを通過させるかフィルタリングするかを示すブール値を返します。 falseを返すと、エントリを削除します。true を返すと、エントリがパイプラインを通過することを意味します。
 
-この例はとても簡単です。`Process`関数のみを実装しています（オプション`Parse`または`Finalize`関数は実装されていません）。より複雑な例については、[完全なankoモジュールのドキュメント](#!scripting/anko.md)を参照してください。
+この例は非常に単純で、`Process` 関数のみを実装しています (オプションの `Parse` や `Finalize` 関数は実装していません)。より複雑な例については、[完全なankoモジュールのドキュメント](#!scripting/anko.md)を参照してください。

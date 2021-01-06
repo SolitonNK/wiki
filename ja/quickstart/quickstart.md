@@ -1,21 +1,19 @@
 # クイックスタート手順
 
-このセクションには、Gravwellを起動して実行するための基本的な「クイックスタート」手順が含まれています。 これらの指示は、最も一般的な使用事例をサポートし、Grabwellの紹介として機能します。「クイックスタート」の手順では、Cluster Editionで利用可能な分散検索およびストレージに関するより高度なGravwell機能を利用していません。より高度な設定が必要な場合は、このガイドの「高度なトピック」セクションをご覧ください。
+このセクションは、Gravwellを起動して実行するための基本的なクイックスタート手順です。この説明は、最も一般的なユースケースをサポートし、Gravwell入門としても機能します。 クイックスタートの手順では、Cluster Editionで利用可能な、分散検索とストレージに関する高度なGravwellの機能は利用できないことに注意してください。より高度な設定が必要な場合は、本ガイドの「高度なトピック」のセクションを参照してください。
 
-このガイドは、Community Editionユーザーおよび有料シングルノードGravwellサブスクリプションをお持ちのユーザーに適しています。
+このガイドはCommunity Editionユーザーおよび、有料のシングルノードGravwellサブスクリプションをお持ちのユーザーに適しています。
 
-注：Community Editionユーザーは、インストールを開始する前に[https://www.gravwell.io/download](https://www.gravwell.io/download)から独自のライセンスを取得する必要があります。 有料ユーザーは、すでに電子メールでライセンスファイルを受け取っているはずです。
+注：Community Editionユーザーは、インストールを開始する前に[https://www.gravwell.io/download](https://www.gravwell.io/download)から独自のライセンスを取得する必要があります。 購入済みユーザーは、すでに電子メールでライセンスファイルを受け取っているはずです。
 
-## 設置
+## インストール
 Gravwellを1台のマシンにインストールするのは非常に簡単です。このセクションの指示に従ってください。 複数のシステムを含むより高度な環境については、「高度なトピック」セクションを確認してください。
 
-### Gravwell Indexerとフロントエンドをインストールする
-
-Gravwellは3つの方法で配布されます：Dockerコンテナ経由、配布に依存しない自己解凍インストーラー経由、Debianパッケージリポジトリ経由。 システムがDebianまたはUbuntuを実行している場合はDebianリポジトリを使用し、Dockerセットアップがある場合はDockerコンテナーを使用し、それ以外の場合は自己解凍インストーラーを使用することをお勧めします。 Gravwellはすべての主要なLinuxディストリビューションでテストされ、正常に動作しますが、Ubuntu Server LTSが推奨されます。 Ubuntuのインストールに関するヘルプは、 https://tutorials.ubuntu.com/tutorial/tutorial-install-ubuntu-server.にあります。
+Gravwellは4つの方法で配布されています。 Docker コンテナ経由、ディストリビューションに依存しない自己解凍インストーラー経由、Debian パッケージリポジトリ経由、Redhat パッケージリポジトリ経由です。システムが Debian や Ubuntu を動かしている場合は Debian リポジトリ、システムが RHEL、CentOS、SuSE を動かしている場合は Redhat パッケージ、それ以外の場合は自己解凍インストーラーを使うことをお勧めします。Docker ディストリビューションは、Docker に慣れている人にも便利です。Gravwellは主要なLinuxディストリビューションのすべてでテストされており、問題なく動作しますが、より望ましいのはUbuntu Server LTSです。Ubuntuのインストールに関するヘルプは、https://tutorials.ubuntu.com/tutorial/tutorial-install-ubuntu-server を参照してください。
 
 ### Debianリポジトリ
 
-Debianリポジトリからのインストールは非常に簡単です。 GravwellのPGP署名キーとDebianパッケージリポジトリを追加するには、最初にいくつかの手順を実行する必要がありますが、その後は単に`gravwell`パッケージをインストールするだけです。
+Debianリポジトリからのインストールは非常に簡単です。 最初にいくつかの手順を実行して、GravwellのPGP署名キーおよびDebianパッケージリポジトリを追加する必要がありますが、その後は単に`gravwell`パッケージをインストールするだけです。
 
 ```
 curl https://update.gravwell.io/debian/update.gravwell.io.gpg.key | sudo apt-key add -
@@ -25,7 +23,7 @@ sudo apt-get update
 sudo apt-get install gravwell
 ```
 
-インストールプロセスでは、Grabwellのコンポーネントが使用するいくつかの共有シークレット値を設定するよう求められます。 セキュリティのために、インストーラーがランダムな値（デフォルト）を生成できるようにすることを強くお勧めします。
+インストールプロセスでは、Gravwellのコンポーネントが使用するいくつかの共有シークレット値を設定するよう求められます。 セキュリティのために、インストーラーがランダムな値（デフォルト）を生成できるようにすることを強くお勧めします。
 
 ![Read the EULA](eula.png)
 
@@ -33,13 +31,40 @@ sudo apt-get install gravwell
 
 ![Generate secrets](secret-prompt.png)
 
+### Redhat/CentOS リポジトリ
+
+Gravwell は、Redhat と CentOS Linux ディストリビューションの両方で `yum` リポジトリとして利用できます。Gravwell の yum リポジトリを使うには、以下のスタンザを `yum.conf` (`/etc/yum.conf` にあります) に追加してください。
+
+```
+[gravwell]
+name=gravwell
+baseurl=https://update.gravwell.io/rhel
+gpgkey=https://update.gravwell.io/rhel/gpg.key
+```
+
+次に以下を実行します。
+
+```
+yum update
+yum install -y gravwell
+```
+
+インストールしたら、次のように実行して、webports用のcentOSファイアウォールをバンプします。
+
+```
+sudo firewall-cmd --zone=public --add-service=http
+sudo firewall-cmd --zone=public --add-service=https
+```
+
+これで、centOS/RHELシステムに割り当てられたIP上のGravwell Webインターフェースにアクセスできるようになります。
+
 ### Dockerコンテナ
 
-Gravwellは、Webサーバーとインデクサーの両方を含む単一のコンテナーとしてDockerhubで利用できます。 GravwellをDockerにインストールする詳細な手順については、[Dockerのインストール手順](#!configuration/docker.md) を参照してください。
+Gravwellは、ウェブサーバーとインデクサーの両方を含む単一のコンテナとしてDockerhubで利用できます。 GravwellをDockerにインストールする詳細な手順については、[Dockerのインストール手順](#!configuration/docker.md) を参照してください。
 
-### Self-contained 設置
+### 自己完結型インストーラー
 
-Debian以外のシステムの場合、[ダウンロードページ](#!quickstart/downloads.md)から自己完結型のインストーラーをダウンロードします。
+Debian以外のシステムの場合、[ダウンロード](#!quickstart/downloads.md)から自己完結型のインストーラーをダウンロードします。
 
 次に、インストーラーを実行します。
 
@@ -51,43 +76,57 @@ sudo bash gravwell_X.X.X.sh
 
 注：ディストリビューションがSystemDを使用していない場合、インストール後にGravwellプロセスを手動で開始する必要があります。 サポートが必要な場合は、support@gravwell.ioまでご連絡ください。
 
-## ライセンスの構成
+## ライセンスの設定
 
-Gravwellをインストールしたら、Webブラウザーを開いてサーバーに移動します（例：[https：// localhost /](https://localhost/)）。 ライセンスファイルをアップロードするよう求められます。
+Gravwellがインストールされたら、Webブラウザを開き、サーバーに移動します(例: [http://localhost/](http://localhost/))。ライセンスファイルをアップロードするよう求められます。
 
 ![ライセンスをアップロード](upload-license.png)
 
-ライセンスがアップロードされて検証されると、Gravwellはログイン画面を表示する必要があります。 パスワード「changeme」で「admin」としてログインします。
+アップロードしたライセンスが検証されると、Gravwell ログイン画面が表示されます。 「admin」としてパスワード「changeme」でログインします。
 
-重要：Gravwellのデフォルトのユーザー名/パスワードの組み合わせはadmin / changemeです。 できるだけ早く管理者パスワードを変更することを強くお勧めします！ これを行うには、ナビゲーションサイドバーから[アカウント設定]を選択するか、右上の[ユーザー]アイコンをクリックします。
+重要：Gravwellのデフォルトのユーザー名/パスワードの組み合わせはadmin/changemeです。 できるだけ早く管理者パスワードを変更することを強くお勧めします！ これを行うには、ナビゲーションサイドバーから[アカウント設定]を選択するか、右上の[ユーザー]アイコンをクリックします。
 
 ![](login.png)
 
-## インジェスターの構成
+## インジェスターの設定
 
-新たにインストールされたGravwellインスタンス自体は退屈です。 一部のインジェスターにデータを提供してもらいたいでしょう。 Debianリポジトリからインストールするか、[ダウンロードページ](downloads.md)に移動して、各期の自己解凍インストーラーを取得します。
+インストールされたばかりのGravwellインスタンスには、検索できるデータがありません。データを取り込むためにはインジェスターが必要です。リポジトリからパッケージをインストールするか、[ダウンロード](downloads.md)にアクセスして、各インジェスターの自己解凍インストーラーを取得することができます。
 
 Debianリポジトリで利用可能なインジェスターは、`apt-cache search gravwell`を実行することで表示できます：
 
 ```
 root@debian:~# apt-cache search gravwell
 gravwell - Gravwell data analytics platform (gravwell.io)
+gravwell-collectd - Gravwell collectd ingester
+gravwell-crash-reporter - Gravwell crash reporter service
+gravwell-datastore - Gravwell datastore service
 gravwell-federator - Gravwell ingest federator
 gravwell-file-follow - Gravwell file follow ingester
+gravwell-http-ingester - Gravwell HTTP ingester
+gravwell-kafka - Gravwell Kafka ingester
+gravwell-kafka-federator - Gravwell Kafka federator
+gravwell-kinesis - Gravwell Kinesis ingester
+gravwell-loadbalancer - Gravwell load balancing service
 gravwell-netflow-capture - Gravwell netflow ingester
 gravwell-network-capture - Gravwell packet ingester
+gravwell-o365 - Gravwell Office 365 log ingester
+gravwell-offline-replication - Gravwell offline replication service
+gravwell-packet-fleet - Gravwell Packet Fleet ingester
+gravwell-pubsub - Gravwell ingester for Google Pub/Sub streams
+gravwell-shodan - Gravwell Shodan ingester
 gravwell-simple-relay - Gravwell simple relay ingester
+gravwell-sqs - Gravwell SQS ingester
 ```
 
-メインGravwellインスタンスと同じノードにインストールする場合、インデクサーに接続するように自動的に構成する必要がありますが、ほとんどの場合、データソースを設定する必要があります。 その手順については、[ingester設定ドキュメント](#!ingesters/ingesters.md) を参照してください。
+メインGravwellインスタンスと同じノードにインストールする場合、インデクサーに接続するように自動的に構成する必要がありますが、ほとんどの場合、データソースを設定する必要があります。 その手順については、[インジェスター設定](#!ingesters/ingesters.md) を参照してください。
 
-最初の実験として、File Follow ingester（gravwell-file-follow）をインストールすることを強くお勧めします。 Linuxログファイルを取り込むように事前に設定されているため、`tag=auth`などの検索を発行することにより、いくつかのエントリをすぐに表示できるはずです。
+最初の実験として、File Follow インジェスター（gravwell-file-follow）をインストールすることを強くお勧めします。 Linuxログファイルを取り込むように事前に設定されているため、`tag=auth`などで検索することにより、いくつかのエントリをすぐに表示できるはずです。
 
 ![Auth entries](auth.png)
 
-### ファイルインジェスター
+### File Follower インジェスター
 
-File Follower ingesterは、標準のLinuxログファイルを取り込むように事前に構成されているため、ログをGravwellに取り込む最も簡単な方法の1つです。
+File Follower インジェスターは、標準のLinuxログファイルを取り込むように事前に構成されているため、ログをGravwellに取り込む最も簡単な方法の1つです。
 
 Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
 
@@ -95,17 +134,17 @@ Gravwell Debianリポジトリを使用している場合、インストール�
 apt-get install gravwell-file-follow
 ```
 
-それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上のターミナルを使用して、次のコマンドをスーパーユーザーとして（たとえば、「sudo」コマンド経由で）発行して、ingesterをインストールします。
+それ以外の場合は、[ダウンロード](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上のターミナルを使用して、次のコマンドをスーパーユーザーとして（たとえば`sudo`コマンド経由で）発行し、インジェスターをインストールします。
 
 ```
 root@gravserver ~ # bash gravwell_file_follow_installer.sh
 ```
 
-Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的に`Ingest-Auth`パラメーターを抽出して設定し、適切に設定します。 ただし、ご使用のコンピューターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスの入力を求めます。 インストール時にこれらの値を設定するか、空白のままにして、`/opt/gravwell/etc/file_follow.conf`の設定ファイルを手動で変更できます。 ingesterの構成の詳細については、[ingesters documentation](#!ingesters/ingesters.md)を参照してください。
+Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的に`Ingest-Auth`パラメーターを抽出して設定し、適切に設定します。 ただし、ご使用のコンピューターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスの入力を求めます。 インストール時にこれらの値を設定するか、空白のままにして`/opt/gravwell/etc/file_follow.conf`の設定ファイルを手動で変更します。 インジェスターの構成の詳細については、[インジェスター設定](#!ingesters/ingesters.md)を参照してください。
 
-### シンプルリレーインジェスター
+### Simple Relay インジェスター
 
-Gravwellの「シンプルリレー」グループは、ネットワーク経由で行区切りまたはsyslog形式のメッセージを取り込むことができます。 既存のデータソースからデータをGravwellに取り込むもう1つの良い方法です。
+GravwellのSimple Relay グループは、ネットワーク経由で行区切りまたはsyslog形式のメッセージを取り込むことができます。 既存のデータソースからデータをGravwellに取り込むもう1つの良い方法です。
 
 Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
 
@@ -113,44 +152,44 @@ Gravwell Debianリポジトリを使用している場合、インストール�
 apt-get install gravwell-simple-relay
 ```
 
-それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上のターミナルを使用して、次のコマンドをスーパーユーザーとして（たとえば、「sudo」コマンド経由で）発行して、ingesterをインストールします。
+それ以外の場合は、[ダウンロード](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上のターミナルを使用して、次のコマンドをスーパーユーザーとして（たとえば`sudo`コマンド経由で）発行して、インジェスターをインストールします。
 
 ```
 root@gravserver ~ # bash gravwell_simple_relay_installer.sh
 ```
 
-Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的に`Ingest-Auth`パラメーターを抽出して設定し、適切に設定します。 ただし、ご使用のコンピューターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスの入力を求めます。 インストール時にこれらの値を設定するか、空白のままにして、`/opt/gravwell/etc/simple_relay.conf`の設定ファイルを手動で変更できます。 ingesterの構成の詳細については、[ingesters documentation](#!ingesters/ingesters.md)を参照してください。
+Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的に`Ingest-Auth`パラメーターを抽出して設定し、適切に設定します。 ただし、ご使用のコンピューターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスの入力を求めます。 インストール時にこれらの値を設定するか、空白のままにして`/opt/gravwell/etc/simple_relay.conf`の設定ファイルを手動で変更します。 インジェスターの構成の詳細については、[インジェスター設定](#!ingesters/ingesters.md)を参照してください。
 
-### インジェスター　メモ
+### インジェスターのメモ
+これらのクイックスタート手順にあるように、インストールが1台のマシンに完全に含まれている場合、インジェスターインストーラーは構成オプションを抽出し、適切に構成します。 すべてのGravwellコンポーネントが単一のシステムで実行されているわけではない高度なセットアップを使用している場合は、[インジェスター設定](#!ingesters/ingesters.md)を確認してください。
 
-これらのクイックスタート手順にあるように、インストールが1台のマシンに完全に含まれている場合、ingesterインストーラーは構成オプションを抽出し、適切に構成します。 すべてのGravwellコンポーネントが単一のシステムで実行されているわけではない高度なセットアップを使用している場合は、ドキュメントの[インジェスター](#!ingesters/ingesters.md)セクションを確認してください。
+Gravwellサーバーで実行されているFile FollowおよびSimple Relayサービスがあります。 File Followは、`/var/log/`のいくつかのファイルからログエントリを自動的に取り込みます。 デフォルトでは、「auth」タグ付きの/var/log/auth.log、「dpkg」タグ付きの/var/log/dpkg.logおよび「kernel」タグ付き/var/log/dmesgおよび/var/log/kern.logを取り込みます。
 
-Gravwellサーバーで実行されているFile FollowおよびSimple Relayサービスがあります。 File Followは、`/var/log/`のいくつかのファイルからログエントリを自動的に取り込みます。 デフォルトでは、「auth」タグ付きの/var/log/auth.log、「dpkg」タグ付きの/var/log/dpkg.log、および/ var / log / dmesgおよび/var/log/kern.logを取り込みます 「カーネル」タグ付き。
-
-簡易リレーは、TCPポート601またはUDPポート514で送信されたsyslogエントリを取り込みます。 これらは「syslog」タグでタグ付けされます。 Simple Relay構成ファイルには、ポート7777で行区切りデータをリッスンするエントリも含まれています。これは、syslogのみを使用する場合は無効にできます。 設定ファイルの`[Listener "default"]`セクションをコメントアウトして、シンプルなリレーサービスを再起動してください。 このサービスの設定ファイルは`/opt/gravwell/etc/simple_relay.conf`にあります。 高度な設定オプションについては、[Ingesters documentation](#!ingesters/ingesters.md)のSimple Relayセクションを参照してください。
+Simple Relayは、TCPポート601またはUDPポート514で送信されたsyslogエントリを取り込みます。 これらは「syslog」タグでタグ付けされます。 Simple Relay構成ファイルには、ポート7777で行区切りデータをListenするエントリも含まれています。これは、syslogのみを使用する場合は無効にできます。 設定ファイルの`[Listener "default"]`セクションをコメントアウトして、Simple Relayサービスを再起動してください。 このサービスの設定ファイルは`/opt/gravwell/etc/simple_relay.conf`にあります。 高度な設定オプションについては、[インジェスター設定](#!ingesters/ingesters.md)のSimple Relayセクションを参照してください。
 
 ## Gravwellへのデータの供給
-このセクションでは、データをGravwellに送信するための基本的な手順を説明します。 他のデータインジェスターをセットアップする手順については、[ingesters](#!ingesters/ingesters.md)セクションを確認してください。
+このセクションでは、データをGravwellに送信するための基本的な手順を説明します。 他のデータインジェスターをセットアップする手順については、[インジェスター設定](#!ingesters/ingesters.md)セクションを確認してください。
 
-Gravwellの「システム統計」ページは、Grabwellサーバーがデータを受信しているかどうかを確認するのに役立ちます。 データが報告されず、それがエラーだと思われる場合、インジェスターが実行されていることを再確認してください(`ps aux | grep gravwell`は`gravwell_webserver`、`gravwell_indexer`、`gravwell_simple_relay`、および`gravwell_file_follow`を表示する必要があります) それらの構成ファイルは正しいです。
+Gravwellの「システム統計」ページは、Gravwellサーバーがデータを受信しているかどうかを確認するのに役立ちます。 データが表示されず、それがエラーによると思われる場合、インジェスターが実行されていること(`ps aux | grep gravwell`コマンドを実行し、`gravwell_webserver`、`gravwell_indexer`、`gravwell_simple_relay`、および`gravwell_file_follow`が表示される必要があります)と、それらの構成ファイルが正しいことを再確認してください。
 
 ![](stats.png)
 
 ### Syslogの取り込み
-Gravwellサーバーがインストールされ、Simple Relayテキストingesterサービスが実行されると、syslogプロトコルを介してGravwellへのログまたはテキストデータの供給を開始できます。 デフォルトでは、Simple Relay ingesterはポート601でTCP syslog、ポート514でUDP syslogをリッスンします。
+Gravwellサーバーがインストールされ、Simple Relayテキストインジェスターサービスが実行されたら、syslogプロトコルを介してログやテキストデータのGravwellへの供給を開始することができます。デフォルトでは、Simple Relayインジェスターはポート601のTCP syslogとポート514のUDP syslogをリッスンします。
 
-rsyslogを実行しているLinuxサーバーからGravwellにsyslogエントリーを送信するには、サーバーに`/etc/rsyslog.d/90-gravwell.conf`という名前の新しいファイルを作成し、UDP syslogの次の行を貼り付けます。
+rsyslogを実行しているLinuxサーバからGravwellにsyslogエントリを送信するには、サーバ上に`/etc/rsyslog.d/90-gravwell.conf`という名前の新しいファイルを作成し、以下の行をUDP syslog用に貼り付けます。ホスト名`gravwell.example.com`を自分のGravwellインスタンスに変更するよう注意してください。
 
 ```
-*.* @gravwell.addr.goes.here;RSYSLOG_SyslogProtocol23Format
+*.* @gravwell.example.com;RSYSLOG_SyslogProtocol23Format
 ```
 
 または、代わりにTCP syslogにこれを使用します。
 
 ```
-*.* @@gravwell.addr.goes.here;RSYSLOG_SyslogProtocol23Format
+*.* @@gravwell.example.com;RSYSLOG_SyslogProtocol23Format
 ```
-（UDP構成での@の使用とTCPでの@@の使用に注意してください）
+
+（UDP構成での`@`の使用とTCPでの`@@`の使用に注意してください）
 
 次に、rsyslogデーモンを再起動します。
 
@@ -167,44 +206,47 @@ CustomLog "|/usr/bin/logger -t apache2.access -p local6.info" combined
 ```
 
 ### アーカイブされたログ
-Simple Relay ingesterは、ファイルシステム上にある古いログ（Apache、syslogなど）を取り込むためにも使用できます。 netcatのような基本的なネットワーク通信ツールを利用することにより、Simple Relay ingesterの行区切りのリスナーにあらゆるデータをシャベルで取り込むことができます。 デフォルトでは、簡易リレーはTCPポート7777で回線配信エントリをリッスンします。
+Simple Relay インジェスターは、ファイルシステム上にある古いログ（Apache、syslogなど）を取り込むためにも使用できます。 netcatのような基本的なネットワーク通信ツールを利用することにより、Simple Relay インジェスターの行区切りのリスナーにあらゆるデータをシャベルで取り込むことができます。 デフォルトでは、簡易リレーはTCPポート7777で回線配信エントリをリッスンします。
 
 たとえば、Gravwellで分析したい古いApacheログファイルがある場合、次のようなコマンドを実行してそれらを取り込むことができます。
 
 ```
 user@webserver ~# cat /tmp/apache-oct2017.log | nc -q gravwell.server.address 7777
 ```
-注：複数のファイルで非常に大きなログのセットを取り込む場合、MassFileIngesterユーティリティを使用して、Simple Relay ingesterを介してリレーするのではなく、事前に最適化してまとめて取り込むことをお勧めします。
 
-### ネットワークパケットインジェスター
+注：複数のファイルからなる非常に大きなログのセットを取り込む場合、Simple Relay インジェスターではなく、Mass File インジェスターユーティリティを使用して、事前に最適化してまとめて取り込むことをお勧めします。
 
-Gravwellの主な強みは、バイナリデータを取り込む機能です。 ネットワークingesterを使用すると、後で分析するためにネットワークから完全なパケットをキャプチャできます。 これにより、Netflowまたはその他の凝縮されたトラフィック情報を単純に格納するよりもはるかに優れた柔軟性が提供されますが、ストレージの使用量は増えます。
+### ネットワークキャプチャインジェスター
+
+Gravwellの主な強みは、バイナリデータを取り込む機能です。 ネットワークキャプチャインジェスターを使用すると、ネットワークから完全なパケットをキャプチャして分析できます。 ストレージの使用量は増えますが、これによりNetflowまたはその他の凝縮されたトラフィック情報を単純に格納するよりもはるかに優れた柔軟性が提供されます。
 
 Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
+
 ```
 apt-get install libpcap0.8 gravwell-network-capture
 ```
 
-それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 ネットワークingesterをインストールするには、rootとしてインストーラーを実行するだけです（ファイル名は若干異なる場合があります）。
+それ以外の場合は、[ダウンロード](#!quickstart/downloads.md)からインストーラーをダウンロードします。 ネットワークキャプチャインジェスターをインストールするには、rootとしてインストーラーを実行するだけです（ファイル名は若干異なる場合があります）。
 
 ```
 root@gravserver ~ # bash gravwell_network_capture_installer.sh
 ```
-ネットワークingesterには、libpcap共有ライブラリが必要です。 スタンドアロンインストーラーを使用する場合は、ライブラリもインストールされていることを確認する必要があります。 パッケージはDebianでは `libpcap0.8`です。
 
-Gravwellバックエンドがすでにインストールされているマシン上で感染している場合、インストーラーは自動的に正しい「Ingest-Secrets」値を取得し、それを設定ファイルに追加する必要があります。 いずれにしても、実行する前に  `/opt/gravwell/etc/network_capture.conf`の設定ファイルを確認してください。 Interfaceフィールドがシステムのネットワークインターフェースの1つに設定された状態で、少なくとも1つの「Sniffer」セクションのコメントが外されていることを確認してください。 詳細については、[Ingesters documentation](#!ingesters/ingesters.md)を参照してください
+ネットワークキャプチャインジェスターには、libpcap共有ライブラリが必要です。 スタンドアロンインストーラーを使用する場合は、ライブラリもインストールされていることを確認する必要があります。 パッケージはDebianでは `libpcap0.8`です。
 
-注：Debianパッケージとスタンドアロンインストーラーの両方が、キャプチャ元のデバイスを要求する必要があります。 選択を変更したい場合は、 `/opt/gravwell/etc/network_capture.conf`を開き、目的のインターフェイスを設定し、 `service gravwell_network_capture restart` を実行して、ingesterを再起動します。
+Gravwellバックエンドがすでにインストールされているマシン上で感染している場合、インストーラーは自動的に正しい`Ingest-Secrets`値を取得し、それを設定ファイルに追加する必要があります。 いずれにしても、実行する前に`/opt/gravwell/etc/network_capture.conf`の設定ファイルを確認してください。 Interfaceフィールドがシステムのネットワークインターフェースの1つに設定された状態で、少なくとも1つの"Sniffer"セクションのコメントが外されていることを確認してください。 詳細については、[インジェスター設定](#!ingesters/ingesters.md)を参照してください
 
-## 検索中
+注：Debianパッケージとスタンドアロンインストーラーば、どちらもキャプチャ元のデバイスを要求してくるはずです。設定を変更したい場合は、`/opt/gravwell/etc/network_capture.conf`を開き、希望するインターフェイスを設定し、`service gravwell_network_capture restart`を実行して、インジェスターを再起動します。
+
+## 検索
 Gravwellサーバーが稼働し、データを受信すると、検索パイプラインの能力が利用可能になります。
 
-このクイックスタート設定で取り込まれたデータのタイプに基づいた検索の例を次に示します。 これらの例では、syslogデータがLinuxサーバーによって生成され、Simple Relayテキストingesterを介して取り込まれ、前のセクションで説明したようにパケットがネットワークからキャプチャされていると想定しています。
+このクイックスタート設定で取り込まれたデータのタイプに基づいた検索の例を次に示します。 これらの例では、syslogデータがLinuxサーバーによって生成され、Simple Relayインジェスターを介して取り込まれ、前のセクションで説明したようにパケットがネットワークからキャプチャされていると想定しています。
 
 ### syslogの例
-Syslogは、Unixのロギングおよび監査操作のコアコンポーネントです。 UNIXインフラストラクチャのデバッグと防御を行いながら、ログイン、クラッシュ、セッション、またはその他のサービスアクションを完全に可視化することが重要です。 Gravwellを使用すると、多くのリモートマシンからsyslogデータを中央の場所に簡単に取得し、クエリの準備ができます。この例では、いくつかのSSHログを追跡し、管理者またはセキュリティの専門家がSSHアクティビティを監視する方法を調べます。
+Syslogは、Unixのロギングおよび監査操作のコアコンポーネントです。 UNIXインフラストラクチャのデバッグと防御を行いながら、ログイン、クラッシュ、セッション、またはその他のサービスアクションを完全に可視化することが重要です。 Gravwellを使用すると、多くのリモートマシンからsyslogデータを中央に簡単にs集約して検索できます。この例では、いくつかのSSHログを追跡し、管理者またはセキュリティの専門家がSSHアクティビティを監視する方法を検討します。
 
-この例では、SSHログインデータをGravwellインスタンスに送信するサーバー。 SSH関連のすべてのエントリのリストを表示するには、次のような検索を実行できます。
+この例は、GravwellインスタンスにSSHログインデータを送信するためのサーバです。すべてのSSH関連エントリの一覧を見たい場合は、以下のように検索を実行します。
 
 ```
 tag=syslog grep ssh
@@ -212,16 +254,16 @@ tag=syslog grep ssh
 
 検索コマンドの内訳は次のとおりです。
 
-* `tag=syslog`: 「syslog」とタグ付けされたデータのみを見てください。 SimpleRelay ingesterは、TCPポート601またはUDPポート514を介して入ってくるときに「syslog」タグでデータをタグ付けするように設定されています。
-* `grep ssh`: 「grep」モジュール（同様のlinuxコマンドにちなんで命名）は、特定のテキストを検索します。 この場合、検索は「ssh」を含むエントリを探します。
+* `tag=syslog`: "syslog"とタグ付けされたデータを検索します。 Simple Relay インジェスターは、TCPポート601またはUDPポート514を介して入ってくるデータに"syslog"タグを付けるように設定されています。
+* `grep ssh`: "grep"モジュール（同様のlinuxコマンドにちなんで命名）は、特定のテキストを検索します。 この場合、検索は"ssh"を含むエントリを探します。
 
-検索結果は、概要グラフと一連のログエントリとして返されます。概要グラフは、パイプラインを通過した一致レコードの頻度プロットを示します。このグラフを使用して、ログエントリの頻度を特定し、検索の時間枠内を移動して、検索を再発行せずにビューを絞り込むことができます。ほぼすべての検索には、時間枠を再調整して調整する機能があります。時間の順序を変更する検索のみに概要グラフはありません。
+検索結果は、概要グラフと一連のログエントリとして戻ってきます。概要グラフには、パイプラインを通過したマッチングレコードの頻度プロットが表示されます。このグラフを使用して、ログ エントリの頻度を特定したり、検索のタイム ウィンドウをナビゲートしたりして、検索を再発行せずに表示を絞り込むことができます。ほぼすべての検索には、タイムウィンドウをリフォーカスして調整する機能があり、時間の順序を変更する検索のみ、概要グラフが表示されません。
 
-「ssh」を含むすべてのエントリの結果を以下に示します。
+"ssh"を含むすべてのエントリの結果を以下に示します。
 
 ![概要グラフ](overview.png)
 
-これらの結果は非常に広範な洞察を与えるかもしれませんが、有用な情報を真に抽出するには、検索を絞り込む必要があります。この例では、成功したSSHログインを抽出します。 また、ログレコードから特定のフィールドを抽出して、結果の表示を簡単にします。
+これらの結果は非常に大まかな洞察を与えるかもしれませんが、本当に有用な情報を抽出するには、検索を絞り込む必要があります。この例では、成功したSSHログインを抽出します。 また、ログレコードから特定のフィールドを抽出して、結果の表示を簡単にします。
 
 ```
 tag=syslog syslog Appname==sshd Message~Accepted | regex -e Message "Accepted\s(?P<method>\S+)\sfor\s(?P<user>\S+)\sfrom\s(?P<ip>\S+)"
@@ -229,9 +271,9 @@ tag=syslog syslog Appname==sshd Message~Accepted | regex -e Message "Accepted\s(
 
 検索の内訳：
 
-* ```tag=syslog```: 「syslog」とタグ付けされたデータに検索を制限する
-* ```syslog Appname==sshd Message~Accepted```: これにより、syslogモジュールが呼び出され、「sshd」アプリケーションによって生成されたsyslogメッセージのみにフィルタリングされ、メッセージ本文に「Accepted」という文字列が含まれます。
-* ```regex -e Message "Accepted\s(?P<method>\S+)\sfor\s(?P<user>\S+)\sfrom\s(?P<ip>\S+)"```: これは、syslogモジュールを使用して抽出されたメッセージ本文のみで動作する正規表現です。 ユーザー、IP、および成功したログイン方法を抽出します。
+* ```tag=syslog```："syslog"とタグ付けされたデータに検索を制限する
+* ```syslog Appname==sshd Message~Accepted```：syslogモジュールを呼び出し、"sshd"アプリケーションによって生成され、かつメッセージ本文に"Accepted"という文字列を含むsyslogメッセージのみにフィルタリングします。
+* ```regex -e Message "Accepted\s(?P<method>\S+)\sfor\s(?P<user>\S+)\sfrom\s(?P<ip>\S+)"```：syslogモジュールを用いて抽出したメッセージ本文のみを正規表現で処理しています。ユーザ、IP、ログインに成功した方法を抽出します。
 
 結果はログインのみに絞り込まれます：
 
@@ -241,7 +283,7 @@ tag=syslog syslog Appname==sshd Message~Accepted | regex -e Message "Accepted\s(
 
 ![ログインに絞り込まれた検索](logins-only-enums.png)
 
-クエリの最後に*レンダリングモジュール*を指定して、結果の表示方法を変更できます。 ログインしたすべてのユーザー名のグラフが必要な場合は、次の検索を実行できます。
+検索文の最後に*レンダリングモジュール*を指定して、結果の表示方法を変更できます。 ログインしたすべてのユーザー名のグラフが必要な場合は、次の検索を実行します。
 
 ```
 tag=syslog syslog Appname==sshd Message~Accepted | regex -e Message "Accepted\s(?P<method>\S+)\sfor\s(?P<user>\S+)\sfrom\s(?P<ip>\S+)" | count by user | chart count by user
@@ -249,10 +291,10 @@ tag=syslog syslog Appname==sshd Message~Accepted | regex -e Message "Accepted\s(
 
 新しい検索クエリアイテムの内訳は次のとおりです。
 
-* ```ユーザーごとにカウント```:`count`モジュールは（regexによって抽出された）各`user`値が出現する回数をカウントします。
-* ```ユーザー別のチャート数```: カウントモジュールの出力をチャートレンダラーにパイプし、カウントモジュールの結果によって決定される大きさでユーザーごとに個別の線を描画します。
+* ```count by user```: `count`モジュールは（regexによって抽出された）各`user`値が出現する回数をカウントします。
+* ```chart count by user```: カウントモジュールの出力をチャート描画レンダラーにパイプし、カウントモジュールの結果によって決定される大きさでユーザーごとに個別の線を描画します。
 
-結果には、検索期間中にシステムにログインしたすべてのユーザーの素晴らしいグラフが表示されます。 グラフの種類を変更してデータにさまざまなビューを表示したり、概要チャートを使用して結果のより短い時間枠を選択したりできます。 IT管理者「クリス」は、予想どおり最近これらのシステムにログインする唯一のユーザーのようです。
+結果には、検索期間中にシステムにログインしたすべてのユーザーの素晴らしいグラフが表示されます。 グラフの種類を変更してデータにさまざまなビューを表示したり、概要チャートを使用して結果のより短い時間枠を選択したりできます。 予想通り、最近これらのシステムにログインしているのはIT管理者の「クリス」だけのようです。
 
 ![ユーザーによる検索カウント](users-chart.png)
 
@@ -260,8 +302,8 @@ tag=syslog syslog Appname==sshd Message~Accepted | regex -e Message "Accepted\s(
 
 ![ユーザーによる検索カウント](users-chart-bar.png)
 
-### ネットワーク例
-ユーザーがLinuxルーターでパケットキャプチャingesterを設定し、インターネットとの間で送受信されるすべてのパケットをキャプチャするホームネットワークの例を考えてみましょう。 このデータを使用して、特定のゲームがプレイされるときなど、使用パターンを分析できます。 サンプルハウスは10.0.0.0/24ネットワークサブネットを使用し、Blizzard Entertainmentゲームはゲームトラフィックにポート1119を使用します。 次の検索では、BlizzardゲームをプレイしているPCとそのタイミングが表示されます。
+### ネットワークの例
+ユーザーがLinuxルーターでパケットキャプチャインジェスターを設定し、インターネットとの間で送受信されるすべてのパケットをキャプチャするホームネットワークの例を考えてみましょう。 このデータを使用して、特定のゲームがいつプレイされたかといった利用パターンを分析できます。 サンプルは10.0.0.0/24ネットワークサブネットを使用し、Blizzard Entertainmentゲームはゲームトラフィックにポート1119を使用しています。 次の検索では、どのPCがいつBlizzardゲームをプレイしているかが表示されます。
 
 ```
 tag=pcap packet ipv4.DstIP !~ 10.0.0.0/24 tcp.DstPort==1119 ipv4.SrcIP | count by SrcIP | chart count by SrcIP
@@ -269,24 +311,25 @@ tag=pcap packet ipv4.DstIP !~ 10.0.0.0/24 tcp.DstPort==1119 ipv4.SrcIP | count b
 
 検索コマンドのレビューは次のとおりです。
 
-* ```tag=pcap```: Gravwellに、「pcap」というタグの付いたアイテムのみを検索するように指示します。
+* ```tag=pcap```: Gravwellに、"pcap"というタグの付いたアイテムのみを検索するように指示します。
 * ```packet```: パケット解析検索パイプラインモジュールを呼び出し、このコマンドの残りのオプションを有効にします。
   * ```ipv4.DstIP !~ 10.0.0.0/24```: Gravwellパケットパーサーは、パケットをさまざまなフィールドに分割します。 この場合、検索は宛先IPを比較し、10.0.0.xクラスCサブネットにないものを探しています。
   * ```tcp.DstPort == 1119```: 宛先ポートを指定します。 これにより、ほとんどのBlizzard Entertainmentゲームで使用されるポート1119宛てのパケットのみがフィルターされます。
   * ```ipv4.SrcIP```: 比較演算子なしでこのフィールドを指定すると、パケットパーサーはソースIPを抽出してパイプラインに配置します。
-* ```count by SrcIP```: フィルタリングされた結果をパケットパーサーから数学カウントモジュールにパイプし、各ソースIPが表示される回数をカウントするように指示します。
+* ```count by SrcIP```: フィルタリングされた結果をパケットパーサーからカウントモジュールにパイプし、各ソースIPが表示される回数をカウントするように指示します。
 * ```chart count by SrcIP```: カウント結果をグラフ表示レンダラーにパイプして表示し、ソースIP値ごとに個別の線を描画します。
 
 結果：2つのシステムがポート1119にトラフィックを送信しています。黄色（10.0.0.6）で表されるIPはパッシブトラフィックであるように見えますが、青色の10.0.0.183はBlizzardゲームサービスとアクティブに通信しています。
 
 ![ゲームトラフィック](games.png)
 
-パケット解析検索モジュールの使用の詳細については、[パケット検索モジュールのドキュメント](#!search/packet/packet.md)を参照してください。
+パケット解析検索モジュールの使用法の詳細については、[パケット検索モジュールのドキュメント](#!search/packet/packet.md)を参照してください。
 
 ## ダッシュボード
 ダッシュボードは、データの複数の側面を一度に表示する検索の集約ビューです。
 
 「ダッシュボード」ページに移動し（左上のメニューを使用）、「+追加」ボタンをクリックして新しいダッシュボードを作成します。これを「SSH auth monitoring」と呼びます。次に、検索を追加します。この例では、 以前のSSH認証検索。その検索を再発行し、結果画面から、右上の3ドットメニューを使用して[ダッシュボードに追加]を選択し、新しいダッシュボードを選択します。 検索がダッシュボードに追加され、そのダッシュボードに移動するためのリンクが提供されていることを確認して、リンクをクリックします。
+
 ダッシュボードで検索用のタイルが自動的に作成されているはずですが、サイズを変更することもできます。 タイルのメニューから[タイルの編集]を選択すると、タイルの表示方法を変更できます。
 
 ### 動作中のダッシュボード
@@ -298,27 +341,108 @@ Gravwellの一般的な使用例の1つは、ネットワークアクティビ�
 
 ![ネットワークダッシュボード、ズームイン](network-dashboard-zoomed.png)
 
+## Kitインストール
+
+Gravwellキットは、特定のデータソースを分析するための事前にパッケージ化されたツールセットです。キットは、Netflow v5、IPFIX、CoreDNSなどを分析するために存在します。これらのキットは、データの解析を始めるのに最適な方法であり、独自の解析を構築するためのジャンプオフの場となります。
+
+ほとんどのキットはインジェスターの設定に依存していますが（例えば Netflow v5 キットは Netflowレコードを収集するために Netflowインジェスターを実行していることを想定しています）、*Weather* キットは完全に自己完結しています。このキットには、毎分ごとに実行され、指定した場所の天気データを取得するスクリプトが含まれています。
+
+注：ウェザーキットを使用するには、[openweathermap.org](https://openweathermap.org)のAPIキーが必要です。APIキーの取得方法は[こちら](https://openweathermap.org/appid)をご覧ください。
+
+メインメニューの "Kits"項目をクリックするとキットを見つけることができます。キットが何もインストールされていない場合、GUIは自動的に *利用可能な* キットのリストを表示します。
+
+![](available-kits.png)
+
+Weatherキットをインストールするには、Weatherキットのタイル上のデプロイアイコン（箱から出ている矢印）をクリックします。これにより、インストールウィザードが表示されます。最初のページでは、キットに含まれるアイテムが一覧表示され、内容を確認することができます。
+
+![](kit-wizard1.png)
+
+2ページ目には設定マクロが含まれています。これらはキットを設定するために使用します。最初のマクロに OpenWeatherMap API キーを入力し、2番目に監視する場所のリストを設定する必要があります。3番目のマクロでは、使用する単位を制御し、デフォルトのままにするか、「メートル法」に変更することができます。設定マクロのフィールドに値を入力するときは、まず「カスタム値を入力」リンクをクリックして、特定の検証ルールをオフにします。
+
+注：場所のリストは、[ここ](https://openweathermap.org/current#one)に記載されているように、コロンで区切られた場所のリストで構成されている必要があります。複数の国が米国と同じ郵便番号フォーマットを使用しているため、"87110,us"と指定する方が通常は"87110"よりも良いことに注意してください。
+
+![](kit-wizard2.1.png)
+
+![](kit-wizard2.2.png)
+
+![](kit-wizard2.3.png)
+
+設定マクロの設定が終わったら、ウィザードの最終ページの "Next"をクリックします。これでキットのインストールに関連した最終的なオプションがいくつか出てきます。
+
+![](kit-wizard3.png)
+
+キットがインストールされると、インストールされたキットのリストが表示され、新しくインストールされたWeatherキットが表示されます。
+
+![](kit-list.png)
+
+キットに含まれているスクリプトは、すぐに天気データの取り込みを開始します。1、2分後には、いくつかのデータが取得されるはずなので、メインメニューをクリックしてダッシュボードページを開き、"Weather Overview" ダッシュボードをクリックしてください。気温チャートはまだ少ししか表示されないはずですが、少なくとも左下の「現在の状況」の表を見ることができるはずです。
+
+![](current-conditions.png)
+
+1日ほどすると、このような素敵なチャートが見られるほどのデータが集まってきます。
+
+![](weather.png)
+
+Gravwellキットの詳細は[キット](#!kits/kits.md)を参照してください。
+
+## Gravwellの更新
+
+Gravwellを問題なくアップグレードするために、私たちはインストールとアップグレードのプロセスが迅速かつ容易になるよう細心の注意を払っています。 アップグレードのプロセスは、元々のインストール方法によって異なります。 Debian のようなパッケージリポジトリを使用している場合、Gravwell は他のアプリケーションと同様にアップグレードできます。
+
+
+```
+apt update
+apt upgrade
+```
+
+
+元のインストール方法が自己完結型シェルインストーラの場合は、最新バージョンのインストーラをダウンロードして実行するだけです。 自己完結型インストーラは、インストールとアップグレードの両方のシステムとして機能し、既存のインストールを検出し、アップグレードに適用されないステップをスキップします。
+
+
+### アップグレードのヒント
+
+いくつかのインストールで役立つアップグレードのヒントがあります。
+
+* クラスタ構成ではインデクサーのアップグレードを数珠つなぎに行い、アップグレード中にインジェスターが通常の操作を継続できるようにすべきです。
+  * 同じことが分散型ウェブサーバーの構成に当てはまり、ロードバランサーは、必要に応じてユーザーをシフトします
+* 可能であれば、大規模な自動化スクリプトジョブが実行されていないときに、検索エージェントのアップグレードを行います。
+* ディストリビューションパッケージマネージャが設定ファイルの変更を要求してくることがありますが、 *既存の*設定を維持するようにしてください。
+  * 何が変わったかを確認するのはいいのですが、通常は新機能のための設定を追加しているだけです。
+  * 新たな設定ファイルにすると、設定を上書きしてコンポーネントの障害を引き起こす可能性があります。
+
+アップグレード後、すべてのインデクサーが表示されていること、インジェスターが再接続され、期待されたバージョン番号が表示されていることを確認し、Gravwellの状態をチェックしてください。
+
+![インジェスターのステータス](ingesters.png)
+
+
 ## 高度なトピック
 
-### クラスター化された構成
+### クラッシュレポートとメトリクス
 
-マルチノードライセンスを持つユーザーは、複数のインデクサーとWebサーバーのインスタンスを展開し、ネットワーク上でそれらを調整できます。 このようなセットアップを展開する前に、Grabwellのサポートチームと調整することを強くお勧めしますが、このドキュメントの基本的な手順の概要を説明します。
+Gravwellソフトウェアには、自動化されたクラッシュレポートとメトリクスレポートが組み込まれています。Gravwellに送られてくるものの詳細については、[クラッシュレポートとメトリクス](#!metrics.md)を参照してください。
 
-ほとんどのユースケースでは、単一のWebサーバーと複数のインデクサーノードが望ましいでしょう。 簡単にするために、Webサーバーがインデクサーの1つと同じノードに存在する環境について説明します。
+
+### クラスター構成
+
+マルチノードライセンスを持つユーザーは、複数のインデクサーとウェブサーバーのインスタンスを展開し、ネットワーク上でそれらを調整できます。 このドキュメントで基本的な手順の概要を説明しますが、このようなセットアップを展開する前に、Gravwellのサポートチームと調整することを強くお勧めします。
+
+ほとんどのユースケースでは、単一のウェブサーバーと複数のインデクサーノードが望ましいでしょう。 簡単にするために、ウェブサーバーがインデクサーの1つと同じノードに存在する環境について説明します。
 
 最初に、ヘッドノードとなるシステムで、上記のシングルノードGravwellインストールを実行します。 これにより、ウェブサーバーとインデクサーがインストールされ、認証シークレットが生成されます。
+
 ```
 root@headnode# bash gravwell_installer.sh
 ```
 
-次に、`/opt/gravwell/etc/gravwell.conf`のコピーを別の場所に作成し、「Indexer-UUID」で始まる行を削除します。 このgravwell.confファイルとインストーラーを各インデクサーノードにコピーします。 インデクサーノードで、追加の引数をインストーラーに渡して、ウェブサーバーのインストールを無効にし、新しいファイルを生成するのではなく、既存のgravwell.confファイルを使用するように指定します。
+次に、`/opt/gravwell/etc/gravwell.conf`のコピーを別の場所に作成し、"Indexer-UUID"で始まる行を削除します。 このgravwell.confファイルとインストーラーを各インデクサーノードにコピーします。 インデクサーノードで、追加の引数をインストーラーに渡して、ウェブサーバーのインストールを無効にし、新しいファイルを生成するのではなく、既存のgravwell.confファイルを使用するように指定します。
 
 ```
 root@indexer0# bash gravwell_installer.sh --no-webserver --no-searchagent --use-config /root/gravwell.conf
 ```
 
 インデクサーノードごとにこのプロセスを繰り返します。
-インストールの最後のステップは、これらすべてのインデクサーをWebサーバーに通知することです。 *ヘッドノード*で、`/opt/gravwell/etc/gravwell.conf`を開き、 'Remote-Indexers'行を見つけます。`Remote-Indexers=net:127.0.0.1:9404`のようになります。 次に、その行を複製し、他のインデクサーを指すようにIPを変更します（IPアドレスまたはホスト名を指定できます）。 たとえば、ローカルマシンとindexer0.example.net、indexer1.example.net、indexer2.example.netという3つの他のマシンにインデクサーがある場合、設定ファイルには次の行が含まれている必要があります。
+
+インストールの最後のステップは、これらすべてのインデクサーをウェブサーバーに通知することです。 *ヘッドノード*で、`/opt/gravwell/etc/gravwell.conf`を開き、 'Remote-Indexers'行を見つけます。`Remote-Indexers=net:127.0.0.1:9404`のようになります。 次に、その行を複製し、他のインデクサーを指すようにIPを変更します（IPアドレスまたはホスト名を指定できます）。 たとえば、ローカルマシンとindexer0.example.net、indexer1.example.net、indexer2.example.netという3つの他のマシンにインデクサーがある場合、設定ファイルには次の行が含まれている必要があります。
 
 ```
 Remote-Indexers=net:127.0.0.1:9404
@@ -327,4 +451,4 @@ Remote-Indexers=net:indexer1.example.net:9404
 Remote-Indexers=net:indexer2.example.net:9404
 ```
 
-コマンド`systemctl restart gravwell_webserver`でウェブサーバーを再起動します。 これで、「システム統計」ページを表示して「ハードウェア」タブをクリックすると、4つのインデクサープロセスのそれぞれのエントリが表示されます。
+コマンド`systemctl restart gravwell_webserver`でウェブサーバーを再起動します。「システム統計」ページを表示して「ハードウェア」タブをクリックすると、4つのインデクサープロセスのそれぞれのエントリが表示されます。

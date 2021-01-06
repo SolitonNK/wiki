@@ -1,34 +1,34 @@
-# Ingesters設定
+# インジェスター
 
-このセクションには、Gravwellインジェスターを構成および実行するための詳細な手順が含まれています。
+このセクションでは、Gravwellインジェスターを設定して実行するためのより詳細な説明が含まれています。
 
-Gravwellが作成したインジェスターはBSDオープンソースライセンスの下でリリースされており、[Github](https://github.com/gravwell/ingesters)にあります。 インジェストAPIはオープンソースでもあるため、独自のデータソース用に独自のインジェスターを作成したり、追加の正規化や前処理を実行したり、その他の方法で実行することができます。 INGEST APIコードは[ここにあります](https://github.com/gravwell/ingest)。
+Gravwellで作成されたインジェスターは、BSDオープンソースライセンスでリリースされており、[Github](https://github.com/gravwell/ingesters)で見つけることができます。インジェストAPIもオープンソースなので、独自のデータソースのためのインジェスターを作成したり、追加の正規化や前処理を行ったり、その他あらゆる方法でインジェスターを作成することができます。インジェストAPIのコードは[ここ]にあります(https://github.com/gravwell/ingest)。
 
-一般に、インジェスターがGravwellにデータを送信するには、インジェスターは認証のためにGravwellインスタンスの「Ingest Secret」を知っている必要があります。これ/opt/gravwell/etc/gravwell.confはGravwellサーバー上のファイルを表示してのエントリを見つけることで見つけることができますIngest-Auth。インジェスターがGravwell自体と同じシステム上で実行されている場合、インストーラーは通常この値を検出して自動的に設定することができます。
+一般的に、インジェスターがGravwellにデータを送信するためには、インジェスターは認証のためにGravwellインスタンスの "Ingest Secret "を知る必要があります。これは、Gravwellサーバー上の`/opt/gravwell/etc/gravwell.conf`ファイルを見て、`Ingest-Auth`のエントリを見つけることで見つけることができる。インジェスターがGravwell自身と同じシステム上で動作している場合、インストーラーは通常、この値を検出して自動的に設定することができます。
 
-Gravwell GUIにはIngestersページ（Systemメニューカテゴリの下）があり、どのリモートインジェスタがアクティブに接続されているか、接続されている期間、およびプッシュされたデータ量を簡単に識別できます。
+Gravwell GUIには、(システムメニューカテゴリの下にある) インジェスターページがあり、どのリモートインゲスターがアクティブに接続されてい るか、接続されている時間、プッシュされたデータ量を簡単に識別するために使用できます。
 
 ![](remote-ingesters.png)
 
-<span style="color: red;">重要：複製システムは999MBを超えるエントリーを複製しません。より大きいエントリは通常どおりに取り込まれて検索されますが、複製から除外されます。このページで詳述されているすべてのインジェスターが数キロバイト以下のエントリを作成する傾向があるため、これは99.9％のユースケースには関係ありません。</span>
+注意 : [レプリケーションシステム](#!configuration/replication.md)は、999MBを超えるエントリをレプリケーションしません。より大きなエントリは通常通りインジェストして検索することができますが、レプリケーションからは省略されます。このページで詳しく説明しているインジェスターはすべて数キロバイト以下のエントリを作成する傾向があるので、これは99.9%のユースケースでは問題になりません。
 
 ## タグ
 
-タグは重要なGravwellの概念です。 すべてのエントリには、単一のタグが関連付けられています。 これらのタグにより、基本レベルでデータを分離および分類できます。 たとえば、Linuxシステムのログファイルから読み取ったエントリに"syslog"タグを適用し、Windowsログに"winlog"を適用し、未加工のネットワークパケットに"pcap"を適用することを選択できます。 取り込み側は、どのタグをエントリに適用するかを決定します。
+タグはGravwellの重要なコンセプトです。すべてのエントリは、それに関連した単一のタグを持っています。これらのタグによって、基本的なレベルでデータを分離し、分類することができます。例えば、Linuxシステムのログファイルから読み込んだエントリに "syslog "タグを適用したり、Windowsログに "winlog "を適用したり、生のネットワークパケットに "pcap "を適用したりすることができます。インゲスタは、どのタグをエントリに適用するかを決定する。
 
-ユーザーの観点から見ると、タグは"syslog"、"pcap-router"、"default"などの文字列です。 次の文字はタグ名に使用できません：
+ユーザーから見れば、タグは "syslog"、"pcap-router"、または "default "などの文字列です。タグ名には以下の文字は使用できません:
 
 ```
 !@#$%^&*()=+<>,.:;"'{}[]|\
 ```
 
-また、タグ名を選択するときに非印刷文字や入力が難しい文字を使用しないでください。これにより、クエリがユーザーにとって困難になるためです。 namedという名前のタグに*取り込む*ことはできますが、それが良いアイデアだというわけではありません！
+また、タグ名を選択する際に、非印刷文字やタイプしにくい文字を使用するのは控えるべきです。という名前のタグにインジェストすることは*可能*ですが、それが良いアイデアというわけではありません。
 
-### ワイルドカードにタグを付ける
+### タグのワイルドカード
 
-タグ名を選択する場合、Gravwellでは、クエリするタグ名を指定するときにワイルドカードを使用できることに注意してください。 タグ名を慎重に選択することで、後のクエリを簡単にすることができます。
+タグ名を選択する際には、Gravwellではクエリするタグ名を指定する際にワイルドカードを許可していることを覚えておいてください。タグ名を慎重に選択することで、後のクエリを容易にすることができます。
 
-たとえば、2つのHTTPサーバー、2つのファイルサーバー、1つのメールサーバーの5つのサーバーからシステムログを収集する場合、次のタグを使用することを選択できます。
+例えば、5台のサーバからシステムログを収集している場合、そのうち2台がHTTPサーバ、2台がファイルサーバ、1台がEメールサーバの場合、以下のタグを使用することを選択することができます:
 
 * syslog-http-server1
 * syslog-http-server2
@@ -36,20 +36,19 @@ Gravwell GUIにはIngestersページ（Systemメニューカテゴリの下）�
 * syslog-file-server2
 * syslog-email-server1
 
-これにより、[クエリ]（＃！search / search.md）でログを選択する際の柔軟性が高まります。 `tag=syslog-*`を指定すると、すべてのシステムログを検索できます。`tag=syslog-http-*`を指定してすべてのHTTPサーバーログを検索するか、`tag=syslog-http-server1`と言って単一のサーバーを選択できます。 複数のワイルドカードグループを選択することもできます。`tag=syslog-http-*,syslog-email-*`。
+これにより、[クエリ](#!search/search.md)でログを選択する際の柔軟性が高まります。`tag=syslog-*` を指定することで、すべてのシステムログを検索することができます。また、`tag=syslog-http-*` と指定することですべてのHTTPサーバのログを検索することもできますし、`tag=syslog-http-server1` と指定することで単一のサーバを選択することもできます。また、`tag=syslog-http-*,syslog-email-*`のように、複数のワイルドカードグループを選択することもできます。
 
-### タグ内部
+### タグの内部
 
-Gravwellを使用するためにこのセクションを読む必要はありませんが、タグが内部的に管理される方法を理解するのに役立つ場合があります。
+このセクションを読むことは、Gravwellを使用するために必要ではありませんが、タグが内部的にどのように管理されているかを理解するのに役立つかもしれません。
 
-内部的に、Gravwell *indexers* はタグを16ビット整数として保存します。 各インデクサーは、タグ名からタグ番号への独自のマッピングを維持します。これは、`/opt/gravwell/etc/tags.dat`にあります。 Gravwellサポートから明示的に指示されない限り、このファイルを変更または削除しないでください！
+内部的には、Gravwellの*indexers*はタグを16ビットの整数として格納する。各インデクサーはタグ名とタグ番号のマッピングを独自に管理しており、それは `/opt/gravwell/etc/tags.dat` にあります。Gravwellサポートから明示的に指示がない限り、このファイルを変更したり削除したりしないでください!
 
- *ingester*がインデクサーに接続すると、使用する予定のタグ名のリストを送信します。 次に、インデクサーはタグ名からタグ番号へのマッピングで応答します。 ingesterはそのインデクサーにエントリーを送信するたびに、適切な*タグ番号*をエントリーに追加します。
+*ingester*がインデクサーに接続すると、使用したいタグ名のリストを送信します。インデクサーはタグ名とタグ番号の対応付けで応答します。インゲスターがそのインデクサーにエントリを送るときはいつでも、適切な*タグ番号*をエントリに追加します。
 
 ## グローバル設定パラメータ
 
-コアインジェスターのほとんどは、共通のグローバル構成パラメーターのセットをサポートしています。共有グローバル設定パラメータは、[ingest設定](https://godoc.org/github.com/gravwell/ingest/config#IngestConfig)パッケージを使って実装されます。グローバル設定パラメータは、各Gravwell ingester設定ファイルのGlobalセクションで指定する必要があります。以下のグローバルインジェスタパラメータが利用可能です。
-
+ほとんどのコアインジェスターは、共通のグローバル設定パラメータのセットをサポートしています。 共有されたグローバル構成パラメータは、[ingest config](https://godoc.org/github.com/gravwell/ingest/config#IngestConfig) パッケージを使用して実装されます。 グローバル構成パラメータは、各Gravwellインジェスター設定ファイルのグローバルセクションで指定する必要があります。 以下のグローバルインジェスターパラメータが利用可能です:
 
 * Ingest-Secret
 * Connection-Timeout
@@ -59,17 +58,20 @@ Gravwellを使用するためにこのセクションを読む必要はありま
 * Pipe-Backend-Target
 * Ingest-Cache-Path
 * Max-Ingest-Cache
+* Cache-Depth
+* Cache-Mode
 * Log-Level
 * Log-File
 * Source-Override
+* Log-Source-Override
 
 ### Ingest-Secret
 
-Ingest-Secretパラメーターは、取り込み認証に使用されるトークンを指定します。ここで指定されたトークンは、GravwellインデクサーのIngest-Authパラメーターと一致しなければなりません。
+Ingest-Secretパラメータは、インジェスト認証に使用するトークンを指定する。 ここで指定されたトークンは、GravwellインデクサーのIngest-Authパラメータと一致しなければならない 。
 
 ### Connection-Timeout
 
-Connection-Timeoutパラメーターは、あきらめる前にインデクサーに接続するのを待つ時間を指定します。空のタイムアウトは、インジェスターが起動するまで永遠に待機することを意味します。タイムアウトは、分、秒、または時間単位で指定する必要があります。
+Connection-Timeoutパラメータは、インデクサへの接続をあきらめるまでの待ち時間を指定します。 空のタイムアウトは、インジェスターが開始するまで永遠に待つことを意味します。 タイムアウトは、分、秒、または時間の長さで指定する必要があります。
 
 #### 例
 ```
@@ -80,7 +82,7 @@ Connection-Timeout=1h
 
 ### Insecure-Skip-TLS-Verify
 
-Insecure-Skip-TLS-Verifyトークンは、暗号化されたTLSトンネルを介して接続するときに不正な証明書を無視するように取り込み側に指示します。その名前が示すように、TLSによって提供されるすべての認証はウィンドウから放り出され、攻撃者は中間者TLS接続を簡単に行うことができます。取り込み接続は依然として暗号化されますが、接続は決して安全ではありません。デフォルトではTLS証明書が検証され、証明書の検証に失敗すると接続は失敗します。
+Insecure-Skip-TLS-Verify トークンは、暗号化された TLS トンネルを介して接続する際に、不正な証明書を無視するようにインジェスターに指示します。その名が示すように、TLS によって提供されるすべての認証は窓から投げ出され、攻撃者は簡単に中間者による TLS 接続を行うことができます。 インジェスト接続は依然として暗号化されていますが、接続は決して安全ではありません。 デフォルトでは、TLS 証明書は検証され、証明書の検証に失敗すると接続は失敗します。
 
 #### 例
 ```
@@ -90,7 +92,7 @@ Insecure-Skip-TLS-Verify=false
 
 ### Cleartext-Backend-Target
 
-Cleartext-Backend-Targetは、Gravwellインデクサーのホストとポートを指定します。インジェスターは、平文のTCP接続を使用してインデクサーに接続します。ポートが指定されていない場合は、デフォルトのポート4023が使用されます。平文接続は、IPv6とIPv4の両方の宛先をサポートします。 複数のクリアテキスト - バックエンド - ターゲットを指定して、複数のインデクサーにわたってインジェスターをロードバランスすることができます。
+Cleartext-Backend-Target は、Gravwell インデクサーのホストとポートを指定する。 インジェスターはクリアテキストTCP接続を使用してインデクサーに接続します。 ポートが指定されていない場合は、デフォルトのポート 4023 が使用されます。 Cleartext 接続は、IPv6 と IPv4 の両方の宛先をサポートします。 **複数の Cleartext-Backend-Targets を指定して、複数のインデクサー間でインジェスターの負荷分散を行うことができます。**
 
 #### 例
 ```
@@ -102,7 +104,7 @@ Cleartext-Backend-Target=[DEAD::BEEF]:4023
 
 ### Encrypted-Backend-Target
 
-Encrypted-Backend-Targetは、Gravwellインデクサーのホストとポートを指定します。インジェスターはTCPを介してインデクサーに接続し、完全なTLSハンドシェイク/証明書検証を実行します。ポートが指定されていない場合は、デフォルトポートの4024が使用されます。暗号化接続はIPv6とIPv4の両方の宛先をサポートします。 複数のインデクサー間でインジェスターの負荷を分散するために、複数の暗号化バックエンドターゲットを指定できます。
+Encrypted-Backend-Target は、Gravwell インデクサーのホストとポートを指定する。インジェスターはTCPを介してインデクサーに接続し、完全なTLSハンドシェイク/証明書の検証を実行します。 ポートが指定されていない場合は、デフォルトの4024ポートが使用されます。 暗号化された接続は、IPv6 と IPv4 の両方の宛先をサポートします。 **複数のインデクサー間でインジェスターの負荷分散を行うために、複数の暗号化バックエンドターゲットを指定することができます。**
 
 #### 例
 ```
@@ -114,7 +116,7 @@ Encrypted-Backend-Target=[DEAD::BEEF]:4023
 
 ### Pipe-Backend-Target
 
-Pip-Backend-Targetは、フルパスでUnixという名前のsocketを指定します。Unix名前付きソケットは、インデクサーと非常に高速でオーバーヘッドがほとんどないため、インデクサーと共存するインジェスターにとって理想的です。インジェスタごとにサポートされるPipe-Backend-Targetは1つだけですが、クリアテキストおよび暗号化された接続と共にパイプを多重化することができます。
+Pip-Backend-Target はフルパスで Unix 名前付きソケットを指定します。 Unixの名前付きソケットは、非常に高速でオーバーヘッドが少ないため、インデクサーと同居しているインジェスターに最適です。 インジェスターごとに1つのPipe-Backend-Targetしかサポートされていませんが、パイプはクリアテキストや暗号化された接続と並行して多重化することができます。
 
 #### 例
 ```
@@ -124,9 +126,9 @@ Pipe-Backend-Target=/tmp/gravwellpipe
 
 ### Ingest-Cache-Path
 
-Ingest-Cache-Pathは、取り込まれたデータのローカルキャッシュを有効にします。有効にすると、インジェスタはエントリをインデクサに転送できないときにローカルにキャッシュできます。取り込みキャッシュは、リンクがダウンしたときや、Gravwellクラスターを一時的にオフラインにする必要があるときに、データが失われないようにするのに役立ちます。長期間のネットワーク障害によってインジェスターがホストディスクをいっぱいにしないように、必ずMax-Ingest-Cache値を指定してください。ローカルインジェストキャッシュは、インデクサーに直接インジェストするほど高速ではないため、インジェストキャッシュが1秒間に200万件のエントリーをインデクサーで処理できるとは思わないでください。
+Ingest-Cache-Path は、インジェストされたデータのローカルキャッシュを有効にします。 有効にすると、インデクサーにエントリを転送できない場合、インジェスターはローカルにキャッシュすることができます。 インジェストキャッシュは、リンクがダウンしたときや、Gravwellクラスタを一時的にオフラインにする必要がある場合に、データを失わないようにするのに役立ちます。 長期的なネットワーク障害が発生してもインジェスターがホストディスクを埋め尽くすことがないように、Max-Ingest-Cache値を必ず指定してください。 ローカルインジェストキャッシュはインデクサーに直接インジェストするほど高速ではないので、インデクサーのようにインジェストキャッシュが毎秒200万エントリを処理できるとは期待しないでください。
 
-<span style="color: red; ">重要：File Followerインジェスターではインジェストキャッシュを有効にしないでください。このインジェスターはディスク上のファイルから直接読み取り、各ファイル内の位置を追跡するため、キャッシュは不要です。</span>
+注意 : ファイル・フォロワー・インゲスターでは、インジェスト・キャッシュは**有効にすべきではありません**。このインジェスターはディスク上のファイルから直接読み込み、各ファイル内の位置を追跡するため、キャッシュは必要ありません。
 
 #### 例
 ```
@@ -136,7 +138,7 @@ Ingest-Cache-Path=/mnt/storage/networklog.cache
 
 ### Max-Ingest-Cache
 
-Max-Ingest-Cacheは、キャッシュが使用されているときにインジェスタが消費するストレージ容量を制限します。最大キャッシュ値はメガバイト単位で指定されます。1024の値は、インジェスタが新しいエントリの受け入れを停止するまでに1 GBのストレージを消費できることを意味します。キャッシュがいっぱいになっても、キャッシュシステムは古いエントリを上書きしません。これは仕様によるもので、攻撃者がネットワーク接続を中断して、中断が発生した時点で潜在的に重要なデータをインジェスターに上書きさせることはできません。
+Max-Ingest-Cache は、キャッシュが使用されている時にインジェスターが消費するストレージ容量を制限します。 キャッシュの最大値はメガバイトで指定されます。1024の値はインジェスターが新しいエントリの受け入れを停止する前に1GBのストレージを消費できることを意味します。 キャッシュが一杯になってもキャッシュシステムは古いエントリを上書きしません。これは、攻撃者がネットワーク接続を混乱させ、インジェスターが混乱が起こった時点で潜在的に重要なデータを上書きさせることができないように設計されています。
 
 #### 例
 ```
@@ -145,9 +147,28 @@ Max-Ingest-Cache=1024
 Max-Ingest-Cache=10240
 ```
 
+### Cache-Depth
+
+Cache-Depth は、インメモリ・バッファに保持するエントリ数を設定します。既定値は 128 で、Ingest-Cache-Path が無効になっている場合でも、インメモリ・バッファは常に有効になります。Cache-Depth を大きな値に設定すると、より多くのメモリ消費を犠牲にしてインジェスターのバースト動作を吸収することができます。
+
+#### 例
+```
+Cache-Depth=256
+```
+
+### Cache-Mode
+
+Cache-Modeは、実行時のバッキングキャッシュの動作を設定します（Ingest-Cache-Pathを設定することで有効になります）。利用可能なモードは、"always" と "fail" です。"always"モードでは、キャッシュは常に有効で、インジェスターはインメモリバッファ(Cache-Depthで設定)が一杯になるといつでもディスクにエントリを書き込めるようになります。これは、インデクサー接続が死んでいたり、遅いインデクサー接続で発生したり、インジェスターがインデクサーとの接続で可能な以上のデータをプッシュしようとしている時に発生する可能性があります。"always"モードを使用することで、インジェスターがエントリを削除したり、データのインジェストをブロックしたりすることはありません。Cache-Mode を "fail" に設定すると、すべてのインデクサ接続がダウンしているときにのみ有効になるようにキャッシュの動作が変更されます。
+
+#### 例
+```
+Cache-Mode=always
+Cache-Mode=fail
+```
+
 ### Log-File
 
-インジェスターは、インストールおよび構成の問題のデバッグに役立つように、エラーおよびデバッグ情報をログファイルに記録できます。Log-Fileパラメータが空の場合、ファイルロギングは無効になります。
+インジェスターは、インストールや構成の問題をデバッグする際に役立つように、エラーやデバッグ情報をログファイルに記録することができます。 空の Log-File パラメータは、ファイルのロギングを無効にします。
 
 #### 例
 ```
@@ -156,7 +177,7 @@ Log-File=/opt/gravwell/log/ingester.log
 
 ### Log-Level
 
-Log-Levelパラメータは、ログファイルと、 "gravwell"タグの下でインデクサに送信されるメタデータの両方について、各インジェスタのログ記録システムを制御します。ログレベルをINFOに設定すると、ファイルフォロアが新しいファイルをフォローしたり、シンプルリレーが新しいTCP接続を受信した場合など、詳細にログインするようにインジェスタに指示します。一方、レベルをERRORに設定すると、最も重大なエラーのみがログに記録されます。ほとんどの場合、WARNレベルは適切です。以下のレベルがサポートされています。
+Log-Levelパラメータは、ログファイルと "gravwell "タグの下でインデクサに送られるメタデータの両方について、各インゲスターのロギングシステムを制御します。 ログレベルを INFO に設定すると、File Follower が新しいファイルを追跡したときや Simple Relay が新しい TCP 接続を受信したときなど、インジェスターに詳細なログを記録するように指示します。一方、レベルを ERROR に設定すると、最も重要なエラーのみがログに記録されます。ほとんどの場合、WARN レベルが適切です。以下のレベルがサポートされています:
 
 * OFF
 * INFO
@@ -173,7 +194,7 @@ Log-Level=ERROR
 
 ### Source-Override
 
-Source-Overrideパラメータは、各エントリに添付されているSRCデータ項目を上書きします。SRC項目はIPv6またはIPv4アドレスのいずれかであり、通常はインジェスターが実行されているマシンの外部IPアドレスです。
+Source-Override パラメータは、各エントリにアタッチされている SRC データ項目をオーバーライドします。 SRC 項目は IPv6 または IPv4 アドレスで、通常はインジェスターが実行されているマシンの外部IPアドレスです。
 
 #### 例
 ```
@@ -182,55 +203,169 @@ Source-Override=0.0.0.0
 Source-Override=DEAD:BEEF::FEED:FEBE
 ```
 
-## シンプルリレー
+### Log-Source-Override
 
-[完全な構成とドキュメント](#!ingesters/simple_relay.md).
+多くのインジェスターは、監査、健全性とステータス、一般的なインジェスト・インフラストラクチャのロギングを目的として、`gravwell`タグにエントリを出すことができます。 一般的に、これらのエントリは、インデクサーから見たインジェスターのソースIPアドレスをSRCフィールドに使用します。 しかし、インジェスターによって実際に生成されたエントリのみにソースIPフィールドをオーバーライドすることは有用です。 良い例としては、Gravwellフェデレータの `Log-Source-Override` を使用して、ヘルスとステータスのエントリの SRC フィールドを変更することが挙げられるが、フェデレータを通過するすべてのエントリではない。
 
-シンプルリレーは、複数のTCPまたはUDPポートでリッスンできるテキストingesterです。 各ポートには、タグと取り込み標準（RFC5424の解析や単純な改行区切りのエントリなど）を割り当てることができます。 シンプルリレーは、リモートsyslogエントリを取得したり、ネットワーク接続を介してテキストログを投げることができるデータソースから消費したりするための重要な手段です。
+`Log-Source-Override` 設定パラメータには、IPv4またはIPv6の値をパラメータとして指定する必要がある。
 
-### 設定
+#### 例
+```
+Log-Source-Override=10.0.0.1
+Log-Source-Override=0.0.0.0
+Log-Source-Override=DEAD:BEEF::FEED:FEBE
+Log-Source-Override=::1
+```
 
-Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
+## Data Consumer Configuration
+
+グローバル設定オプションの他に、コンフィグファイルを使用する各インジェスターは、少なくとも1つの*data consumer*を定義する必要があります。data consumerは、インジェスターに伝える設定定義:
+
+* Where to get data
+* What tag to use on the data
+* Any special timestamp processing rules
+* Overrides for fields such as the SRC field
+
+Simple Relayインジェスターと HTTP インジェスターは「リスナー」を定義し、File Followerは「フォロワー」を使用し、netflowインジェスターは「コレクター」を定義します。以下の個々のインジェスターのセクションでは、インジェスターの特定のデータ消費者タイプと、それらが必要とする可能性のある固有の構成について説明します。次の例では、File Followerインジェスターが「フォロワー」データ消費者を定義して特定のディレクトリからデータを読み取る方法を示しています:
+
+```
+[Follower "syslog"]
+        Base-Directory="/var/log/"
+        File-Filter="syslog,syslog.[0-9]" #we are looking for all authorization log files
+        Tag-Name=syslog
+        Assume-Local-Timezone=true #Default for assume localtime is false
+```
+
+データソース(`Base-Directory` と `File-Filter` ルールによる)、使用するタグ(`Tag-Name` による)、そして受信データのタイムスタンプを解析するための追加ルール(`Assume-Local-Timezone`)を指定していることに注意してください。
+
+## Time Parsing Overrides
+
+ほとんどのインジェスタは、データからタイムスタンプを抽出することで、各エントリにタイムスタンプを適用しようとします。このタイムスタンプの抽出を微調整するために、各*data consumer*に適用できるオプションがいくつかあります:
+
+* `Ignore-Timestamps` (boolean): `Ignore-Timestamps=true` を設定すると、インジェスターはタイムスタンプを抽出しようとするのではなく、各エントリに現在の時刻を適用するようになります。これは、非常に支離滅裂なデータが入力されている場合にデータをインジェストするための唯一のオプションになります。
+* `Assume-Local-Timezone` (boolean): デフォルトでは、タイムスタンプにタイムゾーンが含まれていない場合、インジェスターはそれをUTCタイムスタンプとみなします。`Assume-Local-Timezone=true`を設定すると、インジェスターはローカルコンピュータのタイムゾーンが何であれ、それを仮定するようになります。これはTimezone-Overrideオプションとは相互に排他的である。
+* `Timezone-Override` (string): `Timezone-Override`を設定すると、タイムゾーンを含まないタイムスタンプは指定されたタイムゾーンで解析されるべきであることをインジェスターに伝えます。例えば、`Timezone-Override=US/Pacific`を設定すると、インジェスターは受信したタイムスタンプをあたかも米国太平洋時間であるかのように扱うように指示します。許容可能なタイムゾーン名の完全なリストについては、[このページ](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)を参照してください( 'TZデータベース名'列)。Assume-Local-Timezoneとは相互に排他的である。
+* `Timestamp-Format-Override` (string): このパラメータは、インジェスターにデータの中から特定のタイムスタンプフォーマットを探すように指示します。例を挙げたオーバーライドの完全なリストについては、 [the timegrinder documentation](https://pkg.go.dev/github.com/gravwell/gravwell/v3/timegrinder)を参照のこと。
+
+KinesisとGoogle Pub/Subインジェスターには、`Ignore-Timestamps`オプションはありません。KinesisとGoogle Pub/Subのインジェスターには、`Ignore-Timestamps`オプションはありません。KinesisとPub/Subは、すべてのエントリに到着タイムスタンプを含みます。データコンシューマ定義で `Parse-Time=true` が指定された場合、インジェスターは代わりにメッセージ本文からタイムスタンプを抽出しようとします。追加情報については、これらのインジェスターのそれぞれのセクションを参照のこと。
+
+## Simple Relay
+
+[Complete Configuration and Documentation](#!ingesters/simple_relay.md).
+
+Simple Relay は複数の TCP ポートや UDP ポートをリッスンすることができるテキストインジェスターです。 各ポートにはタグとインジェスト標準 (例: RFC5424 のパースや単純な改行区切りエントリ) を割り当てることができます。 Simple Relay は、リモートの syslog エントリをインジェストしたり、ネットワーク接続を介してテキストログを投げることができるあらゆるデータソースからデータを取得したりするために最適なインジェスターです。
+
+### Listener Examples
+
+```
+[Listener "default"]
+	Bind-String="0.0.0.0:7777" # Bind to all interfaces, with TCP implied
+	Assume-Local-Timezone=false # Do not assume the local timezone if not provided
+	Tag-Name=foo # Set the tag to ingest into
+	Source-Override="DEAD::BEEF" # Override the source for just this listener
+	Ignore-Timestamps=true
+
+[Listener "syslogtcp"]
+	Bind-String="tcp://0.0.0.0:601" # standard RFC5424 reliable syslog
+	Reader-Type=rfc5424 # Syslog reader
+	Tag-Name=syslog
+	Keep-Priority=true # Leave the <nnn> priority value at the beginning of the syslog message
+	Assume-Local-Timezone=true # If a time format does not have a timezone, assume local time
+
+[Listener "syslogudp"]
+	Bind-String="udp://0.0.0.0:514" #standard UDP based RFC5424 syslog
+	Reader-Type=rfc5424
+	Tag-Name=syslog
+	Timezone-Override=America/Denver
+
+[JSONListener "json"]
+    Bind-String=[2600:1f18:63ef:e802:355f:aede:dbba:2c03]:901
+    Extractor="field1"
+    Default-Tag=json
+    Tag-Match=test1:tag1
+    Tag-Match=test2:tag2
+    Tag-Match=test3:tag3
+
+[Listener "tls"]
+	Bind-String="tls://0.0.0.0:514" # TLS over port 514
+	Reader-Type=rfc5424
+	Cert-File=/opt/gravwell/cert.pem
+	Key-File=/opt/gravwell/key.pem
+	Tag-Name=syslog
+	Assume-Local-Timezone=true #if a time format does not have a timezone, assume local time
+```
+
+### インストール
+
+Gravwell の Debian リポジトリを使用している場合、インストールは apt コマンドひとつで済みます:
 
 ```
 apt-get install gravwell-simple-relay
 ```
 
-それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 スーパーユーザーとして次のコマンドを発行し（例： `sudo`コマンドを使用）、ingesterをインストールします。
+それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラをダウンロードする。インジェスターをインストールするには、スーパーユーザとして (例えば `sudo` コマンドで) 以下のコマンドを実行してください:
 
 ```
 root@gravserver ~ # bash gravwell_simple_relay_installer.sh
 ```
 
-Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的に `Ingest-Auth`パラメーターを抽出して設定し、適切に設定します。 ただし、ご使用のコンピューターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスの入力を求めます。 インストール時にこれらの値を設定するか、空白のままにして、 `/opt/gravwell/etc/simple_relay.conf`の設定ファイルを手動で変更できます。
+Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth` パラメータを抽出して設定し、適切に設定する。しかし、インジェスターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスを要求します。インストール中にこれらの値を設定するか、空欄のままにして、`/opt/gravwell/etc/simple_relay.conf`の設定ファイルを手動で修正することができます。
 
-## ファイルフォロワー
+## File Follower
 
-File Follower ingesterは、ローカルシステム上のファイルを監視し、Gravwellとネイティブに統合できないソースまたはネットワーク接続を介してログを送信できないソースからログをキャプチャするように設計されています。 ファイルフォロワーは、LinuxとWindowsの両方のフレーバーで提供され、任意の行区切りテキストファイルを追跡できます。 ファイルのローテーションと互換性があり、強力なパターンマッチングシステムを使用して、ログファイルに一貫性のない名前を付ける可能性のあるアプリケーションを処理します。
+File Followerインジェスターは、ローカルシステム上のファイルを監視するように設計されており、Gravwellとネイティブに統合できなかったり、ネットワーク接続を介してログを送信できないソースからログをキャプチャします。 File Followerは、LinuxとWindowsの両方のフレーバーがあり、任意の行で区切られたテキストファイルを追跡することができます。 ファイルローテーションと互換性があり、強力なパターンマッチングシステムを採用しており、ログファイルに一貫性のない名前を付けるアプリケーションに対応しています。
 
-### 設定
+### フォロワーの例
 
-Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
+```
+[Follower "auth"]
+	Base-Directory="/var/log/"
+	File-Filter="auth.log,auth.log.[0-9]" # Look for all authorization log files
+	Tag-Name=auth
+	Assume-Local-Timezone=true 
+	Ignore-Timestamps=true
+
+[Follower "test"]
+	Base-Directory="/tmp/testing/"
+	File-Filter="*"
+	Tag-Name=default
+	Recursive=true
+	Ignore-Line-Prefix="#" # ignore lines beginning with #
+	Ignore-Line-Prefix="//"
+	Regex-Delimiter="###"
+
+[Follower "timevoodoo"]
+	Base-Directory="/tmp/time/"
+	File-Filter="*"
+	Tag-Name=default
+	Timestamp-Delimited=true
+	Timestamp-Regex=`[JFMASOND][anebriyunlgpctov]+\s+\S{1,2},\s+\d{4}\s+\d{1,2}:\d\d:\d\d,\d+\s+\S{2}\s+\S+`
+	Timestamp-Format-String="Jan _2, 2006 3:04:05,999 PM MST"
+```
+
+### インストール
+
+Gravwell の Debian リポジトリを使用している場合、インストールは apt コマンドひとつで済みます:
 
 ```
 apt-get install gravwell-file-follow
 ```
 
-それ以外の場合は、[ダウンロードページ](＃！quickstart / downloads.md)からインストーラーをダウンロードします。 Windowsシステムで、ダウンロードした実行可能ファイルを実行し、インストーラーのプロンプトに従います。 Linuxでは、スーパーユーザーとして次のコマンドを発行して（たとえば、 `sudo`コマンドを使用して）、ingesterをインストールします：
+それ以外の場合は、[ダウンロードページ]（#!Quickstart/downloads.md）からインストーラをダウンロードしてください。Windows システムでは、ダウンロードした実行ファイルを実行し、インストーラのプロンプトに従ってください。Linuxでは、スーパーユーザとして(例: `sudo` コマンドで)以下のコマンドを実行してインジェスターをインストールしてください:
 
 ```
 root@gravserver ~ # bash gravwell_file_follow_installer.sh
 ```
 
-Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的にIngest-Authパラメータを抽出して設定し、それを適切に設定します。ただし、インジェスターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスを要求します。インストール中にこれらの値を設定することも、空白のままにして/opt/gravwell/etc/file_follow.conf内の構成ファイルを手動で変更することもできます。
+Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth` パラメータを抽出して設定し、適切に設定する。しかし、インジェスターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスを要求します。インストール中にこれらの値を設定するか、空欄のままにして、`/opt/gravwell/etc/file_follow.conf`の設定ファイルを手動で修正することができます。
 
 ### 設定例
 
-ファイルフォロワーの構成は、WindowsとLinuxの両方でほぼ同じです。 より詳細な構成情報[ファイルフロー](file_follow.md)が利用可能です。
+file followerの設定は、Windows と Linux の両方のバージョンでほぼ同じです。より詳細な設定情報は [ファイルフォロワーインジェストのドキュメント](file_follow.md)にあります。
 
 #### Windows
 
-Windows構成ファイルは、デフォルトでC：¥Program Files¥gravwell¥file_follow.cfgにあります。 Windows File FollowerはWindowsサービスとして動作します。その状況は、コマンドプロンプトでsc query GravwellFileFollowを発行することによって照会できます。 Windows CBSログファイルを追跡する設定例はこのようになります：
+Windows 構成ファイルは、デフォルトでは `C:\Program Files\gravwell\file_follow.cfg` にあります。 Windows File Follower は Windows サービスとして動作する。 そのステータスは、コマンドプロンプトで `sc query GravwellFileFollow` を発行することで問い合わせることができる。 Windows CBSログファイルを追跡する構成例は以下のようになります:
 
 ```
 [Global]
@@ -252,7 +387,7 @@ Log-Level=ERROR #options are OFF INFO WARN ERROR
 
 #### Linux
 
-Linux設定ファイルはデフォルトで/opt/gravwell/etc/file_follow.confにあります。 kernel、dmesg、およびdebianのインストールログを監視する設定例は次のようになります。
+linux設定ファイルはデフォルトでは `/opt/gravwell/etc/file_follow.conf` にあります。 カーネル、dmesg、debian のインストールログを監視する設定例は以下のようになります:
 
 ```
 [Global]
@@ -298,67 +433,257 @@ Max-Files-Watched=64
 
 ## HTTP
 
-HTTPインジェスターは、1つ以上のパスにHTTPリスナーを設定します。 HTTPリクエストがこれらのパスの1つに送信されると、リクエストのBodyは単一のエントリとして取り込まれます。
+HTTP インジェスターは、1 つ以上のパスに HTTP リスナーを設定します。HTTP リクエストがこれらのパスのいずれかに送信されると、リクエストの Body が単一のエントリとしてインジェストされます。
 
-curlコマンドを使用すると、標準入力を本文として使用してPOST要求を簡単に実行できるため、これはスクリプト可能なデータ取り込みに非常に便利な方法です。
+これはスクリプト可能なデータのインジェストには非常に便利な方法で、`curl`コマンドを使うと標準入力をボディとして使ったPOSTリクエストが簡単にできるからです。
 
-### 設定
+### リスナーの例
 
-Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです:
+すべてのインジェスタで使用される汎用設定パラメータに加えて、HTTP POSTインジェスタには、組み込みウェブサーバの動作を制御する2つのグローバル設定パラメータが追加されています。 最初の設定パラメータは `Bind` オプションで、ウェブサーバがリッスンするインターフェイスとポートを指定します。 2つ目は `Max-Body` パラメータで、ウェブサーバが許可するPOSTの大きさを制御します。 Max-Bodyパラメータは、不正なプロセスが単一のエントリとして非常に大きなファイルをGravwellインスタンスにアップロードしようとするのを防ぐための良いセーフティネットです。 Gravwellは1つのエントリとして2GBまでサポートすることができますが、我々はそれを推奨しません。
+
+複数の「リスナー」定義を定義することで、特定のURLから特定のタグにエントリーを送信することができます。 例の構成では、天気IoTデバイスとスマートサーモスタットからデータを受け取る2つのリスナーを定義しています。
+
+```
+ Example using basic authentication
+[Listener "basicAuthExample"]
+	URL="/basic"
+	Tag-Name=basic
+	AuthType=basic
+	Username=user1
+	Password=pass1
+
+[Listener "jwtAuthExample"]
+	URL="/jwt"
+	Tag-Name=jwt
+	AuthType=jwt
+	LoginURL="/jwt/login"
+	Username=user1
+	Password=pass1
+	Method=PUT # alternate method, data is still expected in the body of the request
+
+[Listener "cookieAuthExample"]
+	URL="/cookie"
+	Tag-Name=cookie
+	AuthType=cookie
+	LoginURL="/cookie/login"
+	Username=user1
+	Password=pass1
+	Method=PUT # alternate method, data is still expected in the body of the request
+
+[Listener "presharedTokenAuthExample"]
+	URL="/preshared/token"
+	Tag-Name=pretoken
+	AuthType="preshared-token"
+	TokenName=Gravwell
+	TokenValue=Secret
+
+[Listener "presharedTokenAuthExample"]
+	URL="/preshared/param"
+	Tag-Name=preparam
+	AuthType="preshared-parameter"
+	TokenName=Gravwell
+	TokenValue=Secret
+```
+
+### インストール
+
+Gravwell の Debian リポジトリを使用している場合、インストールは apt コマンドひとつで済みます:
 
 ```
 apt-get install gravwell-http-ingester
 ```
 
-それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上のターミナルを使用して、次のコマンドをスーパーユーザーとして（たとえば、「sudo」コマンド経由で）発行して、ingesterをインストールします。
+それ以外の場合は、[Downloads page](#!quickstart/downloads.md)からインストーラをダウンロードする。Gravwell サーバー上のターミナルを使用して、スーパーユーザーとして(例: `sudo` コマンドで)以下のコマンドを実行し、インジェスターをインストールします:
 
 ```
 root@gravserver ~ # bash gravwell_http_ingester_installer_3.0.0.sh
 ```
 
-Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的にIngest-Authパラメータを抽出して設定し、それを適切に設定します。 ただし、インジェスターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスを要求します。 インストール中にこれらの値を設定することも、空白のままにして/opt/gravwell/etc/gravwell_http_ingester.conf内の構成ファイルを手動で変更することもできます。
+Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth` パラメータを抽出して設定し、適切に設定する。しかし、インジェスターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスを要求します。インストール中にこれらの値を設定するか、空欄のままにして、`/opt/gravwell/etc/gravwell_http_ingester.conf`内の設定ファイルを手動で修正します。
 
-### 設定例
+### HTTPS の設定
 
-すべてのインジェスターが使用するユニバーサル構成パラメーターに加えて、HTTP POSTインジェスターには、組み込みWebサーバーの動作を制御する2つの追加のグローバル構成パラメーターがあります。 最初の設定パラメータはBindオプションで、これはWebサーバが待機するインタフェースとポートを指定します。 2番目はMax-Bodyパラメータです。これはWebサーバが許可するPOSTの大きさを制御します。 Max-Bodyパラメータは、不正なプロセスが巨大なファイルを1つのエントリとしてGravwellインスタンスにアップロードしようとするのを防ぐための優れたセーフティネットです。 Gravwellは1エントリとして最大2GBまでサポートできますが、お勧めできません。
+デフォルトでは、HTTP Ingester はクリアテキスト HTTP サーバを実行しますが、x509 TLS 証明書を使用して HTTPS サーバを実行するように設定することもできます。 HTTP Ingester を HTTPS サーバとして設定するには、`TLS-Certificate-File` と `TLS-Key-File` パラメータを使用して、グローバル設定スペースで証明書と鍵の PEM ファイルを提供します。
 
-特定のURLが特定のタグにエントリを送信できるように、複数の「リスナー」定義を定義できます。 この設定例では、天気予報IOTデバイスとスマートサーモスタットからデータを受け取る2つのリスナーを定義します。
-
-```
-[Listener "weather"]
-	URL="/weather"
-	Tag-Name=weather
-
-
-[Listener "thermostat"]
-	URL="/smarthome/thermostat"
-	Tag-Name=thermostat
-```
-
-"/ weather"または "/ smarthome / thermostat"に送信されたPOSTリクエストの本文に送信されたデータは、それぞれ "weather"および "thermostat"タグでタグ付けされます。 現在のタイムスタンプはPOSTの時点で各エントリに添付されます。
-
-リスナーが単純なcurlコマンドで動作していることをテストできます。
+HTTPS を有効にしたグローバル設定の例は、以下のようになります:
 
 ```
-curl -d "its hot outside bro" -X POST http://10.0.0.1:8080/weather
+[Global]
+	TLS-Certificate-File=/opt/gravwell/etc/cert.pem
+	TLS-Key-File=/opt/gravwell/etc/key.pem
 ```
 
-OpenWeatherMap.orgのAPIキーがある場合は、次のようなコマンドを使用して、気象条件を自動的に解除してGravwellにプッシュするようにcronジョブを設定できます。
+#### リスナーの認証
+
+各 HTTP Ingester リスナーは、認証を強制するように設定することができます。 サポートされている認証方法は以下の通りです:
+
+* none
+* basic
+* jwt
+* cookie
+* preshared-token
+* preshared-parameter
+
+none以外の認証システムを指定する場合は、クレンデンシャルを指定しなければならない。` jwt`, `cookie`, クッキー認証システムはユーザ名とパスワードを必要とし、`preshared-token`, `preshared-parameter` はトークンの値とオプションのトークン名を指定しなければなりません。
+
+警告 : 他のウェブページと同様に、認証はクリアテキスト接続では安全ではなく、トラフィックを盗み見できる攻撃者はトークンやクッキーをキャプチャすることができます。
+
+#### 認証をしない
+
+デフォルトの認証方法は「なし」で、インジェスターに到達できる人なら誰でもエントリをプッシュできるようになっています。 Basic` 認証メカニズムは HTTP Basic 認証を利用します。
+
+以下に基本認証システムを使ったリスナーの例を示します:
 
 ```
-curl "http://api.openweathermap.org/data/2.5/weather?q=Spokane&APPID=YOUR_APP_ID" | curl http://10.0.0.1:8088/weather -X POST -d @-
+[Listener "basicauth"]
+	URL="/basic/data"
+	Tag-Name=stuff
+	AuthType=basic
+	Username=secretuser
+	Password=secretpassword
 ```
 
-## 大量ファイルインジェスター
+基本的な認証でエントリを送信するための curl コマンドの例は次のようになります:
 
-Mass File ingesterは、多くのソースから多数のログのアーカイブを取り込むための非常に強力ですが、専用のツールです。
+```
+curl -d "only i can say hi" --user secretuser:secretpassword -X POST http://10.0.0.1:8080/basic/data
+```
 
-### ユースケースの例
-Gravwellユーザーは、潜在的なネットワーク侵害を調査するときにこのツールを使用しています。 ユーザーは50を超えるさまざまなサーバーからApacheログを取得しており、それらすべてを検索する必要がありました。 それらを次々に摂取すると、一時的なインデックス作成のパフォーマンスが低下します。 このツールは、ログエントリの一時的な性質を維持し、確実なパフォーマンスを確保しながら、ファイルを取り込むために作成されました。 マスファイルingesterは、取り込み前にソースログを最適化するために取り込みマシンに十分なスペース（ストレージとメモリ）がある場合に最適に機能します。 最適化フェーズは、取り込み時および検索時のGravwellストレージシステムへの圧力を軽減するのに役立ち、インシデントレスポンダーが迅速に移動して、ログデータへのパフォーマンスの高いアクセスを短時間で取得できるようにします。
+#### JWT認証
 
-### ノート
+JWT認証システムでは、認証に暗号署名済みのトークンを使用します。 jwt認証を使用する際には、クライアントが認証してトークンを受け取るログインURLを指定する必要があります。 jwtトークンの有効期限は48時間です。 認証はログインURLに `POST` リクエストを送信し、フォームフィールドに `username` と `password` を入力することで行われます。
 
-大量ファイルingesterはコマンドラインパラメーターを介して駆動され、サービスとして実行するようには設計されていません。 コードは[Github](https://github.com/gravwell/ingesters)で入手できます。
+jwt認証を使用してHTTPインジェスターで認証するには2つのステップがあり、追加の設定パラメータが必要です。 以下に設定例を示します:
+
+```
+[Listener "jwtauth"]
+	URL="/jwt/data"
+	LoginURL="/jwt/login"
+	Tag-Name=stuff
+	AuthType=basic
+	Username=secretuser
+	Password=secretpassword
+```
+
+エントリを送信するには、エンドポイントが最初に認証してトークンを取得する必要があり、トークンはその後最大48時間まで再利用することができます。 リクエストが 401 レスポンスを受信した場合、クライアントは再認証を行う必要があります。 ここでは、curl を使用して認証を行い、データをプッシュする例を示します。
+
+```
+x=$(curl -X POST -d "username=user1&password=pass1" http://127.0.0.1:8080/jwt/login) #grab the token and stuff it into a variable
+curl -X POST -H "Authorization: Bearer $x" -d "this is a test using JWT auth" http://127.0.0.1:8080/jwt/data #send the request with the token
+```
+
+#### Cookie認証
+
+cookie認証の仕組みは、状態を制御する方法以外は JWT 認証と実質的に同じです。 cookie認証を使用するリスナーは、ログインページで設定されたクッキーを取得するために、クライアントがユーザ名とパスワードでログインする必要があります。 インジェストURLへのそれ以降のリクエストは、各リクエストでcookieを提供しなければなりません。
+
+以下に設定ブロックの例を示します:
+
+```
+[Listener "cookieauth"]
+	URL="/cookie/data"
+	LoginURL="/cookie/login"
+	Tag-Name=stuff
+	AuthType=basic
+	Username=secretuser
+	Password=secretpassword
+```
+
+いくつかのデータをインジェストする前にログインしてcookieを取得する curl コマンドの例は次のようになります:
+
+```
+curl -c /tmp/cookie.txt -d "username=user1&password=pass1" localhost:8080/cookie/login
+curl -X POST -c /tmp/cookie.txt -b /tmp/cookie.txt -d "this is a cookie data" localhost:8080/cookie/data
+```
+
+#### 事前共有トークン
+
+プレシェアドトークン認証メカニズムは、ログインメカニズムではなくプレシェアドシークレットを 使用する。 Preshared secret は、Authorization ヘッダで各リクエストと一緒に送信されることが期待されています。 多くのHTTPフレームワークはこのタイプのインジェストを期待しており、Splunk HECやサポートしているAWS KinesisやLambdaインフラストラクチャなどがそうです。 事前共有トークンリスナーを使用することで、Splunk HEC のプラグインの代替となるキャプチャシステムを定義することができます。
+
+注意 : `TokenName` の値を定義しない場合、デフォルトの `Bearer` が使用されます。
+
+事前共有トークンを定義する設定例:
+
+```
+[Listener "presharedtoken"]
+	URL="/preshared/token/data"
+	Tag-name=token
+	AuthType="preshared-token"
+	TokenName=foo
+	TokenValue=barbaz
+```
+
+事前に共有された秘密を使ってデータを送信する curl コマンドの例:
+
+```
+curl -X POST -H "Authorization: foo barbaz" -d "this is a preshared token" localhost:8080/preshared/token/data
+```
+
+#### 事前共有パラメータ
+
+事前共有パラメータ認証メカニズムは、クエリパラメータとして提供されるプレシェアードシークレットを使用する。 `Preshared-parameter` システムは、認証トークンを URL に埋め込むことで、通常は認証をサポートしていないデータプロデューサをスクリプトで作成したり、使用したりする際に有用である。
+
+注意 : URL に認証トークンを埋め込むということは、プロキシや HTTP ロギングインフラストラクチャが認証トークンをキャプチャしてログに記録することを意味します。
+
+事前共有パラメータを定義する設定例:
+
+```
+[Listener "presharedtoken"]
+	URL="/preshared/parameter/data"
+	Tag-name=token
+	AuthType="preshared-parameter"
+	TokenName=foo
+	TokenValue=barbaz
+```
+
+事前に共有された秘密を使ってデータを送信する curl コマンドの例:
+
+```
+curl -X POST -d "this is a preshared parameter" localhost:8080/preshared/parameter/data?foo=barbaz
+```
+
+### リスナーの方法
+
+HTTP Ingester は実質的に任意のメソッドを使用するように設定することができますが、データは常にリクエストの本文にあることが期待されます。
+
+例えば、以下は PUT メソッドを期待するリスナーの設定です:
+
+```
+[Listener "test"]
+	URL="/data"
+	Method=PUT
+	Tag-Name=stuff
+```
+
+対応する curl コマンドは次のようになります:
+
+```
+curl -X PUT -d "this is a test 2 using basic auth" http://127.0.0.1:8080/data
+```
+
+HTTP インジェスターは、特殊文字を含まないほとんどすべての ASCII 文字列を受け入れ、メソッドの仕様外になることがあります。
+
+```
+[Listener "test"]
+	URL="/data"
+	Method=SUPER_SECRET_METHOD
+	Tag-Name=stuff
+```
+
+```
+curl -X SUPER_SECRET_METHOD -d "this is a test 2 using basic auth" http://127.0.0.1:8080/data
+```
+
+## マスファイルインジェスター
+
+マスファイルインジェスターは、多くのソースから多くのログのアーカイブをインジェストするための、非常に強力ではありますが専門的なツールです。
+
+### 使用例
+
+Gravwellユーザーは、潜在的なネットワーク侵害を調査する際にこのツールを使用したことがあります。ユーザーは50以上の異なるサーバーからのApacheログを持っていて、それらをすべて検索する必要がありました。それらを次々にインジェストすると、時間的なインデックス作成のパフォーマンスが低下します。このツールは、ログエントリの一時的な性質を維持し、確実なパフォーマンスを確保しながらファイルをインジェストするために作成されました。 massfileインジェスターは、インジェストマシンがインジェスト前にソースログを最適化するのに十分なスペース（ストレージとメモリ）を持っている場合に最適に動作します。 最適化フェーズは、インジェスト時と検索時にGravwellストレージシステムにかかる圧力を軽減するのに役立ち、インシデント対応者が迅速に移動し、ログデータに短時間でパフォーマンスの高いアクセスを得られるようにします。
+
+### 注意事項
+
+この大量ファイルインジェスターはコマンドラインパラメータを介して動作し、サービスとして動作するようには設計されていません。 コードは [Github](https://github.com/gravwell/ingesters) にあります。
 
 ```
 Usage of ./massFile:
@@ -392,30 +717,89 @@ Usage of ./massFile:
 
 ## Windowsイベントサービス
 
-Gravwell Windowsイベントingesterは、Windowsマシン上のサービスとして実行され、WindowsイベントをGravwellインデクサーに送信します。
+Gravwell Windows イベントインジェスターは Windows マシン上でサービスとして動作し、Windows イベントを Gravwell インデクサーに送信する。 インジェスターはデフォルトでは `System`, `Application`, `Setup`, `Security` チャンネルからイベントを消費します。 各チャンネルは、特定のイベントやプロバイダのセットから消費するように設定することができます。
 
-### 設定
+### イベントチャンネルの例
 
-[ダウンロードページ](＃！quickstart / downloads.md)からGravwell Windows ingesterインストーラーをダウンロードします。
+```
+[EventChannel "system"]
+	Tag-Name=windows
+	Channel=System #pull from the system channel
 
-.msiインストールウィザードを実行してGravwellイベントサービスをインストールします。
+[EventChannel "sysmon"]
+	Tag-Name=sysmon
+	Channel="Microsoft-Windows-Sysmon/Operational"
+	Max-Reachback=24h  #reachback must be expressed in hours (h), minutes (m), or seconds(s)
 
-ウィザードの将来のバージョンではGravwell構成オプションを直接入力するよう求められますが、現時点では、 `C:\Program Files\gravwell\config.cfg`にある構成ファイルを手動で構成する必要があります。
+[EventChannel "Application"]
+	Channel=Application #pull from the application channel
+	Tag-Name=winApp #Apply a new tag name
+	Provider=Windows System #Only look for the provider "Windows System"
+	EventID=1000-4000 #Only look for event IDs 1000 through 4000
+	Level=verbose #Only look for verbose entries
+	Max-Reachback=72h #start looking for logs up to 72 hours in the past
+	Request_Buffer=16 #use a large 16MB buffer for high throughput
+	Request_Size=1024 #Request up to 1024 entries per API call for high throughput
 
-接続IPアドレスをGravwellサーバーのIPに変更し、Ingest-Secret値を設定します。
+[EventChannel "System Critical and Error"]
+	Channel=System #pull from the system channel
+	Tag-Name=winSysCrit #Apply a new tag name
+	Level=critical #look for critical entries
+	Level=error #AND for error entries
+	Max-Reachback=96h #start looking for logs up to 96 hours in the past
+
+[EventChannel "Security prune"]
+	Channel=Security #pull from the security channel
+	Tag-Name=winSec #Apply a new tag name
+	EventID=-400 #ignore event ID 400
+	EventID=-401 #AND ignore event ID 401
+```
+
+### インストール
+
+[ダウンロードページ](#!Quickstart/downloads.md)から、Gravwell Windows ingester インストーラーをダウンロードします。
+
+.msi インストールウィザードを実行して、Gravwell イベントサービスをインストールする。 最初のインストールでは、インストールウィザードは、インデクサエンドポイントとインジェストシークレットを設定するように促される。 その後のインストールやアップグレードでは、常駐の設定ファイルを識別し、プロンプトは表示されません。
+
+インジェスターは、`%PROGRAMDATA%\gravwell\eventlogconfig.cfg`にある`config.cfg`ファイルで構成されます。 設定ファイルは他のGravwellインゲスターと同じ形式で、インデクサ接続を構成する`[Global]`セクションと複数の`EventChannel`定義を持つ。
+
+インデクサ接続を変更したり、複数のインデクサを指定するには、接続IPアドレスをGravwellサーバーのIPに変更し、Ingest-Secret値を設定します。 この例では、暗号化されたトランスポートを構成しています:
 
 ```
 Ingest-Secret=YourSecretGoesHere
 Encrypted-Backend-target=ip.addr.goes.here:port
 ```
 
-構成が完了すると、このファイルは、イベントを収集する他のWindowsシステムにコピーできます。
+一度設定したこのファイルは、イベントを収集する他のWindowsシステムにコピーすることができます。
 
-### オプションのSysmon統合
+#### サイレントインストール
 
-sysinternalsスイートの一部であるSysmonユーティリティは、Windowsシステムを監視するための効果的で一般的なツールです。 適切なsysmon構成ファイルの例については、多くのリソースがあります。 Gravwellでは、infosec Twitterパーソナリティ@InfosecTaylorSwiftによって作成された構成を使用しています。
+Windows イベントインジェスターは、自動展開と互換性があるように設計されています。 これは、ドメインコントローラがインストーラをクライアントにプッシュして、ユーザとの対話なしにインストールを起動できることを意味します。 サイレントインストールを強制するには、管理者権限で [msiexec](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec) で `/quiet` 引数を指定してインストーラを実行します。 このインストール方法では、デフォルトの設定がインストールされ、サービスが開始されます。
 
-`C:\Program Files\gravwell\config.cfg`にあるGravwell Windowsエージェント設定ファイルを編集し、次の行を追加します。
+特定のパラメータを設定するには、変更した設定ファイルを `%PROGRAMDATA%\gravwell\eventlog\config.cfg` にプッシュしてサービスを再起動するか、`CONFIGFILE` 引数に `config.cfg` ファイルへの完全修飾パスを指定する必要があります。
+
+あなたは `%PROGRAMDATA%\gravwell\eventlog` パスを作成する必要があるかもしれないことに注意してください。
+
+グループポリシーのプッシュのための完全な実行シーケンスは以下のようになります:
+
+```
+msiexec.exe /i gravwell_win_events_3.3.12.msi /quiet
+xcopy \\share\gravwell_config.cfg %PROGRAMDATA%\gravwell\eventlog\config.cfg
+sc stop "GravwellEvent Service"
+sc start "GravwellEvent Service"
+```
+
+または
+
+```
+msiexec.exe /i gravwell_win_events_3.3.12.msi /quiet CONFIGFILE=\\share\gravwell_config.cfg
+```
+
+### オプションのシスモン統合
+
+sysinternals スイートの一部である Sysmon ユーティリティは、Windows システムを監視するための効果的で人気のあるツールです。優れた sysmon 設定ファイルの例が掲載されているリソースはたくさんあります。Gravwellでは、infosec Twitterのパーソナリティである@InfosecTaylorSwiftが作成した設定を好んで使用しています。
+
+Gravwell Windows agent configファイルを編集して、`%PROGRAMDATA%\gravwell\eventlog\config.cfg`にある以下の行を追加してください:
 
 ```
 [EventChannel "Sysmon"]
@@ -424,21 +808,19 @@ sysinternalsスイートの一部であるSysmonユーティリティは、Windo
         Channel=Microsoft-Windows-Sysmon/Operational
 ```
 
-[SwiftOnSecurityによる優れたsysmon構成ファイルをダウンロードします](https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml)
+[SwiftOnSecurityによる優れたsysmon設定ファイルのダウンロード](https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml)
 
-[sysmonをダウンロードする](https://technet.microsoft.com/en-us/sysinternals/sysmon)
+[sysmon のダウンロード](https://technet.microsoft.com/en-us/sysinternals/sysmon)
 
-sysmonとその設定を入れます `C:\Program Files\gravwell`
-
-管理者のPowerShellで実行：
+以下のコマンドを実行して、管理者シェルを使って `sysmon` を設定してインストールします(Powershellでも動作します):
 
 ```
 sysmon.exe -accepteula -i sysmonconfig-export.xml
 ```
 
-標準のWindowsサービス管理を介してGravwellサービスを再起動します。
+標準のWindowsサービス管理からGravwellサービスを再起動します。
 
-#### Sysmonを使用した構成例
+#### Sysmonでの設定例
 
 ```
 [EventChannel "system"]
@@ -448,15 +830,19 @@ sysmon.exe -accepteula -i sysmonconfig-export.xml
         #no Level means pull all levels
         #no Max-Reachback means look for logs starting from now
         Channel=System #pull from the system channel
+
 [EventChannel "application"]
         Tag-Name=windows
         Channel=Application #pull from the system channel
+
 [EventChannel "security"]
         Tag-Name=windows
         Channel=Security #pull from the system channel
+
 [EventChannel "setup"]
         Tag-Name=windows
         Channel=Setup #pull from the system channel
+
 [EventChannel "sysmon"]
         Tag-Name=windows
         Provider=Microsoft-Windows-Sysmon #Only look for the provider
@@ -465,66 +851,83 @@ sysmon.exe -accepteula -i sysmonconfig-export.xml
 
 ### トラブルシューティング
 
-Webインターフェイスの[Ingester]ページに移動して、Windows ingesterの接続を確認できます。 Windows ingesterが存在しない場合は、Windows GUIを使用するか、コマンドラインで「sc query GravwellEvents」を実行して、サービスのステータスを確認します。
+Windowsインジェスターの接続性は、WebインターフェースのIngesterページに移動することで確認できます。 Windowsインジェスターが存在しない場合は、windows GUIからサービスの状態を確認するか、コマンドラインで `sc query GravwellEvents` を実行してください。
 
 ![](querystatus.png)
 
 ![](querystatusgui.png)
 
-### Windows検索の例
+### Windowsでの検索例
 
-デフォルトのタグ名が使用されていると仮定して、すべてのsysmonエントリ全体を表示するには、次の検索を実行します。
+デフォルトのタグ名が使用されていると仮定して、sysmonの全エントリを表示するには、以下の検索を実行してください:
 
 ```
 tag=sysmon
 ```
 
-すべてのWindowsイベントをすべて実行するには、次を実行します。
+すべてのWindowsイベントを完全に表示するには、以下を実行してください:
 
 ```
 tag=windows
 ```
 
-次の検索では、Windowsの結果を取得し、それらを正規表現検証ツール[regex101.com](regex101.com)に投げて、正規表現を作成しました。 `（<？P <foo>。*）`スタイルの正規表現を使用して「名前を付ける」ものはすべて、 `| fooでカウント| foo`によるチャートカウント。 正規表現の抽出の詳細については、検索モジュールに関するドキュメントを参照してください。
-
-非標準プロセスによるすべてのネットワーク作成を表示するには：
+以下の検索では、`winlog`検索モジュールを使用して、特定のイベントやフィールドをフィルタリングして抽出することができます。 非標準プロセスによるすべてのネットワーク作成を見るには:
 
 ```
-tag=sysmon regex ".*EventID>3.*'Image'>(?P<exe>\S*)<\/Data>.*SourceHostname'>(?P<src>\S*)<\/Data>.*DestinationIp'>(?P<dst>[0-9]+.[0-9]+.[0-9]+.[0-9]+).*DestinationPort'>(?P<dport>[0-9]*)"
+tag=sysmon regex winlog EventID==3 Image SourceHostname DestinationIp DestinationPort |
+table TIMESTAMP SourceHostname Image DestinationIP DestinationPort
 ```
 
-送信元ホストごとにネットワーク作成をグラフ化するには：
+ソースホスト別にネットワーク作成のチャートを作成する:
 
 ```
-tag=sysmon regex ".*EventID>3.*'Image'>(?P<exe>\S*)<\/Data>.*SourceHostname'>(?P<src>\S*)<\/Data>.*DestinationIp'>(?P<dst>[0-9]+.[0-9]+.[0-9]+.[0-9]+).*DestinationPort'>(?P<dport>[0-9]*)" | count by src | chart count by src limit 10
+tag=sysmon regex winlog EventID==3 Image SourceHostname DestinationIp DestinationPort |
+count by SourceHostname |
+chart count by SourceHostname limit 10
 ```
 
-疑わしいファイルの作成を確認するには：
+不審なファイル作成を見る:
 
 ```
-tag=sysmon regex ".*EventID>11.*Image'>(?P<process>.*)<\/Data>.*TargetFilename'>(?P<file>[\-:\.\ _\a-zA-z]*)<\/Data><Data Name='"
-```
-```
-tag=sysmon regex ".*EventID>11.*Image'>(?P<process>.*)<\/Data>.*TargetFilename'>(?P<file>[\-:\.\ _\a-zA-z]*)<\/Data><Data Name='" | count by file | chart count by file
+tag=sysmon winlog EventID==11 Image TargetFilename |
+count by TargetFilename |
+chart count by TargetFilename
 ```
 
-## Netflow Ingester
+## Netflow インジェスター
 
-Netflowインジェスターは、Netflowコレクターとして機能し（Netflowロールの詳細については、[Wikipediaの記事](https://en.wikipedia.org/wiki/NetFlow) を参照）、Netflowエクスポーターによって作成されたレコードを収集し、後で分析するためにGravwellエントリーとしてそれらをキャプチャーします。 これらのエントリは、[netflow](#!search/netflow/netflow.md)検索モジュールを使用して分析できます。
+Netflow インジェスターは Netflow コレクターとして動作します（Netflow の役割の完全な説明は [wikipedia の記事](https://en.wikipedia.org/wiki/NetFlow) を参照してください）。これらの項目はその後、 [netflow](#!search/netflow/netflow.md) 検索モジュールを使って分析することができます。
 
-Gravwell Debianリポジトリを使用している場合、インストールは単なるaptコマンドです。
+### コレクターの例
+
+```
+[Collector "netflow v5"]
+	Bind-String="0.0.0.0:2055" #we are binding to all interfaces
+	Tag-Name=netflow
+	Assume-Local-Timezone=true
+	Session-Dump-Enabled=true
+
+[Collector "ipfix"]
+	Tag-Name=ipfix
+	Bind-String="0.0.0.0:6343"
+	Flow-Type=ipfix
+```
+
+### インストール
+
+Gravwell の Debian リポジトリを使用している場合、インストールは apt コマンドひとつで済みます:
 
 ```
 apt-get install gravwell-netflow-capture
 ```
 
-それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラをダウンロードしてください。 Netflowインジェスタをインストールするには、単にインストーラをrootとして実行します（実際のファイル名には通常、バージョン番号が含まれます）。
+それ以外の場合は、「ダウンロードページ」(#!quickstart/downloads.md) からインストーラーをダウンロードします。Netflow インゲスターをインストー ルするには、単に root としてインストーラーを実行します （実際のファイル名には通常バージョ ン番号が含まれます）:
 
 ```
 root@gravserver ~ # bash gravwell_netflow_capture_installer.sh
 ```
 
-ローカルマシンにGravwellインデクサーがない場合、インストーラーはインジェクターシークレット値とインデクサー（またはフェデレーター）のIPアドレスの入力を求めます。 それ以外の場合は、既存のGravwell構成から適切な値を取得します。 いずれにせよ、インストール後に `/opt/gravwell/etc/netflow_capture.conf`の設定ファイルを確認してください。 UDPポート2055でリッスンする簡単な例は、次のようになります。
+ローカルマシン上に Gravwell インデクサーがない場合、インストーラーは Ingest-Secret 値とインデクサー(またはフェデター)の IP アドレスを要求する。そうでなければ、既存の Gravwell 設定から適切な値を引き出します。いずれにしても、インストール後に `/opt/gravwell/etc/netflow_capture.conf` の設定ファイルを確認してください。UDP ポート 2055 をリッスンする簡単な例は以下のようになります:
 
 ```
 [Global]
@@ -539,33 +942,51 @@ Log-Level=INFO
 	Tag-Name=netflow
 ```
 
-この設定は、 `/opt/gravwell/comms/pipe`を介してローカルインデクサーにエントリを送信することに注意してください。 エントリには「netflow」というタグが付けられます。
+この設定では、`/opt/gravwell/comms/pipe`を介してローカルのインデクサーにエントリを送ることに注意してください。エントリには 'netflow' というタグが付けられています。
 
-異なるポートで異なるタグをリッスンする「Collector」エントリをいくつでも設定できます。 これにより、データをより明確に整理できます。
+異なるポートで異なるタグを使用して listen している `Collector` エントリをいくつでも設定することができます。
 
-注：現時点では、ingesterはNetflow v5のみをサポートしています。 Netflowエクスポーターを構成するときは、このことに留意してください。
+注意 : 現時点では、インジェスターは Netflow v5 のみをサポートしています。
 
 ## Network Ingester
 
-Gravwellの主な強みは、バイナリデータを取り込む機能です。 ネットワークingesterを使用すると、後で分析するためにネットワークから完全なパケットをキャプチャできます。 これは、単にネットフローまたは他の凝縮されたトラフィック情報を保存するよりもはるかに優れた柔軟性を提供します。
+Gravwellの第一の強みは、バイナリデータをインジェストできることです。これは、単にネットフローや他の凝縮されたトラ フィック情報を保存するよりもはるかに優れた柔軟性を提供します。
 
-Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
+### スニッファーの例
+
+```
+[Sniffer "spy1"]
+	Interface="p1p1" #sniffing from interface p1p1
+	Tag-Name="pcap"  #assigning tag  fo pcap
+	Snap-Len=0xffff  #maximum capture size
+	BPF-Filter="not port 4023" #do not sniff any traffic on our backend connection
+	Promisc=true
+
+[Sniffer "spy2"]
+	Interface="p5p2"
+	Source-Override=10.0.0.1
+```
+
+### インストール
+
+Gravwell の Debian リポジトリを使用している場合、インストールは apt コマンドひとつで済みます:
 
 ```
 apt-get install libpcap0.8 gravwell-network-capture
 ```
 
-それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 ネットワークingesterをインストールするには、rootとしてインストーラーを実行するだけです（ファイル名は若干異なる場合があります）。
+それ以外の場合は、[ダウンロードページ](#!Quickstart/downloads.md)からインストーラをダウンロードします。ネットワークインゲスターをインストールするには、単に root でインストーラを実行してください (ファイル名が若干異なる場合があります):
 
 ```
 root@gravserver ~ # bash gravwell_network_capture_installer.sh
 ```
 
-注：ingesterが機能するには、libpcapがインストールされている必要があります。
+注意 : インジェスターを動作させるためには、libpcapがインストールされている必要があります。
 
-ネットワークingesterを可能な場合はインデクサーと同じ場所に配置し、データを送信するために「clear-conn」または「tls-conn」リンクではなく、「pipe-conn」リンクを使用することを強くお勧めします。 ネットワークingesterがエントリをプッシュするために使用しているのと同じリンクからキャプチャしている場合、リンクを急速に飽和させるフィードバックループを作成できます（たとえば、eth0からキャプチャし、eth0を介してingesterにエントリを送信します）。 これを軽減するには、 `BPF-Filter`オプションを使用できます。
+可能であれば、network ingesterをインデクサーと一緒に配置し、`clear-conn` や `tls-conn` リンクではなく、`pipe-conn` リンクを使用してデータを送信することを強くお勧めします。 network ingesterがエントリをプッシュするために使用しているリンクと同じリンクからキャプチャしている場合、リンクを急速に飽和させるフィードバックループを作成することができます(例えば、eth0からキャプチャしながらeth0経由でインジェスターにエントリを送信するなど)。これを緩和するために、`BPF-フィルター`オプションを使用することができます。
 
-Gravwellバックエンドがすでにインストールされているマシン上で感染している場合、インストーラーは自動的に正しい「Ingest-Secrets」値を取得し、それを設定ファイルに追加する必要があります。 それ以外の場合、インデクサーのIPアドレスとインジェストシークレットの入力を求められます。 いずれにしても、実行する前に `/opt/gravwell/etc/network_capture.conf`の設定ファイルを確認してください。 eth0からトラフィックをキャプチャする例は次のようになります。
+インジェスターが既に Gravwell バックエンドがインストールされているマシン上にある場合、インストーラーは自動的に正しい `Ingest-Secrets` 値を拾い上げ、それを設定ファイルに入力するべきです。そうでなければ、インデクサーのIPアドレスとインジェストシークレットを要求します。いずれにしても、実行する前に `/opt/gravwell/etc/network_capture.conf` の設定ファイルを確認してください。eth0からのトラフィックをキャプチャする例は以下のようになります:
+
 ```
 [Global]
 Ingest-Secret = IngestSecrets
@@ -587,13 +1008,13 @@ Ingest-Cache-Path=/opt/gravwell/cache/network_capture.cache
 	#Promisc=true
 ```
 
-異なるインターフェイスからキャプチャするために、任意の数の「Sniffer」エントリを設定できます。
+異なるインタフェースからキャプチャするために、`Sniffer` エントリを任意の数だけ設定することができます。
 
-ディスク容量が問題になる場合は、 `Snap-Len`パラメータを変更して、パケットメタデータのみをキャプチャすることができます。 通常、値96は、ヘッダーのみをキャプチャするのに十分です。
+ディスク容量が気になる場合は、`Snap-Len` パラメータを変更してパケットのメタデータのみをキャプチャするようにするとよいでしょう。通常、ヘッダのみをキャプチャするには96の値で十分です。
 
-非常に高い帯域幅のリンクの可能性があるため、ネットワークキャプチャデータを独自のウェルに割り当てることをお勧めします。 これには、パケットキャプチャタグ用に別のウェルを定義するインデクサーの構成が必要です。
+非常に高い帯域幅のリンクの可能性があるため、ネットワークキャプチャデータを独自のウェルに割り当てることもお勧めします。
 
-NetworkCapture ingesterは、libpcap構文に準拠する `BPF-Filter`パラメーターを使用したネイティブBPFフィルタリングもサポートします。 ポート22のすべてのトラフィックを無視するには、次のようなスニファーを構成できます。
+これには、インデクサでパケットキャプチャタグ用の別の井戸を定義する設定が必要です。NetworkCapture インジェスターは、libpcap 構文に準拠した `BPF-Filter` パラメータを使用したネイティブ BPF フィルタリングもサポートしています。 ポート 22 上のすべてのトラフィックを無視するには、以下のようにスニッファーを設定することができます:
 
 ```
 [Sniffer "no-ssh"]
@@ -603,11 +1024,11 @@ NetworkCapture ingesterは、libpcap構文に準拠する `BPF-Filter`パラメ�
 	BPF-Filter="not port 22"
 ```
 
-ingesterがインデクサーとは異なるシステムにある場合、つまり、エントリを取り込むにはネットワークを横断する必要があるため、「BPF-Filter」を「not port 4023」（クリアテキストを使用する場合）または「not port 4024」（使用する場合） TLS）。
+インデクサーとは異なるシステム上にインデクサーがある場合、つまりエントリがネットワークを経由してインジェストされなければならない場合、`BPF-Filter`を "not port 4023" (cleartextを使用している場合) または "not port 4024" (TLSを使用している場合)に設定する必要があります。
 
 ### ネットワーク検索の例
 
-次の検索では、IP 10.0.0.0/24クラスCサブネットから発信されたRSTフラグが設定されたTCPパケットを探し、それらをIPごとにグラフ化します。 このクエリを使用して、ネットワークからの送信ポートスキャンを迅速に識別することができます。
+以下の検索では、IP 10.0.0.0.0/24クラスCサブネットから発信されていないRSTフラグが設定されたTCPパケットを検索し、IPごとにグラフ化します。 このクエリを使用して、ネットワークからのアウトバウンドポートスキャンを迅速に特定することができます。
 
 ```
 tag=pcap packet tcp.RST==TRUE ipv4.SrcIP !~ 10.0.0.0/24 | count by SrcIP | chart count by SrcIP limit 10
@@ -615,13 +1036,13 @@ tag=pcap packet tcp.RST==TRUE ipv4.SrcIP !~ 10.0.0.0/24 | count by SrcIP | chart
 
 ![](portscan.png)
 
-次の検索では、IPv6トラフィックを検索し、算術演算に渡されるFlowLabelを抽出します。 これにより、パケットの長さを合計してチャートレンダラーに渡すことで、フローごとのトラフィックアカウンティングが可能になります。
+次の検索では、IPv6 トラフィックを探して FlowLabel を抽出し、これを数学演算に渡します。 これにより、パケットの長さを合計してチャートレンダラに渡すことで、フローごとのトラフィックのアカウンティングが可能になります。
 
 ```
 tag=pcap packet ipv6.Length ipv6.FlowLabel | sum Length by FlowLabel | chart sum by FlowLabel limit 10
 ```
 
-TCPペイロードで使用されている言語を識別するために、ネットワークデータをフィルター処理して、langfindモジュールに渡すことができます。 このクエリは、アウトバウンドHTTPリクエストを探し、TCPペイロードデータをlangfindモジュールに渡します。langfindモジュールは、識別された言語をカウントしてからチャートに渡します。 これにより、アウトバウンドHTTPクエリで使用される人間の言語のチャートが生成されます。
+TCPペイロードで使用されている言語を識別するために、ネットワークデータをフィルタリングしてlangfindモジュールに渡すことができます。 このクエリは、アウトバウンド HTTP リクエストを探し、TCP ペイロードのデータを langfind モジュールに渡します。 これにより、アウトバウンド HTTP クエリで使用される人間の言語のチャートが生成されます。
 
 ```
 tag=pcap packet ipv4.DstIP != 10.0.0.100 tcp.DstPort == 80 tcp.Payload | langfind -e Payload | count by lang | chart count by lang
@@ -629,18 +1050,19 @@ tag=pcap packet ipv4.DstIP != 10.0.0.100 tcp.DstPort == 80 tcp.Payload | langfin
 
 ![](langfind.png)
 
-トラフィックアカウンティングは、レイヤー2でも実行できます。これは、イーサネットヘッダーからパケット長を抽出し、宛先MACアドレスで長さを合計し、トラフィックカウントでソートすることで実現されます。 これにより、特におしゃべりする可能性のあるイーサネットネットワーク上の物理デバイスを迅速に識別できます。
+トラフィックアカウンティングは、レイヤ2でも実行できます。これは、イーサネットヘッダからパケット長を抽出し、その長さを宛先MACアドレスで合計し、トラフィックカウントでソートすることで達成されます。 これにより、イーサネットネットワーク上の特におしゃべりな物理デバイスを迅速に特定することができます:
+
 ```
 tag=pcap packet eth.DstMAC eth.Length > 0 | sum Length by DstMAC | sort by sum desc | table DstMAC sum
 ```
 
-同様のクエリは、パケットカウントを介してチャットデバイスを識別できます。 たとえば、デバイスはスイッチに負荷をかけますが大量のトラフィックにはならない小さなイーサネットパケットを積極的にブロードキャストしている場合があります。
+同様のクエリでは、パケット数を介しておしゃべりなデバイスを識別することができます。例えば、あるデバイスがスイッチにストレスを与えるが、大量のトラフィックにはならない小さなイーサネットパケットを積極的にブロードキャストしているかもしれません。
 
 ```
 tag=pcap packet eth.DstMAC eth.Length > 0 | count by DstMAC | sort by count desc | table DstMAC count
 ```
 
-非標準のHTTPポートで動作するHTTPトラフィックを識別することが望ましい場合があります。 これは、フィルタリングオプションを実行し、ペイロードを他のモジュールに渡すことで実現できます。 たとえば、TCPポート80ではなく、特定のサブネットから発信されているアウトバウンドトラフィックを検索し、ppacketペイロードでHTTP要求を検索すると、異常なHTTPトラフィックを特定できます。
+非標準の HTTP ポートで動作する HTTP トラフィックを識別することが望ましいかもしれません。 これは、フィルタリングオプションを行使し、ペイロードを他のモジュールに渡すことで実現できます。 例えば、TCPポート80ではなく、特定のサブネットから発信されているアウトバウンドトラフィックを探し、ppacketペイロード内のHTTPリクエストを探すことで、異常なHTTPトラフィックを特定することができます:
 
 ```
 tag=pcap packet ipv4.SrcIP ipv4.DstIP tcp.DstPort !=80 ipv4.SrcIP ~ 10.0.0.0/24 tcp.Payload | regex -e Payload "(?P<method>[A-Z]+)\s+(?P<url>[^\s]+)\s+HTTP/\d.\d" | table method url SrcIP DstIP DstPort
@@ -648,32 +1070,150 @@ tag=pcap packet ipv4.SrcIP ipv4.DstIP tcp.DstPort !=80 ipv4.SrcIP ~ 10.0.0.0/24 
 
 ![](nonstandardhttp.png)
 
-## 収集されたIngester
+## Kafka
 
-収集されたingesterは完全にスタンドアロンの [collectd](https://collectd.org/) 収集エージェントであり、収集されたサンプルをGravwellに直接出荷できます。 ingesterは、異なるタグ、セキュリティコントロール、およびプラグインからタグへのオーバーライドで構成できる複数のコレクターをサポートします。
+Kafkaインジェスターは、[Apache Kafka](https://kafka.apache.org/)のコンシューマとして動作するように設計されており、GravwellがKafkaクラスタにアタッチしてデータを消費できるようになっています。 Kafkaは、Gravwellに対して高可用性の[data broker](https://kafka.apache.org/uses#uses_logs)として機能することができる。 Kafkaは、Gravwellフェデレータによって提供される役割の一部を引き受けたり、Gravwellを既存のデータフローに統合する負担を軽減したりすることができます。 データがすでにKafkaに流れている場合、Gravwellを統合するのはapt-getするだけです。
 
-Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
+Gravwell Kafkaインジェスターは、単一のインデクサーのコロケーションされたインジェ ストポイントとして最適です。 KafkaクラスタとGravwellクラスタを運用している場合、Gravwellインジェスト層でKafkaのロードバランシング特性を重複させないようにするのが最善です。 Gravwellインデクサーと同じマシンにKafkaインジェスターをインストールし、Unixの名前付きパイプ接続を使用する。 各インデクサーはそれぞれ独自のKafkaインジェスターで構成されるべきで、この方法でKafkaクラスタはロードバランシングを管理することができます。
+
+ほとんどのKafkaの設定では、データの耐久性を保証するために、消費者が利用できないときは、データは非揮発性のストレージに保存されます。 そのため、KafkaインジェスターでGravwellインジェストキャッシュを有効にすることはお勧めしませんが、代わりにKafkaがデータの耐久性を提供してくれます。
+
+### コンシューマーの例
+
+```
+[Consumer "default"]
+	Leader="127.0.0.1"
+	Default-Tag=default   #send bad tag names to default tag
+	Tags=*                #allow all tags
+	Topic=default
+	Tag-Header=TAG        #look for the tag in the kafka TAG header
+	Source-Header=SRC     #look for the source in the kafka SRC header
+
+[Consumer "test"]
+	Leader="127.0.0.1:9092"
+	Tag-Name=test
+	Topic=test
+	Consumer-Group=mygroup
+	Synchronous=true
+	Key-As-Source=true #A custom feeder is putting its source IP in the message key value
+	Header-As-Source="TS" #look for a header key named TS and treat that as a source
+	Source-As-Text=true #the source value is going to come in as a text representation
+	Batch-Size=256 #get up to 256 messages before consuming and pushing
+	Rebalance-Strategy=roundrobin
+```
+
+### Installation
+
+Kafka インジェスターは、Gravwell の debian リポジトリで debian パッケージとして、またシェルインストーラとして [Downloads page] (#!quickstart/downloads.md) で入手できます。 リポジトリからのインストールは `apt` を用いて行う:
+
+```
+apt-get install gravwell-kafka
+```
+
+シェルインストーラは Arch, Redhat, Gentoo, Fedora を含む SystemD を使用する Debian 以外のシステムをサポートしています。
+
+```
+root@gravserver ~ # bash gravwell_kafka_installer.sh
+```
+
+### 設定
+
+Gravwell Kafkaインジェスターは、複数のトピック、さらには複数のKafkaクラスタをサブスクライブすることができます。 各コンシューマは、いくつかのキー設定値を持つコンシューマブロックを定義します。
+
+
+| パラメーター | タイプ | 説明 | 必須 |
+|-----------|------|--------------| -------- |
+| Tag-Name  | string | データが送信されるべきGravwellタグ。  | YES |
+| Leader    | host:port | Kafka クラスタのリーダー/ブローカー。 ポートが指定されていない場合は、デフォルトのポート 9092 が追加されます。 | YES |
+| Topic     | string | コンシューマーが読むであろうKafka topic | YES |
+| Consumer-Group | string | このインジェスターが属している Kafka コンシューマーグループ | NO - デフォルトは `gravwell` です。 |
+| Source-Override | IPv4 or IPv6 | すべてのエントリの SRC として使用する IP アドレス | NO |
+| Rebalance-Strategy | string | Kafkaを読むときに使うリバランスストラテジー | NO - のデフォルトは `roundrobin` です。 sticky`, `range` もオプションです。 |
+| Key-As-Source | boolean | Gravwell プロデューサはデータソースアドレスをメッセージキーに入れることが多く、設定されている場合、インジェスターはメッセージキーをソースアドレスとして解釈しようとします。 キー構造が正しくない場合、インジェスターはオーバーライド(設定されている場合)またはデフォルトのソースを適用します。 | NO - デフォルトはfalse。 |
+| Synchronous | boolean | インジェスターは、kafka バッチが書き込まれるたびに、インジェスト接続上で同期を行います。 | NO - デフォルトはfalse。 |
+| Batch-Size | integer | インジェスト接続への書き込みを強制する前に Kafka から読み込むエントリ数。 | NO - デフォルトは512。 |
+
+警告 : コンシューマを同期に設定すると、そのコンシューマはインジェスト・パイプラインを継続的に同期させます。 これは、すべてのコンシューマに重大なパフォーマンスの影響を与えます。
+
+注意 : `Synchronous=true`を使用しているときに大きな`Batch-Size`を設定すると、高負荷時のパフォーマンスを向上させることができます。
+
+#### 設定例
+
+ここでは、2 つの異なるコンシューマーグループを使用して 2 つの異なるトピックをサブスクライブしている構成例を示します。
+
+```
+[Global]
+Ingest-Secret = IngestSecrets
+Connection-Timeout = 0
+Pipe-Backend-target=/opt/gravwell/comms/pipe
+Log-Level=INFO
+Log-File=/opt/gravwell/log/kafka.log
+
+[Consumer "default"]
+	Leader="tasks.kafka.internal"
+	Tag-Name=default
+	Topic=default
+	Consumer-Group=gravwell1
+	Key-As-Source=true
+	Batch-Size=256
+
+
+[Consumer "test"]
+	Leader="tasks.testcluster.internal:9092"
+	Tag-Name=test
+	Topic=test
+	Consumer-Group=testgroup
+	Source-Override="192.168.1.1"
+	Rebalance-Strategy=range
+	Batch-Size=4096
+```
+
+## collectd Ingester
+
+collectdingesterは完全にスタンドアロンの[collectd](https://collectd.org/)コレクションエージェントで、Collectdサンプルを直接Gravwellに出荷することができます。 インゲスターは複数のコレクターをサポートしており、異なるタグ、セキュリティコントロール、およびプラグインからタグへのオーバーライドで設定することができます。
+
+### Collectorの例
+
+```
+[Collector "default"]
+	Bind-String=0.0.0.0:25826
+	Tag-Name=collectd
+	Security-Level=encrypt
+	User=user
+	Password=secret
+	Encoder=json
+
+[Collector "example"]
+	Bind-String=10.0.0.1:9999 #default is "0.0.0.0:25826
+	Tag-Name=collectdext
+	Tag-Plugin-Override=cpu:collectdcpu
+	Tag-Plugin-Override=swap:collectdswap
+```
+
+### インストール
+Gravwell の Debian リポジトリを使用している場合、インストールは apt コマンドひとつで済みます:
 
 ```
 apt-get install gravwell-collectd
 ```
 
-それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上のターミナルを使用して、次のコマンドをスーパーユーザーとして（たとえば、「sudo」コマンド経由で）発行して、ingesterをインストールします。
+それ以外の場合は、[Downloads page](#!quickstart/downloads.md)からインストーラをダウンロードする。Gravwell サーバー上のターミナルを使用して、スーパーユーザーとして(例: `sudo` コマンドで)以下のコマンドを実行し、インジェスターをインストールします:
 
 ```
 root@gravserver ~ # bash gravwell_collectd_installer.sh
 ```
 
-Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的に `Ingest-Auth`パラメーターを抽出して設定し、適切に設定します。 ただし、ご使用のコンピューターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスの入力を求めます。 インストール時にこれらの値を設定するか、空白のままにして、 `/opt/gravwell/etc/collectd.conf`の設定ファイルを手動で変更できます。
-### 構成
+Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth` パラメータを抽出して設定し、適切に設定する。 しかし、インジェスターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスを要求します。インストール中にこれらの値を設定するか、空欄のままにして、`/opt/gravwell/etc/collectd.conf`の設定ファイルを手動で修正することができます。
 
-収集されたingesterは、他のすべてのインジェスターと同じグローバル構成システムに依存しています。 Globalセクションは、インデクサー接続、認証、およびローカルキャッシュコントロールを定義するために使用されます。
+### Configuration
 
-コレクター構成ブロックは、収集されたサンプルを受け入れることができるリスニングコレクターを定義するために使用されます。 各コレクタ構成には、一意のセキュリティレベル、認証、タグ、ソースオーバーライド、ネットワークバインド、およびタグオーバーライドを設定できます。 複数のコレクター構成を使用して、単一の収集されたingesterは複数のインターフェースでリッスンし、複数のネットワーク飛び地から入ってくる収集されたサンプルに固有のタグを適用できます。
+collectd ingesterは、他のすべてのインジェスターと同じグローバル設定システムに依存します。 グローバルセクションはインデクサ接続、認証、ローカルキャッシュ制御の定義に使用されます。
 
-デフォルトでは、収集されたingesterは/opt/gravwell/etc/collectd.conf.にある構成ファイルを読み取ります。
+コレクター設定ブロックは、Collectd サンプルを受け入れることができるリッスンコレクターを定義するために使用されます。 各コレクター構成は、固有のセキュリティレベル、認証、タグ、ソースオーバーライド、ネットワークバインド、およびタグオーバーライドを持つことができます。 複数のコレクター設定を使用することで、1 つのコレクトードインジェスターは複数のインターフェイスをリッスンし、複数のネットワークエンクレーブからのコレクトードサンプルに固有のタグを適用することができます。
 
-#### 設定例
+デフォルトでは、Collectd ingesterは _/opt/gravwell/etc/collectd.conf_ にある設定ファイルを読み込みます。
+
+#### 構成例
 
 ```
 [Global]
@@ -698,11 +1238,11 @@ Gravwellサービスが同じマシンに存在する場合、インストール
 
 #### コレクター構成オプション
 
-コレクタ構成オプション各コレクタブロックには、一意の名前と重複しないバインド文字列が含まれている必要があります。 同じポート上の同じインターフェースにバインドされた複数のコレクターを持つことはできません。
+各 Collector ブロックには、一意の名前と重複しないバインド文字列を含める必要があります。 同じポート上の同じインターフェイスにバインドされた複数のコレクターを持つことはできません。
 
 ##### Bind-String
 
-Bind-Stringは、コレクターが着信収集サンプルをリッスンするために使用するアドレスとポートを制御します。 有効なバインド文字列には、IPv4またはIPv6アドレスとポートのいずれかが含まれている必要があります。 すべてのインターフェイスでリッスンするには、「0.0.0.0」ワイルドカードアドレスを使用します。
+Bind-String は、コレクターが受信するコレクトサンプルをリッスンするために使用するアドレスとポートを制御します。 有効なバインド文字列には、IPv4 または IPv6 アドレスとポートのいずれかを含める必要があります。 すべてのインターフェースをリッスンするには、ワイルドカードアドレス「0.0.0.0.0」を使用します。
 
 ###### Bind-Stringの例
 ```
@@ -712,13 +1252,13 @@ Bind-String=127.0.0.1:12345
 Bind-String=[fe80::1]:25826
 ```
 
-##### Tag-name
+##### Tag-Name
 
-Tag-Nameは、Tag-Plugin-Overrideが適用されない限り、収集されたサンプルが割り当てられるタグを定義します。
+Tag-Name は、Tag-Plugin-Override が適用されない限り、Collectd サンプルが割り当てられるタグを定義します。
 
 ##### Source-Override
 
-Source-Overrideディレクティブは、エントリがGravwellに送信されるときにエントリに適用されるソース値をオーバーライドするために使用されます。 デフォルトでは、ingesterはingesterのSourceを適用しますが、検索時にセグメンテーションまたはフィルタリングを適用するには、特定のソース値をCollectorブロックに適用することが望ましい場合があります。 Source-Overrideは、有効なIPv4またはIPv6アドレスです。
+Source-Override ディレクティブは、エントリが Gravwell に送信されるときに適用されるソース値を上書きするために使用されます。 デフォルトではインジェスターはインゲスターのソースを適用しますが、検索時にセグメンテーションやフィルタリングを適用するために、特定のソース値をコレクターブロックに適用することが望ましい場合があります。 ソースオーバーライドは、任意の有効なIPv4またはIPv6アドレスです。
 
 ##### Source-Overrideの例
 ```
@@ -729,7 +1269,7 @@ Source-Override=[fe80::1:1]
 
 ##### Security-Level
 
-Security-Levelディレクティブは、Collectorが収集したパケットを認証する方法を制御します。 利用可能なオプションは、暗号化、署名、なしです。 デフォルトでは、コレクタは「暗号化」セキュリティレベルを使用し、ユーザーとパスワードの両方を指定する必要があります。 「none」を使用する場合、ユーザーまたはパスワードは不要です。
+Security-Level ディレクティブは、Collector が collectd パケットをどのように認証するかを制御します。 利用可能なオプションは encrypt、sign、none です。 デフォルトでは、コレクターは "encrypt" セキュリティレベルを使用し、ユーザとパスワードの両方を指定する必要があります。 "none" を使用した場合、ユーザとパスワードは必要ありません。
 
 ##### Security-Levelの例
 ```
@@ -741,7 +1281,7 @@ Security-Level = SIGN
 
 ##### ユーザーとパスワード
 
-Security-Levelが「sign」または「encrypt」として設定されている場合、エンドポイントで設定された値と一致するユーザー名とパスワードを提供する必要があります。 デフォルト値は、collectdに付属のデフォルト値と一致する「user」および「secret」です。 これらの値は、収集されたデータに機密情報が含まれる可能性がある場合に変更する必要があります。
+セキュリティレベルが "sign "または "encrypt "に設定されている場合、エンドポイントで設定されている値と一致するユーザ名とパスワードを指定する必要があります。 デフォルト値は "user "と "secret "で、collectdに同梱されているデフォルト値と一致しています。 collectd のデータにセンシティブな情報が含まれている可能性がある場合は、これらの値を変更してください。
 
 ###### ユーザーとパスワードの例
 ```
@@ -751,21 +1291,21 @@ User = "username with spaces in it"
 Password = "Password with spaces and other characters @$@#@()*$#W)("
 ```
 
-##### エンコーダー
+##### Encoder
 
-デフォルトの収集されたエンコーダーはJSONですが、シンプルなテキストエンコーダーも利用できます。 オプションは「JSON」または「テキスト」です
+デフォルトのcollectd encoderはJSONですが、シンプルなテキストエンコーダも利用できます。 オプションは "JSON" または "text" です。
 
-JSONエンコーダーを使用したエントリの例：
+JSON エンコーダを使用したエントリの例:
 
 ```
 {"host":"build","plugin":"memory","type":"memory","type_instance":"used","value":727789568,"dsname":"value","time":"2018-07-10T16:37:47.034562831-06:00","interval":10000000000}
 ```
 
-### Tag Plugin Overrides
+### Tag PluginのOverrides
 
-各コレクターブロックは、N個のTag-Plugin-Override宣言をサポートします。これは、生成されたプラグインに基づいて、収集されたサンプルに一意のタグを適用するために使用されます。 Tag-Plugin-Overridesは、異なるプラグインからのデータを異なるウェルに保存し、異なるエージアウトルールを適用する場合に役立ちます。 たとえば、ディスク使用量に関する収集されたレコードを9か月間保存することは有益ですが、CPU使用量レコードは14日で期限切れになる場合があります。 Tag-Plugin-Overrideシステムはこれを簡単にします。
+各 Collector ブロックは N 個の Tag-Plugin-Override 宣言をサポートしており、生成したプラグインに基づいてサンプルに一意のタグを適用するために使用します。 タグプラグインオーバーライドは、異なるプラグインからのデータを異なるウェルに保存し、異なるエイジアウトルールを適用したい場合に便利です。 例えば、ディスク使用量に関するコレクトレコードを9ヶ月間保存しておくことは価値があるかもしれませんが、CPU使用量のレコードは14日で期限切れになってしまうことがあります。 Tag-Plugin-Overrideシステムはこれを簡単にします。
 
-Tag-Plugin-Override形式は、「：」文字で区切られた2つの文字列で構成されています。 左側の文字列はプラグインの名前を表し、右側の文字列は目的のタグの名前を表します。 タグに関するすべての通常のルールが適用されます。 単一のプラグインを複数のタグにマッピングすることはできませんが、複数のプラグインを同じタグにマッピングできます。
+Tag-Plugin-Overrideのフォーマットは、": "で区切られた2つの文字列で構成されています。 左側の文字列はプラグインの名前を表し、右側の文字列は希望するタグの名前を表します。 タグに関するすべての通常のルールが適用されます。 単一のプラグインを複数のタグにマッピングすることはできませんが、複数のプラグインを同じタグにマッピングすることはできます。
 
 #### Tag Plugin Overridesの例
 ```
@@ -777,26 +1317,45 @@ Tag-Plugin-Override = disk : diskdata  # Map the disk plugin data to the "diskda
 
 ## Kinesis Ingester
 
-Gravwellは、Amazonの[Kinesis Data Streams](https://aws.amazon.com/kinesis/data-streams/) サービスからエントリを取得できるingesterを提供します。 ingesterは一度に複数のKinesisストリームを処理でき、各ストリームは多くの個別のシャードで構成されます。 Kinesisストリームを設定するプロセスはこのドキュメントの範囲外ですが、既存のストリームにKinesis ingesterを設定するには、次のものが必要です。
+Gravwellは、Amazonの[Kinesis Data Streams](https://aws.amazon.com/kinesis/data-streams/)サービスからエントリを取得できるインゲスターを提供する。インジェスターは一度に複数の Kinesis ストリームを処理することができ、各ストリームは多数の個別のシャードで構成されている。Kinesis ストリームを設定するプロセスはこのドキュメントの範囲外ですが、既存のストリームに対して Kinesis ingesterを設定するには、次のものが必要です:
 
+* An AWS access key (ID number & secret key)
+* The region in which your stream resides
+* The name of the stream itself
 
-* AWSアクセスキー（ID番号とシークレットキー）
-* ストリームが存在する地域
-* ストリーム自体の名前
+ストリームが設定されると、Kinesis ストリームの各レコードは、Gravwell の 1 つのエントリとして保存されます。
 
-ストリームが設定されると、Kinesisストリームの各レコードがGravwellに単一のエントリとして保存されます。
+### KinesisStreamの例
 
-### インストールと構成
+```
+[KinesisStream "stream1"]
+	Region="us-west-1"
+	Tag-Name=kinesis
+	Stream-Name=MyKinesisStreamName	# should be the stream name as created in AWS
+	Iterator-Type=TRIM_HORIZON
+	Parse-Time=false
+	Assume-Local-Timezone=true
 
-最初に、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードしてから、ingesterをインストールします。
+[KinesisStream "stream2"]
+	Region="us-west-1"
+	Tag-Name=kinesis
+	Stream-Name=MyKinesisStreamName	# should be the stream name as created in AWS
+	Iterator-Type=TRIM_HORIZON
+	Metrics-Interval=60
+	JSON-Metric=true
+```
+
+### インストールと設定
+
+まず、[ダウンロードページ](#!Quickstart/downloads.md)からインストーラーをダウンロードし、インジェスターをインストールします:
 
 ```
 root@gravserver ~# bash gravwell_kinesis_ingest_installer.sh
 ```
 
-Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth`パラメーターを抽出して設定し、適切に設定する必要があります。 `/opt/gravwell/etc/kinesis_ingest.conf`設定ファイルを開き、Kinesisストリーム用に設定する必要があります。 以下で説明するように設定を変更したら、コマンド `systemctl start gravwell_kinesis_ingest.service`でサービスを開始します。
+Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth` パラメータを抽出して設定し、適切に設定する必要があります。ここで、`/opt/gravwell/etc/kinesis_ingest.conf` 設定ファイルを開き、Kinesisストリーム用に設定する必要があります。以下のように設定を変更したら、`systemctl start gravwell_kinesis_ingest.service` コマンドでサービスを起動します。
 
-以下の例は、ローカルマシン上のインデクサーに接続し（ `Pipe-Backend-target`設定に注意してください）、us-west-1リージョンの「MyKinesisStreamName」という名前の単一Kinesisストリームからフィードするサンプル設定を示しています。
+以下の例は、ローカルマシン上のインデクサに接続し（`Pipe-Backend-target` の設定に注意）、US-West-1 リージョンにある "MyKinesisStreamName" という名前の Kinesis ストリームからインデクサに供給する設定のサンプルです。
 
 ```
 [Global]
@@ -805,55 +1364,77 @@ Connection-Timeout = 0
 Insecure-Skip-TLS-Verify = false
 Pipe-Backend-target=/opt/gravwell/comms/pipe #a named pipe connection, this should be used when ingester is on the same machine as a backend
 Log-Level=ERROR #options are OFF INFO WARN ERROR
+State-Store-Location=/opt/gravwell/etc/kinesis_ingest.state
 
 # This is the access key *ID* to access the AWS account
 AWS-Access-Key-ID=REPLACEMEWITHYOURKEYID
 # This is the secret key which is only displayed once, when the key is created
+#   Note: This option is not required if running in an AWS instance (the AWS
+#         the AWS SDK handles that)
 AWS-Secret-Access-Key=REPLACEMEWITHYOURKEY
 
 [KinesisStream "stream1"]
 	Region="us-west-1"
 	Tag-Name=kinesis
 	Stream-Name=MyKinesisStreamName	# should be the stream name as AWS knows it
-	Iterator-Type=LATEST
+	Iterator-Type=TRIM_HORIZON
 	Parse-Time=false
 	Assume-Localtime=true
 ```
 
-ingesterを開始する前に、少なくとも以下のフィールドを設定する必要があります。
+オプション `State-Store-Location` に注意してください。これは、既に見られたエントリの再インジェストを防ぐために、ストリーム中のインジェスターの位置を追跡するステートファイルの場所を設定します。
 
-* `AWS-Access-Key-ID`-これは使用したいAWSアクセスキーのIDです
-* `AWS-Secret-Access-Key`-これはシークレットアクセスキーそのものです
-* `Region`-キネシスストリームが存在する領域
-* `Stream-Name`-キネシスストリームの名前
+インジェスターを開始する前に、少なくとも以下のフィールドを設定する必要があります:
 
-複数の異なるKinesisストリームをサポートするために、複数の `KinesisStream`セクションを設定できます。
+* `AWS-Access-Key-ID` - これは利用したいAWSのアクセスキーのIDです。
+* `AWS-Secret-Access-Key` - これは秘密のアクセスキーです。
+* `Region` - kinesis streamが存在する領域
+* `Stream-Name` - kinesis streamの名前
 
-手動で `/opt/gravwell/bin/gravwell_kinesis_ingester -v`を実行して設定をテストできます。 エラーが出力されない場合、構成はおそらく受け入れられます。
+複数の異なるKinesisストリームをサポートするために、複数の `KinesisStream` セクションを設定することができます。
 
-ほとんどのフィールドは一目瞭然ですが、 `Iterator-Type`設定には注意する価値があります。 この設定は、ingesterがデータの読み取りを開始する場所を選択します。 TRIM_HORIZONに設定することにより、inesterは利用可能な最も古いレコードの読み取りを開始します。 LATESTに設定されている場合、ingesterは既存のすべてのレコードを無視し、ingesterの開始後に作成されたレコードのみを読み取ります。 ほとんどの場合、データの重複を避けるために、最新に設定する必要があります。 既存のデータを取り込みたい場合はTRIM_HORIZONに設定し、再起動する前に、ingesterをシャットダウンし、値をLATESTに変更します。
+設定をテストするには、`/opt/gravwell/bin/gravwell_kinesis_ingester -v` を手で実行してください。
 
-## GCP PubSubインジェスター
+ほとんどのフィールドは自明ですが、`Iterator-Type`の設定には注意が必要です。この設定では、インジェスターがデータの読み込みを開始する場所を選択します。デフォルトは "LATEST" で、インゲスターは既存のレコードをすべて無視し、インジェスターの開始後に作成されたレコードのみを読み込みます。これを TRIM_HORIZON に設定すると、インジェスターは利用可能な最も古いレコードからレコードの読み込みを開始します。ほとんどの状況では、古いデータを取得できるように TRIM_HORIZON に設定することをお勧めします。
 
-Gravwellは、Google Compute Platformの[PubSubストリーム](https://cloud.google.com/pubsub/) サービスからエントリを取得できるingesterを提供します。 ingesterは、単一のGCPプロジェクト内で複数のPubSubストリームを処理できます。 PubSubストリームを設定するプロセスはこのドキュメントの範囲外ですが、既存のストリームにPubSub ingesterを設定するには、次のものが必要です。
+Kinesis ingesterは、他の多くのインジェスターに見られる `Ignore-Timestamps` オプションを提供していません。Kinesisメッセージには到着タイムスタンプが含まれます。デフォルトでは、インジェスターはそれをGravwellタイムスタンプとして使用します。データ消費者定義で `Parse-Time=true` が指定されている場合、インゲスターは代わりにメッセージ本文からタイムスタンプを抽出しようとします。
 
-* GoogleプロジェクトID
-* GCPサービスアカウント認証情報を含むファイル（[サービスアカウントの作成](https://cloud.google.com/docs/authentication/getting-started)ドキュメントを参照）
-* PubSubトピックの名前
+## GCP PubSub Ingester
 
-ストリームが設定されると、PubSubストリームトピックの各レコードがGravwellに単一のエントリとして保存されます。
+Gravwellは、Google Compute Platformの[PubSubストリーム](https://cloud.google.com/pubsub/)サービスからエントリを取得できるインジェスターを提供します。このインジェスターは、1つのGCPプロジェクト内で複数のPubSubストリームを処理することができます。PubSubストリームを設定するプロセスはこのドキュメントの範囲外ですが、既存のストリームのためにPubSubインジェスターを設定するには、以下のものが必要です:
 
-### インストールと構成
+* The Google Project ID
+* A file containing GCP service account credentials (see the [Creating a service account](https://cloud.google.comauthentication/getting-started) documentation)
+* The name of a PubSub topic
 
-最初に、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードしてから、ingesterをインストールします。
+ストリームを構成すると、PubSub ストリームトピックの各レコードは、Gravwell の 1 つのエントリとして保存されます。
+
+### PubSubの例
+
+```
+[PubSub "gravwell"]
+	Topic-Name=mytopic	# the pubsub topic you want to ingest
+	Tag-Name=gcp
+	Parse-Time=false
+	Assume-Local-Timezone=true
+
+[PubSub "my_other_topic"]
+	Topic-Name=foo # the pubsub topic you want to ingest
+	Tag-Name=gcp
+	Assume-Local-Timezone=false
+```
+
+### インストールと設定
+
+まず、[ダウンロードページ](#!Quickstart/downloads.md)からインストーラーをダウンロードし、インゲスターをインストールします:
 
 ```
 root@gravserver ~# bash gravwell_pubsub_ingest_installer.sh
 ```
 
-Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth`パラメーターを抽出して設定し、適切に設定する必要があります。 `/opt/gravwell/etc/pubsub_ingest.conf`設定ファイルを開き、PubSubトピック用に設定する必要があります。 以下で説明するように設定を変更したら、コマンド `systemctl start gravwell_pubsub_ingest.service`でサービスを開始します
+Gravwell サービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth` パラメータを抽出して設定し、適切に設定する必要があります。ここで、`/opt/gravwell/etc/pubsub_ingest.conf` 設定ファイルを開き、PubSub トピック用に設定する必要があります。以下のように設定を変更したら、`systemctl start gravwell_pubsubub_ingest.service` コマンドでサービスを起動します。
 
-以下の例は、ローカルマシンのインデクサーに接続し（ `Pipe-Backend-target`設定に注意してください）、「myproject-127400」の一部である「mytopic」という名前の単一のPubSubトピックからフィードするサンプル設定を示しています 「GCPプロジェクト。
+以下の例は、ローカルマシン上のインデクサに接続し(`Pipe-Backend-target`の設定に注意)、「myproject-127400」GCPプロジェクトの一部である「mytopic」という名前の単一のPubSubトピックからインデクサをフィードする設定のサンプルを示しています。
 
 ```
 [Global]
@@ -874,35 +1455,181 @@ Google-Credentials-Path=/opt/gravwell/etc/google-compute-credentials.json
 	Assume-Localtime=true
 ```
 
-次の必須フィールドに注意してください。
+以下の必須項目に注意してください:
 
-* `Project-ID`-GCPプロジェクトのプロジェクトID文字列
-* `Google-Credentials-Path`-JSON形式のGCPサービスアカウント認証情報を含むファイルへのパス
-* `Topic-Name`-指定されたGCPプロジェクト内のPubSubトピックの名前
+* `Project-ID` - GCPプロジェクトのプロジェクトID文字列
+* `Google-Credentials-Path` - JSON形式のGCPサービスアカウントの資格情報を含むファイルへのパス
+* `Topic-Name` - 指定されたGCPプロジェクト内のPubSubトピックの名前
 
-複数の `PubSub`セクションを設定して、単一のGCPプロジェクト内で複数の異なるPubSubトピックをサポートできます。
+1つのGCPプロジェクト内で複数の異なるPubSubトピックをサポートするために、複数の `PubSub` セクションを設定することができます。
 
-手動で `/opt/gravwell/bin/gravwell_pubsub_ingester -v`を実行することで設定をテストできます。 エラーが出力されない場合、構成はおそらく受け入れられます。
+エラーが表示されなければ、おそらく設定は問題ありません。
 
-## ディスクモニター
+PubSub インジェスターは、他の多くのインジェスターに見られる `Ignore-Timestamps` オプションを提供していません。PubSubメッセージには到着タイムスタンプが含まれています。デフォルトでは、インジェスターはそれをGravwellタイムスタンプとして使用します。データ消費者定義で `Parse-Time=true` が指定されている場合、インジェスターは代わりにメッセージ本文からタイムスタンプを抽出しようとします。
 
-diskmonitor ingesterは、ディスクアクティビティの定期的なサンプルを取得し、サンプルをgravwellに出荷するように設計されています。 ディスクモニタは、ストレージの遅延の問題を特定したり、ディスク障害を見つけたり、その他の潜在的なストレージの問題を特定するのに非常に役立ちます。 Gravwellでは、ディスクモニターを使用して独自のストレージインフラストラクチャを積極的に監視し、クエリの動作方法を調査し、ストレージインフラストラクチャの動作不良を特定しています。 RAIDコントローラーが診断ログで言及しなかった場合でも、レイテンシプロットを介してライトスルーモードに移行したRAIDアレイを特定することができました。
+## Office 365ログインジェスター
 
-ディスクモニターのingesterは[github](https://github.com/gravwell/ingesters)で入手できます。
+Gravwellは、Microsoft Office 365ログ用のインジェスターを提供します。インジェスターは、サポートされているすべてのログタイプを処理することができます。インジェスターを設定するには、Azure Active Directory管理ポータル内で新しい*アプリケーション*を登録する必要があります。以下の情報が必要です:
+
+* Client ID: Azure管理コンソールを介してアプリケーション用に生成されたUUID
+* Client secret: Azureコンソールを介してアプリケーション用に生成されたシークレットトークン
+* Azure Directory ID: Active Directoryインスタンスを表すUUIDで、Azure Active Directoryダッシュボードに表示されます。
+* Tenant Domain: TOffice 365ドメインのドメイン（例："mycorp.onmicrosoft.com"）
+
+### ContentTypeの例
+
+```
+[ContentType "azureAD"]
+	Content-Type="Audit.AzureActiveDirectory"
+	Tag-Name="365-azure"
+
+[ContentType "exchange"]
+	Content-Type="Audit.Exchange"
+	Tag-Name="365-exchange"
+
+[ContentType "sharepoint"]
+	Content-Type="Audit.SharePoint"
+	Tag-Name="365-sharepoint"
+
+[ContentType "general"]
+	Content-Type="Audit.General"
+	Tag-Name="365-general"
+
+[ContentType "dlp"]
+	Content-Type="DLP.All"
+	Tag-Name="365-dlp"
+```
+
+### インストールと設定
+
+まず、[ダウンロードページ](#!Quickstart/downloads.md)からインストーラーをダウンロードし、インジェスターをインストールします:
+
+```
+root@gravserver ~# bash gravwell_o365_installer.sh
+```
+
+Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth` パラメータを抽出して設定し、適切に設定する必要があります。次に、`/opt/gravwell/etc/o365_ingest.conf`構成ファイルを開き、必要に応じてプレースホルダフィールドを置き換えたり、タグを修正したりして、Office 365アカウント用に設定する必要があります。以下のように設定を変更したら、`systemctl start gravwell_o365_ingest.service` コマンドでサービスを起動します。
+
+以下の例では、ローカルマシン上のインデクサに接続して (`Pipe-Backend-target` の設定に注意してください)、サポートされているすべてのログタイプのログをフィードする設定のサンプルを示しています:
+
+```
+[Global]
+Ingest-Secret = IngestSecrets
+Connection-Timeout = 0
+Pipe-Backend-target=/opt/gravwell/comms/pipe #a named pipe connection, this should be used when ingester is on the same machine as a backend
+Log-Level=ERROR #options are OFF INFO WARN ERROR
+State-Store-Location=/opt/gravwell/etc/o365_ingest.state
+
+Client-ID=79fb8690-109f-11ea-a253-2b12a0d35073
+Client-Secret="<secret>"
+Directory-ID=e8b7895e-109f-11ea-9dcc-93fb14b5dab5
+Tenant-Domain=mycorp.onmicrosoft.com
+
+[ContentType "azureAD"]
+	Content-Type="Audit.AzureActiveDirectory"
+	Tag-Name="365-azure"
+
+[ContentType "exchange"]
+	Content-Type="Audit.Exchange"
+	Tag-Name="365-exchange"
+
+[ContentType "sharepoint"]
+	Content-Type="Audit.SharePoint"
+	Tag-Name="365-sharepoint"
+
+[ContentType "general"]
+	Content-Type="Audit.General"
+	Tag-Name="365-general"
+
+[ContentType "dlp"]
+	Content-Type="DLP.All"
+	Tag-Name="365-dlp"
+```
+
+## Microsoft Graph API インジェスター
+
+Gravwellは、MicrosoftのGraph APIからセキュリティ情報を引き出すことができるインジェスターを提供します。インジェスターを設定するには、Azure Active Directory管理ポータル内で新しい*application*を登録する必要があります。以下の情報が必要です:
+
+* Client ID: A UUID generated for your application via the Azure management console
+* Client secret: A secret token generated for your application via the Azure console
+* Tenant Domain: The domain of your Azure domain, e.g. "mycorp.onmicrosoft.com"
+
+### ContentTypeの例
+
+```
+[ContentType "alerts"]
+	Content-Type="alerts"
+	Tag-Name="graph-alerts"
+
+[ContentType "scores"]
+	Content-Type="secureScores"
+	Tag-Name="graph-scores"
+	Ignore-Timestamps=true
+
+[ContentType "profiles"]
+	Content-Type="controlProfiles"
+	Tag-Name="graph-profiles"
+```
+
+### インストールと設定
+
+まず、[ダウンロードページ](#!Quickstart/downloads.md)からインストーラーをダウンロードし、インジェスターをインストールします:
+
+```
+root@gravserver ~# bash gravwell_msgraph_installer.sh
+```
+
+Gravwellサービスが同じマシン上に存在する場合、インストールスクリプトは自動的に `Ingest-Auth` パラメータを抽出して設定し、適切に設定します。ここで、`/opt/gravwell/etc/msgraph_ingest.conf`設定ファイルを開き、プレースホルダフィールドを置き換えたり、必要に応じてタグを修正したりして、アプリケーション用に設定する必要があります。以下のように設定を変更したら、`systemctl start gravwell_msgraph_ingest.service`コマンドでサービスを起動します。
+
+デフォルトでは、インジェスターはセキュリティアラートが到着するたびにインジェストします。また、定期的に新しいセキュリティスコアの結果 (通常は毎日発行されます) をクエリし、それらのセキュリティスコアの結果を構築するために使用される関連する制御プロファイルをインジェストします。これら3つのデータソースは、デフォルトでそれぞれ `graph-alerts`, `graph-scores`, `graph-profiles` というタグにインジェストされます。
+
+以下の例は、ローカルマシン上のインデクサに接続し（`Pipe-Backend-target` の設定に注意してください）、サポートされているすべてのタイプのログをフィードする設定のサンプルを示しています:
+
+```
+[Global]
+Ingest-Secret = IngestSecrets
+Connection-Timeout = 0
+Pipe-Backend-target=/opt/gravwell/comms/pipe #a named pipe connection, this should be used when ingester is on the same machine as a backend
+Log-Level=ERROR #options are OFF INFO WARN ERROR
+State-Store-Location=/opt/gravwell/etc/o365_ingest.state
+
+Client-ID=79fb8690-109f-11ea-a253-2b12a0d35073
+Client-Secret="<secret>"
+Tenant-Domain=mycorp.onmicrosoft.com
+
+[ContentType "alerts"]
+	Content-Type="alerts"
+	Tag-Name="graph-alerts"
+
+[ContentType "scores"]
+	Content-Type="secureScores"
+	Tag-Name="graph-scores"
+
+[ContentType "profiles"]
+	Content-Type="controlProfiles"
+	Tag-Name="graph-profiles"
+```
+
+
+## Disk Monitor
+
+Disk Monitor インジェスターは、ディスクアクティビティの定期的なサンプルを採取し、そのサンプルを gravwell に出荷するように設計されています。 ディスクモニタは、ストレージのレイテンシの問題、迫り来るディスク障害、およびその他の潜在的なストレージの問題を特定するのに非常に有用です。 Gravwell では、クエリーがどのように動作しているかを研究し、ストレージインフラストラクチャの動作が悪 い場合を特定するために、ディスクモニタを使用して積極的にストレージインフラストラクチャを監視しています。 RAID コントローラが診断ログで言及しなかった場合でも、レイテンシプロットを介して書き込みスルーモードに移行した RAID アレイを特定することができました。
+
+ディスクモニターインゲスターは [github](https://github.com/gravwell/ingesters) で公開されています。
 
 ![diskmonitor](diskmonitor.png)
 
 ## Session Ingester
 
-Session Ingesterは、より大きな単一のレコードを取り込むために使用される特殊なツールです。 ingesterは指定されたポートでリッスンし、クライアントから接続を受信すると、受信したデータを1つのエントリに集約します。
+Session Ingesterは、より大きな単一のレコードをインジェストするために使用される特殊なツールです。インジェスターは指定されたポートをリッスンし、クライアントからの接続を受信すると、受信したすべてのデータを単一のエントリに集約します。
 
-これにより、すべてのWindows実行可能ファイルのインデックス作成などの動作が可能になります。
+これにより、すべてのWindows実行ファイルをインデックス化するような動作が可能になります:
 
 ```
 for i in `ls /path/to/windows/exes`; do cat $i | nc 192.168.1.1 7777 ; done
 ```
 
-セッションingesterは、永続的な構成ファイルではなく、コマンドラインパラメーターによって駆動されます。
+セッションインジェスターは、永続的な設定ファイルではなく、コマンドラインパラメータを介して駆動されます。
 
 ```
 Usage of ./session:
@@ -930,42 +1657,205 @@ Usage of ./session:
         Path to remote public key to verify against
 ```
 
-### ノート
+### 注意事項
 
-セッションingesterは正式にサポートされておらず、インストーラーも利用できません。 セッションingesterのソースコードは[github](https://github.com/gravwell/ingesters)で入手できます。
+セッションインジェスターは正式にはサポートされておらず、インストーラーもありません。 セッションインジェスターのソースコードは [github](https://github.com/gravwell/ingesters) にあります。
 
-## Gravwell Federator
+## Amazon SQS Ingester
 
-Federatorはエントリリレーです。インジェスターはFederatorに接続してエントリを送信し、Federatorはそれらのエントリをインデクサーに渡します。 Federatorは信頼境界として機能し、インジェストシークレットを公開したり、信頼できないノードが許可されていないタグのデータを送信したりすることなく、ネットワークセグメント間でエントリを安全に中継します。 Federatorのアップストリーム接続は、他のすべてのingesterと同様に構成され、多重化、ローカルキャッシュ、暗号化などを可能にします。
+Amazon SQS Ingester (sqsIngester)は、インジェスト用の標準SQSキューとFIFO SQSキューの両方をサブスクライブできるシンプルなインジェスターです。Amazon SQSは、メッセージの配信保証、メッセージの「ソフト」順序付け、メッセージの「アットリーストワンス」配信をサポートする大容量メッセージキューサービスです。
+
+Gravwell の場合、「アットリーストワンス」配信は重要な注意点です - SQS インジェスターは、同一のタイムスタンプを持つ重複したメッセージを受信する可能性があります (設定によっては)。また、他の接続サービスとの SQS ワークフローの展開方法によっては、SQS インジェスターが一部のメッセージを見ない可能性もあります。詳細については、[Amazon SQS](https://aws.amazon.com/sqs/)を参照してください。
+
+### キューの例
+
+```
+[Queue "default"]
+	Region="us-east-2"
+	Queue-URL="https://us-east-2.amazon..."
+	Tag-Name="sqs"
+	AKID="AKID..."
+	Secret="..."
+	Assume-Local-Timezone=false #Default for assume localtime is false
+	Source-Override="DEAD::BEEF" #override the source for just this Queue 
+
+[Queue "default"]
+	Region="us-west-1"
+	Queue-URL="https://us-west-1.amazon..."
+	Tag-Name="sqs"
+	AKID="AKID..."
+	Secret="..."
+```
+
+### インストール
+Gravwell の Debian リポジトリを使用している場合、インストールは apt コマンドひとつで済みます:
+
+```
+apt-get install gravwell-sqs
+```
+
+それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md) からインストーラーをダウンロードします。Netflow インジェスターをインストー ルするには、単に root としてインストーラーを実行します （実際のファイル名には通常バージョ ン番号が含まれます）:
+
+```
+root@gravserver ~ # bash gravwell_sqs.sh
+```
+
+ローカルマシン上に Gravwell インデクサーがない場合、インストーラーは Ingest-Secret 値とインデクサー(またはフェデター)の IP アドレスを要求する。そうでなければ、既存の Gravwell 設定から適切な値を引き出します。いずれにしても、インストール後に `/opt/gravwell/etc/sqs.conf` の設定ファイルを確認してください。典型的な設定は以下のようになる: 
+
+```
+[Global]
+Ingest-Secret = IngestSecrets
+Connection-Timeout = 0
+Insecure-Skip-TLS-Verify=false
+Pipe-Backend-Target=/opt/gravwell/comms/pipe 
+Log-Level=INFO
+Log-File=/opt/gravwell/log/sqs.log
+
+# A Queue pulls from a specific SQS queue with a given AKID and Secret. See
+# https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys
+# for information about obtaining an AKID/Secret for your user.
+[Queue "default"]
+	Region="us-east-2"
+	Queue-URL="https://us-east-2.amazon..."
+	Tag-Name="sqs"
+	AKID="AKID..."
+	Secret="..."
+```
+
+この設定では、`/opt/gravwell/comms/pipe`を経由してローカルのインデクサにエントリを送ることに注意してください。エントリには 'sqs' というタグが付けられます。
+
+SQS キューごとに 1 つずつ、任意の数の `Queue` エントリを設定することができ、それぞれに固有の認証やタグ名などを指定することができます。
+
+## Packet Fleet Ingester
+
+パケットフリートインジェスターは、Google Stenographerインスタンスにクエリを発行し、その結果をパケットごとにGravwellにインジェストする仕組みを提供します。
+
+各Stenographerインジェスターは指定されたポート（```Listen-Address```）をリッスンし、HTTP POSTとしてStenographerのクエリ（下記のクエリ構文を参照）を受け取ります。クエリを受け取ると、インジェスターは整数のジョブIDを返し、非同期的にStenographerインスタンスにクエリを実行し、返されたPCAPのインジェストを開始します。複数のインフライトクエリを同時に実行することができます。ジョブのステータスは、"/status "でHTTP GETを発行することで確認することができ、JSONでエンコードされたインフライトジョブIDの配列を返します。
+
+指定されたインジェスター・ポートを参照することで、ジョブ・ステータスを送信して表示するためのシンプルなウェブ・インターフェースも利用できます。
+
+### Stenographerの例
+
+```
+[Stenographer "Region 1"]
+	URL="https://127.0.0.1:9001"
+	CA-Cert="ca_cert.pem"
+	Client-Cert="client_cert.pem"
+	Client-Key="client_key.pem"
+	Tag-Name=steno
+	Assume-Local-Timezone=false #Default for assume localtime is false
+	Source-Override="DEAD::BEEF" #override the source for just this Queue 
+
+[Stenographer "Region 2"]
+	URL="https://my.url:1234"
+	CA-Cert="ca_cert.pem"
+	Client-Cert="client_cert.pem"
+	Client-Key="client_key.pem"
+	Tag-Name=steno
+```
+
+### 設定オプション
+
+パケットフリートでは、いくつかのグローバル設定とStenographerごとの設定オプションが必要です。グローバル設定には、以下に示すように、TLSの設定（該当する場合）とWebインターフェイスのリスナーアドレスが含まれます:
+
+```
+Use-TLS=true
+Listen-Address=":9002"
+Server-Cert="server.cert"
+Server-Key="server.key"
+```
+
+各Stenographerインスタンスには、以下のスタンザが必要です。ここでの例の名前 `Region 1` は、ウェブインタフェースがステノグラファーのインスタンスを一覧表示するために使用します。
+
+```
+[Stenographer "Region 1"]
+	URL="https://127.0.0.1:9001"
+	CA-Cert="ca_cert.pem"
+	Client-Cert="client_cert.pem"
+	Client-Key="client_key.pem"
+	Tag-Name=steno
+	#Assume-Local-Timezone=false #Default for assume localtime is false
+	#Source-Override="DEAD::BEEF" #override the source for just this Queue 
+```
+
+### Query Language ###
+
+ユーザーは、非常にシンプルなクエリ言語でパケットを指定することで、Stenographerにパケットを要求します。 この言語はBPFのシンプルなサブセットであり、プリミティブである:
+
+    host 8.8.8.8          # Single IP address (hostnames not allowed)
+    net 1.0.0.0/8         # Network with CIDR
+    net 1.0.0.0 mask 255.255.255.0  # Network with mask
+    port 80               # Port number (UDP or TCP)
+    ip proto 6            # IP protocol number 6
+    icmp                  # equivalent to 'ip proto 1'
+    tcp                   # equivalent to 'ip proto 6'
+    udp                   # equivalent to 'ip proto 17'
+
+    # Stenographer-specific time additions:
+    before 2012-11-03T11:05:00Z      # Packets before a specific time (UTC)
+    after 2012-11-03T11:05:00-07:00  # Packets after a specific time (with TZ)
+    before 45m ago        # Packets before a relative time
+    before 3h ago         # Packets after a relative time
+
+**注意** : 相対時間は、上で示したように、時間または分の整数値で測定する必要があります。
+
+プリミティブは、/&&& と or/|| を組み合わせて使用することができ、これらは同じ前置詞を持ち、左から右へ評価します。  パレンはグループ化するのにも使える。
+
+    (udp and port 514) or (tcp and port 8080)
+
+**注意** : 本項は[Google Stenographer](https://github.com/google/stenographer/blob/master/README.md)からの出典です。
+
+## The Gravwell Federator
+
+インジェスタはフェデレータに接続してエントリを送信し、フェデレータはそれらのエントリをインデクサーに渡します。 フェデレータは信頼境界として機能し、インジェストの秘密を公開したり、信頼されていないノードが許可されていないタグのデータを送信したりすることなく、ネットワークセグメント間でエントリを安全に中継します。 フェデレータのアップストリーム接続は、他のインジェスターと同様に構成され、多重化、ローカルキャッシング、暗号化などを可能にします。
 
 ![](federatorDiagram.png)
 
+### IngestListener の例
+
+```
+[IngestListener "enclaveA"]
+	Ingest-Secret = CustomSecrets
+	TLS-Bind = 0.0.0.0:4024
+	TLS-Certfile = /opt/gravwell/etc/cert.pem
+	TLS-Keyfile = /opt/gravwell/etc/key.pem
+	Tags=windows
+	Tags=syslog-*
+
+[IngestListener "enclaveB"]
+	Ingest-Secret = OtherIngestSecrets
+	Cleartext-Bind = 0.0.0.0:4023
+	Tags=apache
+	Tags=bash
+```
+
+
 ### ユースケース
 
-*堅牢な接続性がない場合に地理的に多様な地域にデータを取り込む
-  *ネットワークセグメント間に認証障壁を提供する
-  *インデクサーへの接続数を減らす
-  *データソースグループが提供できるタグの制御
+ * Ingesting data across geographically diverse regions when there may not be robust connectivity
+ * Providing an authentication barrier between network segments
+ * Reducing the number of connections to an indexer
+ * Controlling the tags an data source group can provide
 
-### 設定
+### インストール
 
-Gravwell Debianリポジトリを使用している場合、インストールはただ1つのaptコマンドです。
+Gravwell の Debian リポジトリを使用している場合、インストールは apt コマンドひとつで済みます:
 
 ```
 apt-get install gravwell-federator
 ```
 
-それ以外の場合は、[ダウンロードページ](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上の端末を使用して、スーパーユーザーとして（たとえば、 `sudo`コマンドを使用して）次のコマンドを発行し、フェデレーターをインストールします。
+それ以外の場合は、[Downloads page](#!quickstart/downloads.md)からインストーラをダウンロードする。Gravwell サーバー上のターミナルを使って、スーパーユーザーとして(例 : `sudo` コマンドを使って)以下のコマンドを実行して federator をインストールしてください:
 
 ```
 root@gravserver ~ # bash gravwell_federator_installer.sh
 ```
 
-Federatorは、ほぼ確実に特定のセットアップのための構成を必要とします。 詳細については、次のセクションを参照してください。 設定ファイルは `/opt/gravwell/etc/federator.conf`にあります。
+フェデレータは、ほぼ確実にあなたの特定の設定のための設定が必要になります。設定ファイルは `/opt/gravwell/etc/federator.conf` にあります。
 
 ### 設定例
 
-次の設定例は、*保護された*ネットワークセグメントの2つのアップストリームインデクサーに接続し、2つの*信頼できない*ネットワークセグメントでインジェストサービスを提供します。 信頼されていない各インジェストポイントには、固有のIngest-Secretがあり、特定の証明書とキーペアで1つのTLSを提供します。 また、構成ファイルはローカルキャッシュを有効にし、FederatorをGravwellインデクサーと信頼できないネットワークセグメント間のフォールトトレラントバッファーとして機能させます。
+以下の構成例では、*保護された*ネットワークセグメント内の2つのアップストリームインデクサーに接続し、2つの*信頼されていない*ネットワークセグメント上でインジェストサービスを提供しています。 各信頼されていないインジェストポイントには固有のIngest-Secretがあり、1つは特定の証明書とキーペアでTLSを提供しています。設定ファイルはローカルキャッシュも有効にし、フェデレータをGravwellインデクサーと信頼されていないネットワークセグメントの間でフォールトトレラントバッファとして機能させます。
 
 ```
 [Global]
@@ -993,26 +1883,26 @@ Federatorは、ほぼ確実に特定のセットアップのための構成を�
        Tags=nginx
 ```
 
-DMZのインジェスターは、TLS暗号化を使用して192.168.220.105:4024のフェデレーターに接続できます。 これらのインジェスターは、「apache」および「nginx」タグでタグ付けされたエントリの送信のみを許可されます。 ビジネスネットワークセグメントのインジェスターは、クリアテキストを介して10.0.0.121:4023に接続し、「windows」および「syslog」のタグが付いたエントリを送信できます。 誤ってタグ付けされたエントリは、フェデレーターによって拒否されます。 許容可能なエントリは、グローバルセクションで指定された2つのインデクサーに渡されます。
+DMZ内のインゲスタは、TLS暗号化を使用して192.168.220.105:4024でフェデレータに接続できます。これらのインジェスタは、`apache` および `nginx` タグでタグ付けされたエントリの送信**のみ**許可されています。ビジネスネットワークセグメントのインジェスタは、クリアテキストを使って 10.0.0.0.121:4023 に接続し、`windows` と `syslog` タグのついたエントリを送信することができます。誤ってタグ付けされたエントリはフェデレータによって拒否されますが、受け入れ可能なエントリはグローバルセクションで指定された2つのインデクサーに渡されます。
 
 ### トラブルシューティング
 
-Federatorの一般的な構成エラーは次のとおりです。
+フェデレータの一般的な構成エラーには、次のようなものがあります:
 
-*グローバル構成での不正なIngest-Secret
-*誤ったバックエンドターゲットの指定
-*無効または既に使用されているバインド仕様
-*上流のインデクサーまたはフェデレーターが信頼できる認証局によって署名された証明書を持っていない場合に証明書の検証を強制する（「Insecure-Skip-TLS-Verify」オプションを参照）
-*ダウンストリームインジェスターの不一致のインジェストシークレット
+* Incorrect Ingest-Secret in the Global configuration
+* Incorrect Backend-Target specification(s)
+* Invalid or already-taken Bind specifications
+* Enforcing certification validation when upstream indexers or federators do not have certificates signed by a trusted certificate authority (see the `Insecure-Skip-TLS-Verify` option)
+* Mismatched Ingest-Secret for downstream ingesters
 
-## Ingest API
+## インジェストAPI
 
-GravwellインジェストAPIとコアインジェスターは、BSD 2-Clauseライセンスの下で完全にオープンソースです。 これは、独自のインジェスターを作成し、Gravwellエントリ生成を独自の製品およびサービスに統合できることを意味します。 コアインジェストAPIはGoで記述されていますが、利用可能なAPI言語のリストは積極的に拡張されています。
+GravwellインジェストAPIとコアインジェスタは、BSD 2-Clauseライセンスのもとで完全にオープンソースとなっています。 これは、独自のインジェスタを書き、Gravwellエントリー生成を独自の製品やサービスに統合できることを意味します。 コアインジェストAPIはGoで書かれていますが、利用可能なAPI言語のリストは積極的に拡張中です。
 
 [API code](https://github.com/gravwell/ingest)
 
-[API ドキュメント](https://godoc.org/github.com/gravwell/ingest)
+[API documentation](https://godoc.org/github.com/gravwell/ingest)
 
-ファイルを監視し、書き込まれた行をGravwellクラスターに送信する非常に基本的なingesterの例（100行未満のコード）[こちらで確認できます](https://www.godoc.org/github.com/gravwell/ingest#example-package)
+ファイルを監視し、ファイルに書き込まれたすべての行をGravwellクラスタに送信する、非常に基本的なインゲスターの例（100行以下のコード）は、[ここ](https://www.godoc.org/github.com/gravwell/ingest#example-package)で見ることができます。
 
-チームが継続的に取り込みAPIを改善し、追加の言語に移植しているため、Gravwell Githubページで引き続きチェックしてください。 コミュニティ開発は完全にサポートされているため、マージリクエスト、言語ポート、またはオープンソース化されたすばらしい新学期がある場合は、Gravwellにお知らせください！ Gravwellチームは、インジェスターハイライトシリーズであなたのハードワークを紹介したいと思っています。
+チームは継続的にインジェストAPIを改善し、追加言語への移植を行っているので、Gravwell Githubページをチェックし続けてください。コミュニティ開発は完全にサポートされていますので、マージリクエスト、言語移植、またはオープンソースの素晴らしい新しいインジェスターがあれば、Gravwellに知らせてください!  Gravwellチームは、あなたの頑張りをインジェスターハイライトシリーズで取り上げたいと思っています。

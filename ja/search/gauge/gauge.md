@@ -1,10 +1,10 @@
-# Gauge
+# ゲージ
 
-gaugeレンダラーは、エントリを"ゲージ"として表示するのに適した1つ以上の最終値に変換するために使用される圧縮レンダラーです。たとえば、過去1時間のブルートフォース試行の合計数を検索し、ダッシュボードに表示することができます。これはテーブルレンダラーを使用して実現できますが、ゲージレンダラーは一目で理解できるより魅力的な結果をもたらします。
+ゲージレンダラーは、エントリを「ゲージ」として表示するのに適した1つ以上の最終値に変換するために使用される凝縮レンダラーです。 たとえば、過去1時間のブルートフォース攻撃の総数を調べて、ダッシュボードに表示したい場合があります。 これはテーブルレンダラーで実現できますが、ゲージレンダラーは一目で読みやすく、より魅力的な結果をもたらします。
 
-## 基本的な使用方法
+## 基本的な利用方法
 
-ゲージレンダラーを使用する最も簡単な方法は、単一の列挙値引数を渡すことです:
+ゲージレンダラを使用する最もシンプルな方法は、列挙された値の引数を1つ渡すことです。
 
 ```
 tag=json json class | stats mean(class) | gauge mean
@@ -12,17 +12,17 @@ tag=json json class | stats mean(class) | gauge mean
 
 ![](gauge1.png)
 
-歯車のアイコンを選択すると、ゲージの一部のオプションを変更できます。 'Half'をクリックすると、ゲージ表示のスタイルが変更されます:
+歯車アイコンを選択すると、ゲージのいくつかのオプションを変更できます。 「半分」をクリックすると、ゲージ表示のスタイルが変更されます。
 
 ![](gauge2.png)
 
-チャートタイプのドロップダウンで'Number card'を選択すると、表示が他の種類のゲージに変更されます:
+チャートタイプのドロップダウンで[ナンバーカード]を選択すると、表示が他の種類のゲージに変わります。
 
 ![](gauge3.png)
 
 ## ラベルの指定
 
-特にダッシュボードで使用するゲージを作成する場合、デフォルトのラベルは必ずしも理想的ではありません。より有益なラベルが必要な場合は、次のように、大きさの列挙値と目的のラベルを括弧で囲みます:
+特にダッシュボードで使用するゲージを作成する場合、デフォルトのラベルが常に理想的であるとは限りません。 より有益なラベルが必要な場合は、以下のように、マグニチュード列挙値と目的のラベルを括弧で囲みます。
 
 ```
 tag=json json class | mean class | gauge (mean "Avg Class")
@@ -32,7 +32,7 @@ tag=json json class | mean class | gauge (mean "Avg Class")
 
 ## 最大および最小制限の指定
 
-振幅列挙値と目的の最小/最大値を括弧で囲むことにより、ゲージの最小値と最大値を指定できます:
+マグニチュードの列挙値と希望する最小値/最大値を括弧で括ることで、ゲージの最小値/最大値を指定することができます。
 
 ```
 tag=json json class | stats mean(class) | gauge (mean 1 100000)
@@ -40,7 +40,7 @@ tag=json json class | stats mean(class) | gauge (mean 1 100000)
 
 ![](gauge-minmax1.png)
 
-列挙値によって最小値と最大値を指定することもできます:
+また、最小値と最大値を列挙値で指定することもできます。
 
 ```
 tag=json json class | stats mean(class) min(class) max(class) | gauge (mean min max)
@@ -48,15 +48,15 @@ tag=json json class | stats mean(class) min(class) max(class) | gauge (mean min 
 
 ![](gauge-minmax2.png)
 
-または、定数と列挙値を組み合わせて使用します:
+または、定数と列挙された値の組み合わせを使用します。
 
 ```
 tag=json json class | stats mean(class) max(class) | gauge (mean 1 max)
 ```
 
-## 最大/最小とラベルの組み合わせ
+## 最小/最大値とラベルの組み合わせ
 
-もちろん、最小値と最大値の両方でゲージとラベルを指定できます:
+もちろん、min/max値とラベルを指定してゲージを指定することもできます。
 
 ```
 tag=json json class | mean class | gauge (mean 0 100000 "Avg Class")
@@ -66,7 +66,7 @@ tag=json json class | mean class | gauge (mean 0 100000 "Avg Class")
 
 ## 複数のゲージ
 
-複数の列挙値をリストして、ゲージに複数の針を配置できます:
+複数の列挙値をリストして、ゲージに複数の針を配置できます。
 
 ```
 tag=json json class | stats mean(class) stddev(class) | gauge mean stddev
@@ -74,7 +74,7 @@ tag=json json class | stats mean(class) stddev(class) | gauge mean stddev
 
 ![](gauge-multi1.png)
 
-必要に応じて各針の最小値/最大値を個別に指定できますが、デフォルトのシングルゲージレンダラーは、最小値と最大値を選択して表示し、他は無視します。そのため、構成メニューで「複数のゲージ」オプションを選択することをお勧めします:
+必要に応じて、各針の最小/最大値を個別に指定できますが、デフォルトのシングルゲージレンダラーは、他の値を無視して、表示に最小の最小値と最大の最大値を選択することに注意してください。 そのため、構成メニューで「複数のゲージ」オプションを選択することをお勧めします。
 
 ```
 tag=json json class | stats mean(class) stddev(class) min(class) max(class) | gauge (mean min max) (stddev 1 35000)
@@ -82,6 +82,24 @@ tag=json json class | stats mean(class) stddev(class) min(class) max(class) | ga
 
 ![](gauge-multi2.png)
 
-レンダラーは、複数のアイテムを含む"number card"モードでも適切に動作します:
+レンダラーは、複数のアイテムがある「ナンバーカード」モードでも適切に動作します。
 
 ![](gauge-multi3.png)
+
+## キー付きマルチゲージ
+
+マグニチュードを指定した場合、ゲージはキーの組み合わせごとに値を出力します。例えば、複数の都市から天気データを取得して、都市ごとの平均値を求め、その平均値をゲージに渡すことができます。
+
+```
+tag=weather json main.temp name | stats mean(temp) by name | gauge mean
+```
+
+![](keyed1.png)
+
+ラベルを指定すると適切に使用されます。
+
+```
+tag=weather json main.temp name | stats mean(temp) by name | gauge (mean "Fahrenheit temp")
+```
+
+![](keyed2.png)
