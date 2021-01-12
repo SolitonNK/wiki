@@ -1,82 +1,115 @@
 # Autoextractor API
 
-The extractor web API provides methods for accessing, modifying, adding, and deleting autoextractor definitions.  All users can retrieve the list of auto extractors and their definitions.  However, only admins may add, modify, delete, or sync auto extractor definitions.  As of version 3.0.2 the auto extractor API is available only when operating in non-distributed mode.  If you are operating a Gravwell cluster in a distributed frontend configuration the autoextractors must be pre-installed and managed manually.  For more information about autoextractors and their configuration, see the [Auto-Extractors](/#!configuration/autoextractors.md) section.
+The extractor web API provides methods for accessing, modifying, adding, and deleting autoextractor definitions. For more information about autoextractors and their configuration, see the [Auto-Extractors](/#!configuration/autoextractors.md) section.
 
-## Definition Structure
+## Data Structure
 
-Auto-Extractors are defined using the following JSON structure (the `module` and `tag` parameters must be populated):
+Autoextractors contain the following fields:
+
+* Tag: The tag which is being extracted.
+* Name: A user-friendly name for the extractor.
+* Desc: A more detailed description of the extractor.
+* Module: The module to use ("csv", "fields", "regex", or "slice").
+* Params: Extraction module parameters.
+* Args: Extraction module arguments.
+* Labels: An array of strings containing [labels](#!gui/labels/labels.md).
+* UID: The numeric ID of the dashboard's owner.
+* GIDs: An array of numeric group IDs with which this dashboard is shared.
+* Global: A boolean, set to true if dashboard should be visible to all users (admin only).
+* UUID: A unique ID for this particular extractor.
+* LastUpdated: The time at which this extractor was most recently modified.
+
+This is a Typescript description of the structure:
 
 ```
-{
-	"tag": string,
-	"name": string,
-	"desc": string,
-	"module": string,
-	"params": string,
-	"arts": string
+type RawAutoExtractorModule = 'csv' | 'fields' | 'regex' | 'slice';
+
+interface RawAutoExtractor {
+	UUID: RawUUID;
+
+	UID: RawNumericID;
+	GIDs: Array<RawNumericID> | null;
+
+	Name: string;
+	Desc: string;
+	Labels: Array<string> | null;
+
+	Global: boolean;
+	LastUpdated: string; // Timestamp
+
+	Tag: string;
+	Module: RawAutoExtractorModule;
+	Params: string;
+	Args?: string;
 }
 ```
 
 ## Listing
 
-Listing autoextractors is done by performing a GET on `/api/autoextractors`.  The webserver will return a list of JSON structures that represent the set of installed auto-extractors on the webserver.  An example response is:
+Issuing a GET on `/api/autoextractors` will return a list of JSON structures that represent the set of extractors to which the current user has access.  An example response is:
 
 ```
 [
-	{
-		"name": "testCSVExt",
-		"module": "csv",
-		"params": "ts, app, id, uuid, src, srcport, dst, dstport, data, name, country, city, hash",
-		"tag": "test1"
-	},
-	{
-		"name": "testFieldsExt",
-		"desc": "testing extraction",
-		"module": "fields",
-		"params": "src, dst, extra",
-		"tag": "test2"
-	}
+  {
+    "Name": "Apache Combined Access Log",
+    "Desc": "Apache Combined access logs using regex module.",
+    "Module": "regex",
+    "Params": "^(?P<ip>\\S+) (?P<ident>\\S+) (?P<auth>\\S+) \\[(?P<date>[^\\]]+)\\] \\\"(?P<method>\\S+) (?P<url>.+) HTTP\\/(?P<version>\\S+)\\\" (?P<response>\\d+) (?P<bytes>\\d+) \\\"(?P<referrer>\\S+)\\\" \\\"(?P<useragent>.+)\\\"",
+    "Tag": "apache",
+    "Labels": [
+      "apache"
+    ],
+    "UID": 1,
+    "GIDs": null,
+    "Global": false,
+    "UUID": "0e105901-92a7-4131-87bb-a00287d46f96",
+    "LastUpdated": "2020-06-24T13:49:39.013266326-06:00"
+  },
+  {
+    "Name": "vpcflow",
+    "Desc": "VPC flow logs (TSV format)",
+    "Module": "fields",
+    "Params": "version, account_id, interface_id, srcaddr, dstaddr, srcport, dstport, protocol, packets, bytes, start, end, action, log_status",
+    "Args": "-d \" \"",
+    "Tag": "vpcflowraw",
+    "Labels": null,
+    "UID": 1,
+    "GIDs": null,
+    "Global": false,
+    "UUID": "7f80df6a-a2ce-42aa-b531-ac11c596f64a",
+    "LastUpdated": "2020-05-29T15:00:41.883390284-06:00"
+  }
 ]
 ```
 
-## Syncing
-
-Any operation that changes the installed set of auto-extractors will also invoke a sync operation.  A sync operation causes the webserver to push changes to each of the attached indexers.  For example, if you are running a Gravwell cluster with 10 indexers, after adding a new auto-extractor the webserver will push the configured auto-extractor set to each of the indexers.  However, failures can happen whether it be due to network connectivity issues, or because an indexer is down when the change occurs.  The Sync API allows for manually invoking a sync operation so that all attached indexers are forced into the same state.  When managing a large Gravwell cluster the Sync operation can be used to intialize auto-extractor definitions after a new Indexer is brought online or restored.
-
-A sync is performed by issuing a PUT request to `/api/autoextractors/sync`.  The webserver will ruturn a 200 response on success and non-200 on failure.  In the event of a partial success (not all indexers were successfully synced) a warning structure is returned in the body of the response.  The warning structure is a list of indexer names and errors, here is an example response when an indexer is down:
-
-```
-[
-	{
-		"Name": "net:172.17.0.4:9404",
-		"Err": "is disconnected"
-	},
-	{
-		"Name": "net:172.17.0.5:9404",
-		"Err": "is disconnected"
-	}
-]
-```
+Performing a GET request with the admin flag set (`/api/autoextractors?admin=true`) will return a list of *all* extractors on the system.
 
 ## Adding
 
-Adding an autoextractor is performed by issuing a POST to `/api/autoextractors` with a valid definition JSON structure in the request body.  The structure must be valid and there cannot be an existing auto-extractor that is assigned to the tag.  An example POST JSON structure that adds a new auto-extractor:
+Adding an autoextractor is performed by issuing a POST to `/api/autoextractors` with a valid definition in the request body.  The structure must be valid and the user cannot have an existing autoextractor defined for the same tag.  An example POST JSON structure that adds a new auto-extractor:
 
 ```
 {
-	"name": "testCSVExt",
-	"desc": "testing extractor",
-	"module": "csv",
-	"params": "a, b, c, src, dst, extra",
-	"tag": "test4"
+  "Tag": "foo",
+  "Name": "my extractor",
+  "Desc": "an extractor using the fields module",
+  "Module": "fields",
+  "Params": "version, account_id, interface_id, srcaddr, dstaddr, srcport, dstport, protocol, packets, bytes, start, end, action, log_status",
+  "Args": "-d \" \"",
+  "Labels": [
+    "foo"
+  ],
+  "Global": false
 }
 ```
 
-If an error occurs when adding an auto-extractor the webserver will return a list of errors.
+If an error occurs when adding an auto-extractor the webserver will return a list of errors. If successful, the server will respond with the UUID of the new extractor.
 
-## Upating
+Note: There is no need to set the `UUID`, `UID`, `GIDs`, or `LastUpdated` fields when creating an extractor--these are automatically filled in. Only an admin user may set the `Global` flag to true.
 
-Updating an autoextractor is performed by issuing a PUT request to `/api/autoextractors` with a valid definition JSON structure in the request boyd.  The structure must be valid and there must be an existing auto-extractor that is assigned to the same tag.  The tag associated with an updated auto-extractor cannot be changed via the update API.  To change the tag associated with an existing auto-extractor, the definition must be deleted then added again.  The data structure is identical to the add API.  If the definition is invalid a non-200 response with an error message in the body is returned.  If the structure is valid but an error occurs in distributing the updated definition a list of errors is returned in the body.
+## Updating
+
+Updating an autoextractor is performed by issuing a PUT request to `/api/autoextractors` with a valid definition JSON structure in the request body.  The structure must be valid and there must be an existing auto-extractor with the same UUID.  All non-modified fields should be included as originally returned by the server.  If the definition is invalid a non-200 response with an error message in the body is returned.  If the structure is valid but an error occurs in distributing the updated definition a list of errors is returned in the body.
 
 ## Testing Extractor Syntax
 
@@ -89,16 +122,36 @@ Before adding or updating an autoextractor, it may be useful to validate the syn
 When adding a new auto-extractor, it is important that the new extractor does not conflict with an existing extraction on the same tag. When updating an existing extraction, this is not a concern. If an extraction already exists for the specified tag, the test API will set the 'TagExists' field in the returned structure:
 
 ```
-{"TagExists":true,"FileExists":true,"Error":""}
+{"TagExists":true,"Error":""}
 ```
 
 If `TagExists` is true, it should be treated as an error if you intend to create a new extractor, and ignored if updating an existing extractor.
 
-The `FileExists` flag indicates that the proposed extraction would overwrite an existing extraction on disk; typically it will only be set when 'TagExists' is set. It should be treated as an error when creating a new extractor and ignored when updating.
+## Uploading Files
+
+Autoextractor definitions can be represented in a TOML format. This format is human-readable and can be a convenient way to distribute extractor definitions. An example is shown below:
+
+```
+[[extraction]]
+	tag="bro-conn"
+	name="bro-conn"
+	desc="Bro conn logs"
+	module="fields"
+	args='-d "\t"'
+	params="ts, uid, orig, orig_port, resp, resp_port, proto, service, duration, orig_bytes, dest_bytes, conn_state, local_orig, local_resp, missed_bytes, history, orig_pkts, orig_ip_pkts, resp_pkts, resp_ip_bytes, tunnel_parents"
+```
+
+Rather than parsing out this file to populate a JSON structure, this type of definition can be uploaded directly to the webserver via a multipart form sent in a POST request to `/api/autoextractors/upload`. The form should contain a file field named `extraction` which holds the contents of the extractor definition. The server will respond with a 200 response if the definition is valid and was successfully installed.
+
+## Downloading Files
+
+You can download autoextractor definitions in TOML format by issuing a GET request to `/api/autoextractors/download`. For each definition you wish to download, add its UUID as a parameter to the URL; thus if you wish to download two extractors with UUIDs ad782c81-7a60-4d5f-acbf-83f70e68ecb0 and c7389f9b-ba52-4cbe-b883-621d577c6bcc, you would send a GET request to `/api/autoextractors/download?id=ad782c81-7a60-4d5f-acbf-83f70e68ecb0&id=c7389f9b-ba52-4cbe-b883-621d577c6bcc`.
+
+If the current user has access to all the specified extractors, the server will respond with a downloadable file containing the definitions in TOML format. This file can be uploaded to another Gravwell system using the file upload API described above.
 
 ## Deleting
 
-Deleting an existing auto-extractor is performed by issuing a DELETE request to `/api/autoextractors/{id}` where id is the tag associated with the auto-extractor.  For example, to delete the auto-extractor associated with the tag "syslog" the request would go to `/api/autoextractors/syslog`.  If the auto-extractor does not exist or there is an error removing it, the webserver will respond with a non-200 response and error in the response body.  If an error occurs when distributing the deletion to indexers there will be a 200 response and a list of warnings.
+Deleting an existing auto-extractor is performed by issuing a DELETE request to `/api/autoextractors/{uuid}` where `uuid` is the UUID associated with the auto-extractor. If the auto-extractor does not exist or there is an error removing it, the webserver will respond with a non-200 response and error in the response body.
 
 ## Listing Modules
 

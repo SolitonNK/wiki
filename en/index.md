@@ -10,59 +10,124 @@ If you're just starting out with Gravwell, we recommend reading the [Quickstart]
 
 Gravwell is pleased to announce our free [Community Edition](https://www.gravwell.io/download)!
 
-[Quickstart](quickstart/quickstart.md)
+## Quickstart and Downloads
+
+  * [Quickstart](quickstart/quickstart.md)
 
   * [Downloads](quickstart/downloads.md)
 
-[Searching with Gravwell](search/search.md)
+## Searching with Gravwell
 
-  * [Search modules](search/searchmodules.md)
+  * [Search overview](search/search.md)
 
-  * [Render modules](search/rendermodules.md)
+  * [Search Extraction modules](search/extractionmodules.md)
 
-[Gravwell System Architecture](architecture/architecture.md)
+  * [Search Processing modules](search/processingmodules.md)
 
-[Setting Up Ingesters](ingesters/ingesters.md)
+  * [Search Render modules](search/rendermodules.md)
+
+  * [Alphabetical List of All Pipeline Modules](search/complete-module-list.md)
+
+## System Architecture
+
+  * [Gravwell System Architecture](architecture/architecture.md)
+
+    * [Network Ports Used by Gravwell](configuration/networking.md)
+
+
+  * [The Resource System](resources/resources.md)
+
+## Ingester Configuration: Getting Data Into Gravwell
+
+  * [Setting Up Ingesters](ingesters/ingesters.md)
+
+    * [File Follower Ingester](ingesters/file_follow.md)
+
+    * [Simple Relay Ingester](ingesters/simple_relay.md)
+    
+    * [Windows Events Ingester](ingesters/ingesters.md#Windows_Event_Service)
+
+    * [Netflow/IPFIX Ingester](ingesters/ingesters.md#Netflow_Ingester)
+
+    * [Collectd](ingesters/ingesters.md#collectd_Ingester)
+
+  * [Ingester Preprocessors](ingesters/preprocessors/preprocessors.md)
 
   * [Service Integrations](ingesters/integrations.md)
 
-[Installing and Configuring Gravwell](configuration/configuration.md)
+## Advanced Gravwell Installation and Configuration
+
+  * [Installing and Configuring Gravwell](configuration/configuration.md)
 
   * [Docker Deployment](configuration/docker.md)
 
   * [Setting up TLS/HTTPS](configuration/certificates.md)
-  
-  * [Setting up Extractors](configuration/autoextractors.md)
-  
-  * [Data Ageout](configuration/ageout.md)
- 
-  * [Data Archive](configuration/archive.md)
 
-  * [Data Replication](configuration/replication.md)
+  * [Building a Gravwell Cluster](distributed/cluster.md)
 
-  * [Query Acceleration](configuration/accelerators.md)
-
-[//]: # (* [Data Auto-extraction](configuration/autoextractors.md))
   * [Distributed Frontends](distributed/frontend.md)
+
+    * [Overwatch](distributed/overwatch.md)
+
 
   * [Environment Variables](configuration/environment-variables.md)
 
   * [Detailed configuration parameters](configuration/parameters.md)
 
-[The Resource System](resources/resources.md)
+  * [Single Sign-On](configuration/sso.md)
 
-[Orchestration](scripting/scriptingsearch.md)
+  * [Hardening Gravwell](configuration/hardening.md)
 
-  * [Scripting](scripting/scripting.md)
+  * [Common Problems & Caveats](configuration/caveats.md)
 
-[GUI User Preferences](configuration/gui.md)
+## Query Acceleration, Auto-Extraction, and Data Management
+  
+  * [Setting up Auto-extractors](configuration/autoextractors.md)
+  
+  * [Query Acceleration (indexing and bloom filters)](configuration/accelerators.md)
 
-[Using the Command-Line Client](cli/cli.md)
+  * [Data Replication](configuration/replication.md)
 
-[API](api/api.md)
+  * [Data Ageout](configuration/ageout.md)
 
-[Licensing](license/license.md)
+  * [Data Compression](configuration/compression.md)
 
-[Changelogs](changelog/list.md)
+  * [Data Archiving](configuration/archive.md)
+
+## Automation
+
+  * [Scheduled Searches & Scripts](scripting/scheduledsearch.md)
+
+  * [Scripting Overview](scripting/scripting.md)
+
+    * [Automation Script APIs & Examples](scripting/scriptingsearch.md)
+
+## User Interfaces
+
+  * [Gravwell Web GUI](gui/gui.md)
+
+    * [The Search Interface](gui/queries/queries.md)
+
+    * [Labels and Filtering](gui/labels/labels.md)
+
+    * [Kits](kits/kits.md)
+
+  * [Command-Line Client](cli/cli.md)
+
+## API
+
+  * [API](api/api.md)
+
+## Misc
+
+  * [Licensing](license/license.md)
+
+  * [Metrics & Crash Reporting](metrics.md)
+
+  * [Changelogs](changelog/list.md)
+
+  * [Gravwell EULA](eula.md)
+
+  * [Open-source licenses](open_source.md)
 
 Documentation version 2.0
