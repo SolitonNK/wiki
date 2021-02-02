@@ -71,7 +71,7 @@ soliton/solitonnk から得られるDockerイメージには、Simple Relay [ing
 * TCP 601 syslog メッセージ用 ('syslog'タグ)
 * UDP 514 syslog メッセージ用 ('syslog'タグ)
 
-Soliton NKがデータを取り込めるようになったか確かめるために、netcatを使ってポート7777にラインを書き込んでみましょう。待ってください、VMを起動したときにはこれらのポートをホストに転送していなかったはずです。ですが、`docker inspect`を使って、Gravwellコンテナに割り当てられたIPアドレスを取得することができます:
+Soliton NKがデータを取り込めるようになったか確かめるために、netcatを使ってポート7777にラインを書き込んでみましょう。待ってください、VMを起動したときにはこれらのポートをホストに転送していなかったはずです。ですが、`docker inspect`を使って、Soliton NKコンテナに割り当てられたIPアドレスを取得することができます:
 
 	docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' snk
 
@@ -99,7 +99,7 @@ Netflow インジェスターの起動方法を以下に示します。同じコ
 
 	docker run -d --net snknet -p 2055:2055/udp --name netflow -e GRAVWELL_CLEARTEXT_TARGETS=snk -e GRAVWELL_INGEST_SECRET=MyIngestSecret gravwell/netflow_capture
 
-環境変数を設定するために `-e` フラグを使用していることに注意してください。これにより、インジェストのために'gravwell'という名前のコンテナに接続するようにインジェスターを指示し(GRAVWELL_CLEARTEXT_TARGETS=snk)、インジェスト共有鍵を'IngestSecrets'に設定する(GRAVWELL_INGEST_SECRET=IngestSecrets)ことで、インジェスターを動的に設定することができるようになります。
+環境変数を設定するために `-e` フラグを使用していることに注意してください。これにより、インジェストのために'snk'という名前のコンテナに接続するようにインジェスターを指示し(GRAVWELL_CLEARTEXT_TARGETS=snk)、インジェスト共有鍵を'IngestSecrets'に設定する(GRAVWELL_INGEST_SECRET=IngestSecrets)ことで、インジェスターを動的に設定することができるようになります。
 
 `p 2055:2055/udp` オプションは、UDP ポート 2055 (Netflow v5 のインジェストポート) をコンテナからホストに転送します。これにより、Netflow レコードをインジェストコンテナに送るのが簡単になるはずです。
 
@@ -109,7 +109,7 @@ Netflow インジェスターの起動方法を以下に示します。同じコ
 
 ![](netflow_ingest.png)
 
-これで、Netflow ジェネレーターをホストのポート 2055 に向けてレコードを送信するように設定してよくなります。Netflowのデータはコンテナに渡され、Gravwell にインジェストされます。
+これで、Netflow ジェネレーターをホストのポート 2055 に向けてレコードを送信するように設定してよくなります。Netflowのデータはコンテナに渡され、Soliton NK にインジェストされます。
 
 ## サービスのカスタマイズ
 
