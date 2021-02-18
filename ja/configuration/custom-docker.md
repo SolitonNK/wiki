@@ -1,16 +1,18 @@
-# カスタムDocker展開
+# カスタムDockerデプロイメント
 
-ほとんどのGravwellコンポーネントは、最新のLinuxホストでの実行に適した静的にコンパイルされた実行可能ファイルとして展開されます。これにより、Dockerの展開も容易になります。 Gravwellのエンジニアは、開発、テスト、内部展開にdockerを幅広く使用しています。 また、Dockerを使用すると、大規模なGravwell展開を迅速に立ち上げ、分解し、管理することができます。 お客様がDocker展開で迅速に実行できるようにするために、クラスターとシングルエディションの両方のSKUのサンプルDockerfilesを提供しています。
+注:本ページはSoliton NKの開発元Gravwell社のマニュアルを翻訳したものです。現在、Soliton NK用のDockerfileの提供は行っておりません。
 
-Dockerfilesの完全なセットは [こちら](https://update.gravwell.io/files/docker_buildfiles_ad05723a547d31ee57ed8880bb5ef4e9.tar.bz2) にあり、ad5723a547d31ee57ed8880bb5ef4e9のMD5チェックサムがあります。
+ほとんどのGravwellコンポーネントは、最新のLinuxホストでの実行に適した静的にコンパイルされた実行可能ファイルとしてデプロイされます。これにより、Dockerでのデプロイも容易になります。 Gravwellのエンジニアは、開発、テスト、内部展開にDockerを幅広く使用しています。 また、Dockerを使用することによって、大規模なGravwellシステムの迅速な、起動、停止、管理、を可能にします。 お客様がDockerでのデプロイを迅速に実行できるようにするために、クラスター構成とシングル構成両方のエディションのSKUに対応したDockerfileのサンプルを提供しています。
+
+Dockerfileの完全なセットは [こちら](https://update.gravwell.io/files/docker_buildfiles_ad05723a547d31ee57ed8880bb5ef4e9.tar.bz2) にあります。MD5のチェックサムはad5723a547d31ee57ed8880bb5ef4e9です。
 
 ## Dockerコンテナーの構築
 
-提供されたDockerfileを使用してDockerコンテナーを構築するのは非常に簡単です。 Gravwellドッカーの展開では、非常に小さなbusyboxベースコンテナーを利用して、非常に小さな大陸を可能にします。
+提供されたDockerfileを使用してDockerコンテナーを構築するのは非常に簡単です。GravwellのDockerデプロイメントは、非常に小さなbusyboxベースコンテナーを利用して、非常に小さなコンテナを実現しています。
 
 ### Dockerfile
 
-特定の展開要件に合わせてdockerファイルを変更するのに必要な作業はほとんどありません。 標準のgravwellドッカーファイルは、小さな起動スクリプトを使用して、起動時にX509証明書を再生成する必要があるかどうかを確認します。 展開に有効な証明書がある場合、Gravwellバイナリを直接起動し、インストーラーによって展開される/ opt / gravwell / binのユーティリティ（gencertおよびcrashreport）を削除できます。
+特定のデプロイ要件に合わせてDockerfileを変更するのに必要な作業はほとんどありません。 標準のgravwell Dockerfileは、小さな起動スクリプトを使用して、起動時にX509証明書を再生成する必要があるかどうかを確認します。 もし既に有効な証明書がある場合には、インストーラーによって/opt/gravwell/binにデプロイされるユーティリティ（gencertおよびcrashreport）を削除して、Gravwellバイナリを直接起動するようにDockerfileを変更することができます。
 
 単一インスタンスのベースDockerfile：
 ```
@@ -48,13 +50,13 @@ wait
 
 ## 環境変数を使用する
 
-標準のdocker起動スクリプトは環境変数 `NO_SSL_GEN`を探し、「true」に設定されている場合はX509証明書の生成をスキップします。 デプロイメントが有効な証明書を注入している場合、コンテナを起動するときに引数 `-e NO_SSL_GEN = true`を必ず含めてください。
+標準のdocker起動スクリプトは環境変数 `NO_SSL_GEN`を探し、「true」に設定されている場合はX509証明書の生成をスキップします。 もしデプロイメントに有効な証明書が含まれている場合、コンテナを起動するときに引数 `-e NO_SSL_GEN = true`を必ず含めてください。
 
 インデクサー、Webサーバー、およびインジェスターは、必要に応じて、構成ファイルではなく、環境変数を介して設定されるいくつかの構成パラメーターを持つこともできます。 詳細については、[環境変数](environment-variables.md)のドキュメントを参照してください。
 
 ## インジェスター用のサンプルDockerfile
 
-Gravwellは新しいインジェスターとコンポーネントを継続的にリリースしていますが、すべての学期のDockerfileを常に持っているとは限りません。 ただし、Dockerfilesは非常に単純であり、簡単に変更できます。 以下は、SimpleRelay ingesterを介してDockerコンテナーを作成するDockerfileの例です。
+Gravwellは新しいインジェスターとコンポーネントを継続的にリリースしていますが、常に各インジェスターに対応するDockerfileを提供しているとは限りません。 ただし、Dockerfileは非常に単純であり、簡単に変更できます。 以下は、SimpleRelay ingesterを介してDockerコンテナーを作成するDockerfileの例です。
 
 ```
 FROM busybox
