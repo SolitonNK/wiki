@@ -6,30 +6,30 @@ Soliton NKの正規ユーザーで、DockerでSoliton NKをデプロイしたい
 
 Soliton NKをセットアップしたら、[クイックスタート](#!quickstart/quickstart.md)をチェックして、*Soliton NKを使う上での*スタートポイントを確認してください。
 
-注：MacOS上でDockerを実行しているユーザーは、[Dockerの解説ページ](https://docs.docker.com/docker-for-mac/networking/)で説明されているように、MacOSホストはコンテナへの直接IPアクセスできないことに注意する必要があります。ホストからコンテナのネットワークサービスにアクセスする必要がある場合は、追加のポートを転送する準備をしておきましょう。
+注：MacOS上でDockerを実行しているユーザーは、[Dockerの解説ページ](https://docs.docker.com/docker-for-mac/networking/)で説明されているように、MacOSホストからコンテナに対して直接IPでアクセスできないことに注意する必要があります。ホストからコンテナのネットワークサービスにアクセスする必要がある場合は、追加のポートを転送する準備をしておきましょう。
 
 ## Dockerネットワークの作成
 
-Soliton NKコンテナを他のコンテナから分離しておくために、`snknet`というDockerネットワークを作成します:
+Soliton NKコンテナを他のコンテナから分離しておくために、`gravnet`というDockerネットワークを作成します:
 
-	docker network create snknet
+	docker network create gravnet
 
 ## インデクサーとウェブサーバーのデプロイ
 
-Soliton NKのインデクサーとウェブサーバーのフロントエンドにSimple Relayインジェスターを加えたものを、利便性を考慮して、１つのDockerイメージ（[soliton/solitonnk](https://hub.docker.com/r/soliton/solitonnk/)）として出荷しています。ウェブサーバーへのアクセスのために、ホスト上でポート80を8080に転送して起動します:
+Soliton NKのコンテナイメージは利便性を考慮して、インデクサーとウェブサーバーのフロントエンドにSimple Relayインジェスターを加えたものを１つのDockerイメージ（[soliton/solitonnk](https://hub.docker.com/r/soliton/solitonnk/)）として出荷しています。ウェブサーバーへアクセスするために、ホストのポート8080版をコンテナの80番に転送して起動します:
 
-	docker run --net snknet -p 8080:80 -p 4023:4023 -p 4024:4024 -d -e GRAVWELL_INGEST_SECRET=MyIngestSecret -e GRAVWELL_INGEST_AUTH=MyIngestSecret -e GRAVWELL_CONTROL_AUTH=MyControlSecret -e GRAVWELL_SEARCHAGENT_AUTH=MySearchAgentAuth --name snk soliton/solitonnk:latest
+	docker run --net gravnet -p 8080:80 -p 4023:4023 -p 4024:4024 -d -e GRAVWELL_INGEST_SECRET=MyIngestSecret -e GRAVWELL_INGEST_AUTH=MyIngestSecret -e GRAVWELL_CONTROL_AUTH=MyControlSecret -e GRAVWELL_SEARCHAGENT_AUTH=MySearchAgentAuth --name gravwell soliton/solitonnk:latest
 
-新しいコンテナは`snk`という名前になっていることに注意してください。この名前は、インジェスターに送り先インデクサーを指定するときに使用します。
+新しいコンテナは`gravwell`という名前になっていることに注意してください。この名前は、インジェスターにデータを送る先のインデクサーを指定するときに使用します。
 
-テストに使える環境変数がいくつかあります。この環境変数に、Soliton NKのコンポーネント間の通信に使用される共有鍵を設定します。通常は[設定ファイル](#!configuration/parameters.md)に設定しますが、よりダイナミックでDockerフレンドリーに設定するには、[環境変数](#!configuration/environment-variables.md)を使うわけです。後でインジェスターにも `GRAVWELL_INGEST_SECRET=MyIngestSecret` の値を使うことになります。ここで設定された環境変数の意味は次の通りです:
+テストに使える環境変数がいくつかあります。この環境変数に、Soliton NKのコンポーネント間の通信に使用される共有鍵を設定します。通常は[設定ファイル](#!configuration/parameters.md)に設定しますが、Dockerフレンドリーな方法で手早く設定するには、[環境変数](#!configuration/environment-variables.md)を使います。後でインジェスターにも `GRAVWELL_INGEST_SECRET=MyIngestSecret` の値を設定します。ここで設定された環境変数の意味は次の通りです:
 
-* `GRAVWELL_INGEST_AUTH=MyIngestSecret` の設定により、インジェスターの認証にMyIngestSecretを使用するように*インデクサー*に指示されます。
-* `GRAVWELL_INGEST_SECRET=MyIngestSecret` の設定により、インデクサーの認証にMyIngestSecretを使用するように*Simple Relay インジェスター*に指示されます。この値は、**必ず**GRAVWELL_INGEST_AUTHの値と一致しなければなりません！
-* `GRAVWELL_CONTROL_AUTH=MyControlSecret` の設定により、*frontend*と*indexer*にMyControlSecretを使用して相互に認証を行うように指示されます。
-* `GRAVWELL_SEARCHAGENT_AUTH=MySearchAgentAuth` の設定により、検索エージェントの認証に MySearchAgentAuth を使用するように*フロントエンド*に指示されます。
+* `GRAVWELL_INGEST_AUTH=MyIngestSecret` ：インジェスターの認証にMyIngestSecretを使用するように*インデクサー*に指示します。
+* `GRAVWELL_INGEST_SECRET=MyIngestSecret` ：インデクサーの認証にMyIngestSecretを使用するように*Simple Relay インジェスター*に指示します。この値は、**必ず**GRAVWELL_INGEST_AUTHの値と一致しなければなりません！
+* `GRAVWELL_CONTROL_AUTH=MyControlSecret`：*フロントエンド*と*インデクサー*にMyControlSecretを使用して相互に認証するように指示します。
+* `GRAVWELL_SEARCHAGENT_AUTH=MySearchAgentAuth` ：検索エージェントの認証に MySearchAgentAuth を使用するように*フロントエンド*に指示します。
 
-注意：長期的に運営する予定の場合、特に何らかの方法でインターネットに公開する場合は、これらの値は自分で選択した鍵に設定することを**強く**お勧めします。
+注意：長期的に運用する予定の場合、特に何らかの方法でインターネットに公開する場合には、これらの認証鍵をデフォルトとは異る値に設定することを**強く**お勧めします。
 
 注意：GRAVWELL_INGEST_AUTH の鍵は GRAVWELL_INGEST_SECRET の鍵と必ず一致しなければなりません。
 
@@ -39,23 +39,23 @@ Soliton NKのインデクサーとウェブサーバーのフロントエンド�
 
 #### インデクサーの永続ストレージ
 
-Soliton NKインデクサーは2つの重要なデータセット、保存されたデータの束と `tags.dat` ファイルを保持しています。インデクサーの他のほとんどのコンポーネントはデータを失うことなく復旧できますが、通常の操作ではいくつかのディレクトリは永続的なストレージにバインドされていなければいけません。重要なデータは `storage`, `resources`, `log`, `etc` ディレクトリに存在します。各ディレクトリはそれぞれ別のボリュームにマウントすることもできますし、`gravwell.conf` ファイルでの記述によって単一の永続ストレージディレクトリを指すように設定したりすることもできます。dockerのデプロイ用に設計された `gravwell.conf` の例では、各データディレクトリのストレージパスを変更して、`/opt/gravwell` だけではなく `/opt/gravwell/persistent` の中の別のパスを指して永続ストレージを用いることができるようになっています。すべての `gravwell.conf` 設定パラメーターに関する完全なドキュメントは、[詳細な設定](parameters.md)ページにあります。
+Soliton NKインデクサーは2つの重要なデータセット、保存されたデータの束と `tags.dat` ファイルを保持しています。インデクサーの他のほとんどのコンポーネントはデータを失うことなく復旧できますが、通常の操作ではいくつかのディレクトリは永続的なストレージにバインドされていなければいけません。重要なデータは `storage`, `resources`, `log`, `etc` ディレクトリに存在します。各ディレクトリはそれぞれ別のボリュームにマウントすることもできますし、`gravwell.conf` ファイルでの記述によって単一の永続ストレージのディレクトリを指すように設定することもできます。dockerのデプロイ用に設計された `gravwell.conf` の例では、各データディレクトリのストレージパスを変更して、`/opt/gravwell` だけではなく `/opt/gravwell/persistent` の中の別のパスを指定して永続ストレージを用いることができるようになっています。すべての `gravwell.conf` 設定パラメーターに関する完全なドキュメントは、[詳細な設定](parameters.md)ページにあります。
 
 #### ウェブサーバーの永続ストレージ
 
-Soliton NK ウェブサーバーには、設定データや検索結果を失わないようにするために保守すべきいくつかのディレクトリがあります。`etc`, `resources`, `saved` ディレクトリには、コンテナデプロイ全体で維持すべき重要なものが含まれています。`saved` ディレクトリには、ユーザーが保存することを選択した検索結果が格納されています。`etc` ディレクトリには、ユーザーデータベース、ウェブストア、`tags.dat` ファイルが含まれています。これらすべてが Soliton NK の適切な運用に不可欠なものです。
+Soliton NK ウェブサーバーには、設定データや検索結果を失わないようにするために保守すべきいくつかのディレクトリがあります。`etc`, `resources`, `saved` ディレクトリには、コンテナデプロイ全体で維持すべき重要なファイルが保存されています。`saved` ディレクトリには、ユーザーが保存することを選択した検索結果が保存されています。`etc` ディレクトリには、ユーザーデータベース、ウェブストア、`tags.dat` ファイルが保存されています。これらすべては Soliton NK の適切な運用に不可欠なものです。
 
 #### インジェスターの永続ストレージ
 
-Soliton NKインジェスターはデータを中継するように設計されており、通常は永続的なストレージを必要としません。例外はキャッシュシステムです。Soliton NK ingest APIには統合されたキャッシュシステムが含まれているので、インデクサーへのアップリンクに問題が発生した場合、インジェスターはデータを永続的なストアにローカルにキャッシュして、データが失われることがないようにすることができます。ほとんどのインジェスターはデフォルトではキャッシュをデプロイしませんが、一般的なキャッシュストレージの場所は `/opt/gravwell/cache` です。cache`ディレクトリを永続的なストレージにバインドすれば、インジェスターが状態を維持し、コンテナの再起動や更新でデータを失わないようにすることができます。
+Soliton NKインジェスターはデータを中継するように設計されており、通常は永続的なストレージを必要としません。例外はキャッシュシステムです。Soliton NK ingest APIには統合されたキャッシュシステムが含まれているので、インデクサーへのアップリンクに問題が発生した場合、インジェスターはデータをローカルの永続的なストアにキャッシュして、データが失われることがないようにします。ほとんどのインジェスターはデフォルトではキャッシュをデプロイしませんが、一般的なキャッシュストレージの場所は `/opt/gravwell/cache` です。`cache`ディレクトリを永続的なストレージにバインドすれば、インジェスターが状態を維持し、コンテナの再起動や更新でデータを失わないようにすることができます。
 
 ## ライセンスのアップロードとログイン
 
-Soliton NKを起動すると、今度は、ホスト上のポート http://localhost:8080 に Web ブラウザでアクセスしてください。ライセンスのアップロードを求める表示が出るはずです。
+Soliton NKを起動後に、http://localhost:8080 に Web ブラウザでアクセスしてください。ライセンスのアップロードを求める表示が出るはずです。
 
 ![](license-upload-docker.png)
 
-注: 評価用ライセンスをご希望の方は、[https://www.solitonnk.com/contact](https://www.solitonnk.com/contact)からご連絡ください。
+注: 評価用ライセンスをご希望の方は、[コミュニティサイト https://www.solitonnk.com/](https://www.solitonnk.com/)にユーザ登録をして、評価ラインセンスをダウンロードしてください。
 
 ライセンスをアップロードして検証が済むと、ログイン画面が表示されます:
 
@@ -65,31 +65,31 @@ Soliton NKを起動すると、今度は、ホスト上のポート http://local
 
 ## テスト用のデータ追加
 
-soliton/solitonnk から得られるDockerイメージには、Simple Relay [ingester](#!ingesters/ingesters.md)がプリインストールされていて、以下のポートを開けてリッスンしています:
+soliton/solitonnk から得られるDockerイメージには、[Simple Relay ingester](#!ingesters/ingesters.md)がプリインストールされていて、以下のポートを開けてリッスンしています:
 
 * TCP 7777 行区切りのログデータ用 ('default'タグ)
 * TCP 601 syslog メッセージ用 ('syslog'タグ)
 * UDP 514 syslog メッセージ用 ('syslog'タグ)
 
-Soliton NKがデータを取り込めるようになったか確かめるために、netcatを使ってポート7777にラインを書き込んでみましょう。待ってください、VMを起動したときにはこれらのポートをホストに転送していなかったはずです。ですが、`docker inspect`を使って、Soliton NKコンテナに割り当てられたIPアドレスを取得することができます:
+Soliton NKがデータを取り込めるようになったかを確かめるために、netcatを使ってポート7777にラインを書き込んでみましょう。とはいえ、VMを起動したときにはこれらのポートをホストに転送していなかったはずです。そのような場合、`docker inspect`を使って、Soliton NKコンテナに割り当てられたIPアドレスを取得することができます:
 
-	docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' snk
+	docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' gravwell
 
-今回例としてSoliton NKコンテナのIPアドレスは、**172.19.0.2**だったとして話を進めます。次に、netcatを使って、次のような行を書き、Ctrl-Cを押してそれらを送信することができます。:
+今回例としてSoliton NKコンテナのIPアドレスは、**172.19.0.2**だったとして話を進めます。次に、netcatを使って次のような行を書き、Ctrl-Dを押してそれらを送信します。:
 
 	$ netcat 172.19.0.2 7777
 	this is a test
 	this is another test
 
-注意：MacOSでは、コンテナは実際にはLinux VM内で実行されているため、IP指定で直接コンテナにアクセスすることはできません。Dockerコンテナ内でnetcatを使用するか(同じコンテナでも新しいコンテナでも)、Soliton NKコンテナを起動する際にポート7777をホストに転送する設定をしておくかしてください。
+注意：MacOSでは、コンテナは実際にはLinux VM内で実行されているため、IPアドレスを指定して直接コンテナにアクセスすることはできません。Dockerコンテナ内でnetcatを使用するか(同じコンテナでも新しいコンテナでも)、Soliton NKコンテナを起動する際にポート7777をホストに転送する設定をしてください。
 
-そして、間を置かずに「直近１時間」で検索して、データが入っているかどうか、Soliton NKが正常に動作しているかどうかを確認することができます:
+そして、ブラウザから時間範囲を「直近１時間」に指定して検索してください。データが入っているかどうか、Soliton NKが正常に動作しているかどうかを確認することができます:
 
 ![](docker-search.png)
 
 ## インジェスターのセットアップ
 
-soliton/solitonkイメージに同梱されているSimple Relayインジェスターの他に、Soliton NKの開発元であるGravwellから、現在、3つの構築済みスタンドアロンインジェスターイメージを提供しています:
+soliton/solitonkイメージに同梱されているSimple Relayインジェスターの他に、Soliton NKの開発元であるGravwellから、現在、複数の構築済みスタンドアロンインジェスターイメージを提供しています:
 
 * [gravwell/netflow_capture](https://hub.docker.com/r/gravwell/netflow_capture/)  は Netflow コレクターで、ポート 2055 で Netflow v5 レコードを、ポート 6343 で IPFIX レコードを受信するように構成されています。
 * [gravwell/collectd](https://hub.docker.com/r/gravwell/collectd/) は、ポート 25826 で collectd の取得ポイントからのハードウェア統計情報を受信します。
@@ -97,11 +97,11 @@ soliton/solitonkイメージに同梱されているSimple Relayインジェス�
 
 Netflow インジェスターの起動方法を以下に示します。同じコマンドを （名前とポートを変更して）他のインジェスターにも使用できます:
 
-	docker run -d --net snknet -p 2055:2055/udp --name netflow -e GRAVWELL_CLEARTEXT_TARGETS=snk -e GRAVWELL_INGEST_SECRET=MyIngestSecret gravwell/netflow_capture
+	docker run -d --net gravnet -p 2055:2055/udp --name netflow -e GRAVWELL_CLEARTEXT_TARGETS=gravwell -e GRAVWELL_INGEST_SECRET=MyIngestSecret gravwell/netflow_capture
 
-環境変数を設定するために `-e` フラグを使用していることに注意してください。これにより、インジェストのために'snk'という名前のコンテナに接続するようにインジェスターを指示し(GRAVWELL_CLEARTEXT_TARGETS=snk)、インジェスト共有鍵を'IngestSecrets'に設定する(GRAVWELL_INGEST_SECRET=IngestSecrets)ことで、インジェスターを動的に設定することができるようになります。
+環境変数を設定するために `-e` フラグを使用していることに注意してください。これにより、インジェストのために'gravwell'という名前のコンテナに接続するようにインジェスターを指示し(GRAVWELL_CLEARTEXT_TARGETS=gravwell)、インジェスト共有鍵を'IngestSecrets'に設定する(GRAVWELL_INGEST_SECRET=IngestSecrets)ことで、インジェスターを動的に設定することができるようになります。
 
-`p 2055:2055/udp` オプションは、UDP ポート 2055 (Netflow v5 のインジェストポート) をコンテナからホストに転送します。これにより、Netflow レコードをインジェストコンテナに送るのが簡単になるはずです。
+`-p 2055:2055/udp` オプションは、UDP ポート 2055 (Netflow v5 のインジェストポート) をコンテナからホストに転送します。これにより、Netflow レコードをインジェストコンテナに送るのが簡単になるはずです。
 
 注: netflow インジェスターは、ポート 6343 の UDP 上で IPFIX レコードを受け入れるようにデフォルトで設定されています。IPFIX レコードもインジェストしたい場合は、上のコマンドラインに `-p 6343:6343/udp` を追加してください。
 
@@ -109,7 +109,7 @@ Netflow インジェスターの起動方法を以下に示します。同じコ
 
 ![](netflow_ingest.png)
 
-これで、Netflow ジェネレーターをホストのポート 2055 に向けてレコードを送信するように設定してよくなります。Netflowのデータはコンテナに渡され、Soliton NK にインジェストされます。
+これで、Netflow ジェネレーターをホストのポート 2055 に向けてレコードを送信するように設定できます。Netflowのデータはコンテナに渡され、Soliton NK にインジェストされます。
 
 ## サービスのカスタマイズ
 
@@ -156,14 +156,14 @@ Netflow インジェスターの起動方法を以下に示します。同じコ
 
 このマネージャアプリケーションのデフォルト設定では、バグの特定と修正に役立つエラー報告システムを有効にしています。サービスがゼロ以外の終了コードで終了した場合、エラーレポートを取得します。エラー報告システムを無効にするには、"[Error-Handler]" セクションを削除するか、環境変数 "DISABLE_ERROR_REPORTING" に "TRUE" を指定してください。
 
-サービスを何か無効にしておきたい時は、起動時に、該当サービス名をすべて大文字にし、その前に"DISABLE_"を付けた環境変数に"TRUE"の値を与えたものを起動コマンドにオプション付加してください。
+サービスを個別に無効にする場合は、該当サービス名をすべて大文字にしてその前に"DISABLE_"を付けた環境変数に、"TRUE"の値を指定したものを、起動コマンドのオプションに追加してください。
 
 例えば、エラー報告をせずに Soliton NK docker コンテナを起動するには、"-e DISABLE_ERROR_REPORTING=true" オプションを指定して起動します。
 
-インデクサーは起動するけれども、統合されたSimpleRelayインジェスターを無効にしたい場合は、"-e DISABLE_SIMPLE_RELAY=TRUE "を追加し、以下のように数珠つなぎに記述してください。:
+インデクサーは起動するけれども、統合されたSimpleRelayインジェスターを無効にしたい場合には、"-e DISABLE_SIMPLE_RELAY=TRUE "を以下のように起動オプションに追加してください。:
 
 ```
-docker run --name snk -e GRAVWELL_INGEST_SECRET=MyIngestSecret -e DISABLE_SIMPLE_RELAY=TRUE -e DISABLE_WEBSERVER=TRUE -e DISABLE_SEARCHAGENT=TRUE soliton/solitonnk:latest
+docker run --name gravwell -e GRAVWELL_INGEST_SECRET=MyIngestSecret -e DISABLE_SIMPLE_RELAY=TRUE -e DISABLE_WEBSERVER=TRUE -e DISABLE_SEARCHAGENT=TRUE soliton/solitonnk:latest
 ```
 
 サービスマネージャの詳細については、[githubのページ](https://github.com/gravwell/manager)を参照してください。
@@ -182,7 +182,7 @@ docker run --name snk -e GRAVWELL_INGEST_SECRET=MyIngestSecret -e DISABLE_SIMPLE
 
 ## （Docker上ではない）外部のインジェスターの設定
 
-`soliton/solitonnk` イメージを起動するのに使ったオリジナルのコマンドをもう一度見直すと、ポート4023と4024をホストに転送したことに気づくでしょう。これらはそれぞれインデクサーの平文とTLS暗号文インジェスト受信ポートです。別のシステムでインジェスターを実行している場合(おそらくどこかのLinuxサーバーでログファイルを収集したりしてるでしょう)、インジェスター設定ファイルの `Cleartext-Backend-target` または `Encrypted-Backend-target` フィールドの内容をDockerホストを指すように設定すれば、そのDockerホストで動いてるSoliton NKインスタンスにデータをインジェストすることができます。
+`soliton/solitonnk` イメージを起動するのに使ったオリジナルのコマンドをもう一度見直すと、ポート4023と4024をホストに転送したことに気づくでしょう。これらはそれぞれインデクサーの平文とTLS暗号文のインジェスト受信ポートです。別のシステムでインジェスターを実行している場合(おそらくどこかのLinuxサーバーでログファイルを収集したりしてるでしょう)、インジェスター設定ファイルの `Cleartext-Backend-target` または `Encrypted-Backend-target` フィールドにDockerホストを指定すれば、そのDockerホストで動いてるSoliton NKインスタンスにデータをインジェストすることができます。
 
 インジェスターの設定の詳細については、[インジェスターのドキュメント](#!ingesters/ingesters.md)を参照してください。
 
