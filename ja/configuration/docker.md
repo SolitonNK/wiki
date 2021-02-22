@@ -2,7 +2,7 @@
 
 Docker Hubで利用可能なビルド済みのDockerイメージを使えば、実験や長期利用のためにDocker内にSoliton NKをデプロイすることが非常に簡単にできます。このドキュメントでは、Docker内でSoliton NK環境を設定する方法を紹介します。
 
-Soliton NKの正規ユーザーで、DockerでSoliton NKをデプロイしたい場合は、[サポート](https://www.soliton.co.jp/support/) を通じて連絡してください。また、カスタムDockerインスタンスのデプロイについての情報は[こちらのwiki](#!configuration/custom-docker.md)で紹介しています。
+Soliton NKの正規ユーザーで、DockerでSoliton NKをデプロイしたい場合は、[サポート](https://www.soliton.co.jp/support/) を通じて連絡してください。
 
 Soliton NKをセットアップしたら、[クイックスタート](#!quickstart/quickstart.md)をチェックして、*Soliton NKを使う上での*スタートポイントを確認してください。
 
@@ -55,7 +55,7 @@ Soliton NKを起動後に、http://localhost:8080 に Web ブラウザでアク�
 
 ![](license-upload-docker.png)
 
-注: 評価用ライセンスをご希望の方は、[コミュニティサイト https://www.solitonnk.com/](https://www.solitonnk.com/)にユーザ登録をして、評価ラインセンスをダウンロードしてください。
+注: 評価用ライセンスをご希望の方は、[コミュニティサイト](https://www.solitonnk.com/)にユーザ登録をして、評価ラインセンスをダウンロードしてください。
 
 ライセンスをアップロードして検証が済むと、ログイン画面が表示されます:
 
@@ -113,7 +113,7 @@ Netflow インジェスターの起動方法を以下に示します。同じコ
 
 ## サービスのカスタマイズ
 
-公式のSoliton NK dockerコンテナには、コンテナ内の複数のサービスの起動と制御を非常に簡単にするサービス管理システムが含まれています。サービス管理システムでは、サービスの再起動、エラー報告、バックオフ制御を管理操作できます。Soliton NKは、BSD 3-Clauseライセンスのもと、[github](https://github.com/gravwell)上の[manager](https://github.com/gravwell/manager)アプリケーションをオープンソース化しています。ですから、もしあなたが非常に小さくて簡単に設定できるSystemDのようなサービスマネージャをdockerコンテナ用に使いたいのであれば、ぜひ使ってみてください。
+公式のSoliton NK dockerコンテナには、コンテナ内の複数のサービスの起動と制御を非常に簡単にするサービス管理システムが含まれています。サービス管理システムでは、サービスの再起動、エラー報告、バックオフ制御を管理操作できます。Soliton NKの開発元であるGravwellは、BSD 3-Clauseライセンスのもと、[github](https://github.com/gravwell)上の[manager](https://github.com/gravwell/manager)アプリケーションをオープンソース化しています。ですから、もしあなたが非常に小さくて簡単に設定できるSystemDのようなサービスマネージャをdockerコンテナ用に使いたいのであれば、ぜひ使ってみてください。
 
 公式のSoliton NK Dockerイメージには、Simple Relayインジェスターだけでなく、フルSoliton NKスタック(インデクサーとウェブサーバー)も含まれています。デフォルトのマネージャ設定は次の通りです:
 
@@ -195,11 +195,10 @@ docker run --name gravwell -e GRAVWELL_INGEST_SECRET=MyIngestSecret -e DISABLE_S
 
 ## クラッシュレポートとメトリクス
 
-Soliton NKソフトウェアには、自動化されたクラッシュレポートとメトリクスレポートが組み込まれています。Soliton NKで開発元に何が送られるか、および、オプトアウトする方法の詳細については、[クラッシュレポートとメトリクスのページ](#!metrics.md)を参照してください。
+Soliton NKソフトウェアには、自動化されたクラッシュレポートとメトリクスレポートが組み込まれています。どこにどのような情報が送られるか、および、オプトアウトする方法の詳細については、[クラッシュレポートとメトリクスのページ](#!metrics.md)を参照してください。
 
 ## その他の情報源
 
 Soliton NKを使っていて、さらに詳しい使い方を知りたい場合には[他のドキュメント](#!index.md)を探してみてください。
 
-Soliton NKの正規ユーザーで、DockerでSoliton NKをデプロイしたい場合は、[サポート](https://www.soliton.co.jp/support/) を通じて連絡してください。また、カスタムDockerインスタンスのデプロイについての情報は[こちらのwiki](#!configuration/custom-docker.md)で紹介しています。
-
+Soliton NKの正規ユーザーで、DockerでSoliton NKをデプロイしたい場合は、[サポート](https://www.soliton.co.jp/support/) を通じて連絡してください。
