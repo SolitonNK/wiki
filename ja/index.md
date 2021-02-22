@@ -2,13 +2,13 @@
 
 ![](logo-name.png)
 
-# Gravwell
+# Soliton NK
 
-このサイトでは、Gravwellのドキュメントと、Changelogsなどの他のリソースが含まれています。
+このサイトでは、Soliton NKのドキュメントと、Changelogsなどの他のリソースが含まれています。
 
-Gravwellを使い始めたばかりの方は、まず[クイックスタート](quickstart/quickstart.md)を読んでから、[パイプラインを検索](search/search.md)のドキュメントを読んで詳細を知ることをお勧めします。
+Soliton NKを使い始めたばかりの方は、まず[クイックスタート](quickstart/quickstart.md)を読んでから、[パイプラインを検索](search/search.md)のドキュメントを読んで詳細を知ることをお勧めします。
 
-Gravwellは、無料の[コミュニティ版](https://www.gravwell.io/download)を発表しました。
+Soliton NKは、無料の[コミュニティ版](https://www.gravwell.io/download)を発表しました。
 
 ## クイックスタートとダウンロード
 
@@ -16,7 +16,7 @@ Gravwellは、無料の[コミュニティ版](https://www.gravwell.io/download)
 
   * [ダウンロード](quickstart/downloads.md)
 
-## Gravwellで検索
+## Soliton NKで検索
 
   * [検索概要](search/search.md)
 
@@ -30,14 +30,14 @@ Gravwellは、無料の[コミュニティ版](https://www.gravwell.io/download)
 
 ## システムアーキテクチャ
 
-  * [Gravwellシステムアーキテクチャ](architecture/architecture.md)
+  * [Soliton NKシステムアーキテクチャ](architecture/architecture.md)
 
-    * [Gravwell が使用するネットワークポート](configuration/networking.md)
+    * [Soliton NK が使用するネットワークポート](configuration/networking.md)
 
 
   * [リソースシステム](resources/resources.md)
 
-## インジェスターの設定 : Gravwellへのデータ取り込み
+## インジェスターの設定 : Soliton NKへのデータ取り込み
 
   * [インジェスターの設定](ingesters/ingesters.md)
 
@@ -55,15 +55,15 @@ Gravwellは、無料の[コミュニティ版](https://www.gravwell.io/download)
 
   * [サービスの統合](ingesters/integrations.md)
 
-## 高度なGravwellのインストールと設定
+## 高度なSoliton NKのインストールと設定
 
-  * [Gravwellのインストールと設定](configuration/configuration.md)
+  * [Soliton NKのインストールと設定](configuration/configuration.md)
 
   * [Dockerデプロイメント](configuration/docker.md)
 
   * [TLS/HTTPSの設定](configuration/certificates.md)
 
-  * [Gravwellクラスタの構築](distributed/cluster.md)
+  * [Soliton NKクラスタの構築](distributed/cluster.md)
 
   * [分散フロントエンド](distributed/frontend.md)
 
@@ -76,7 +76,7 @@ Gravwellは、無料の[コミュニティ版](https://www.gravwell.io/download)
 
   * [シングルサインオン](configuration/sso.md)
 
-  * [Gravwellの堅牢化](configuration/hardening.md)
+  * [Soliton NKの堅牢化](configuration/hardening.md)
 
 ## クエリの高速化、自動抽出、データ管理
   
@@ -102,7 +102,7 @@ Gravwellは、無料の[コミュニティ版](https://www.gravwell.io/download)
 
 ## ユーザーインターフェース
 
-  * [Gravwell Web GUI](gui/gui.md)
+  * [Soliton NK Web GUI](gui/gui.md)
 
     * [検索インターフェイス](gui/queries/queries.md)
 
@@ -124,7 +124,7 @@ Gravwellは、無料の[コミュニティ版](https://www.gravwell.io/download)
 
   * [Changelogs](changelog/list.md)
 
-  * [Gravwell EULA](eula.md)
+  * [Soliton NK EULA](eula.md)
 
   * [オープンソースライセンス](open_source.md)
 

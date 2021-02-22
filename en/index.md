@@ -2,13 +2,13 @@
 
 ![](logo-name.png)
 
-# Gravwell
+# Soliton NK
 
-This site contains documentation for Gravwell, plus other resources such as Changelogs.
+This site contains documentation for Soliton NK, plus other resources such as Changelogs.
 
-If you're just starting out with Gravwell, we recommend reading the [Quickstart](quickstart/quickstart.md) first, then moving on to the [Search pipeline](search/search.md) documentation to learn more.
+If you're just starting out with Soliton NK, we recommend reading the [Quickstart](quickstart/quickstart.md) first, then moving on to the [Search pipeline](search/search.md) documentation to learn more.
 
-Gravwell is pleased to announce our free [Community Edition](https://www.gravwell.io/download)!
+Soliton NK is pleased to announce our free [Community Edition](https://www.gravwell.io/download)!
 
 ## Quickstart and Downloads
 
@@ -16,7 +16,7 @@ Gravwell is pleased to announce our free [Community Edition](https://www.gravwel
 
   * [Downloads](quickstart/downloads.md)
 
-## Searching with Gravwell
+## Searching with Soliton NK
 
   * [Search overview](search/search.md)
 
@@ -30,14 +30,14 @@ Gravwell is pleased to announce our free [Community Edition](https://www.gravwel
 
 ## System Architecture
 
-  * [Gravwell System Architecture](architecture/architecture.md)
+  * [Soliton NK System Architecture](architecture/architecture.md)
 
-    * [Network Ports Used by Gravwell](configuration/networking.md)
+    * [Network Ports Used by Soliton NK](configuration/networking.md)
 
 
   * [The Resource System](resources/resources.md)
 
-## Ingester Configuration: Getting Data Into Gravwell
+## Ingester Configuration: Getting Data Into Soliton NK
 
   * [Setting Up Ingesters](ingesters/ingesters.md)
 
@@ -55,15 +55,15 @@ Gravwell is pleased to announce our free [Community Edition](https://www.gravwel
 
   * [Service Integrations](ingesters/integrations.md)
 
-## Advanced Gravwell Installation and Configuration
+## Advanced Soliton NK Installation and Configuration
 
-  * [Installing and Configuring Gravwell](configuration/configuration.md)
+  * [Installing and Configuring Soliton NK](configuration/configuration.md)
 
   * [Docker Deployment](configuration/docker.md)
 
   * [Setting up TLS/HTTPS](configuration/certificates.md)
 
-  * [Building a Gravwell Cluster](distributed/cluster.md)
+  * [Building a Soliton NK Cluster](distributed/cluster.md)
 
   * [Distributed Frontends](distributed/frontend.md)
 
@@ -76,7 +76,7 @@ Gravwell is pleased to announce our free [Community Edition](https://www.gravwel
 
   * [Single Sign-On](configuration/sso.md)
 
-  * [Hardening Gravwell](configuration/hardening.md)
+  * [Hardening Soliton NK](configuration/hardening.md)
 
   * [Common Problems & Caveats](configuration/caveats.md)
 
@@ -104,7 +104,7 @@ Gravwell is pleased to announce our free [Community Edition](https://www.gravwel
 
 ## User Interfaces
 
-  * [Gravwell Web GUI](gui/gui.md)
+  * [Soliton NK Web GUI](gui/gui.md)
 
     * [The Search Interface](gui/queries/queries.md)
 
@@ -126,7 +126,7 @@ Gravwell is pleased to announce our free [Community Edition](https://www.gravwel
 
   * [Changelogs](changelog/list.md)
 
-  * [Gravwell EULA](eula.md)
+  * [Soliton NK EULA](eula.md)
 
   * [Open-source licenses](open_source.md)
 
