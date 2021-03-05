@@ -179,6 +179,7 @@ ankoは組み込みのユーティリティ関数を提供しており、`functi
 * `getResource(name) []byte, error` は指定されたリソースの内容をバイト数で返し、エラーはリソースの取得中に発生したエラーです。
 * `setResource(name, value) error` は、(必要に応じて) `name` という名前のリソースを `value` の内容で作成して更新し、エラーが発生した場合にはエラーを返します。
 * `len(val) int` valの長さを返します。これは、文字列、スライスなどにすることができます。
+* `getMacro(name) string, error`は与えられたマクロの値を返し、存在しない場合はエラーを返します。この関数はマクロの展開を行わないことに注意してください。
 * `toIP(string) IP` 文字列をIPに変換し、例えばパケットモジュールで生成されたIPと比較するのに適しています。
 * `toMAC(string) MAC` 文字列をMACアドレスに変換します。
 * `toString(val) string` valを文字列に変換します。
@@ -203,7 +204,8 @@ ankoは組み込みのユーティリティ関数を提供しており、`functi
 * ` readEntry() entry, error` は次のエントリとエラー(もしあれば)を返します。エントリが残っていない場合はエラーを返します。
 * `writeEntry(ent) error` は指定されたエントリをパイプラインから書き出し、エラーがあればそれを返します。
 * `cloneEntry(ent) entry` は指定されたエントリのコピーを返します。
-* `newEntry（）entry`は、タイムスタンプが現在の時刻に設定された、まったく新しいエントリを作成します。
+* `dupEntryByReference(ent, names...) entry`は指定されたエントリを複製し、`names` パラメータ(複数可)で指定された列挙された値のコピーを作成します。
+* `newEntry() entry` は、現在のクエリの終了時刻をタイムスタンプとして、完全に新しいエントリを作成します。
 * `setEntryEnum(ent, key, value)` 指定されたエントリに列挙された値を設定します。
 * `getEntryEnum(ent, key) value, error` 指定されたエントリから列挙された値を読み込みます。
 * `hasEntryEnum(ent, key) bool` は、エントリに列挙された値が含まれているかどうかを返します。
@@ -232,29 +234,275 @@ var json = import("encoding/json")
 
 セキュリティ上の理由から、ankoモジュールは、完全なankoスクリプト言語に含まれる*すべての*パッケージへのアクセスを許可しません。 次のパッケージは、ankoスクリプトで使用できます。
 
-* `bytes`：バイトスライスを処理します。
-* `crypto/md5`、` crypto/sha1`、 `crypto/sha256`、` crypto/sha512`：暗号化ハッシュ
-* `encoding/csv`：CSVデータをエンコードおよびデコードします。
-* `encoding/json`：jsonデータをエンコードおよびデコードします。
-* `errors`：Goエラーを処理します。
-* `flag`：コマンドライン引数を処理します。
-* `fmt`：文字列の印刷とフォーマット
-* `math`：数学関数
-* `math/big`：bignums
-* `math/rand`：乱数
-* `net/http`：制限されたHTTP機能（クライアントのみ）
-* `net/url`：URL
-* `path`：パス
-* `path/filepath`：ファイルに固有のパス関数
-* `regexp`：正規表現
-* `sort`：並べ替え
-* `strings`：文字列処理関数
-* `time`：時間処理関数
-*  `github.com/ziutek/telnet`: telnetクライアント関数 (Dial, DialTimeout, NewConn関数が利用できます。ドキュメントは [https://godoc.org/github.com/ziutek/telnet](https://godoc.org/github.com/ziutek/telnet) を参照してください。
+* [bytes](https://golang.org/pkg/bytes)：バイトスライスを処理します。
+* [crypto/md5](https://golang.org/pkg/crypto/md5), [crypto/sha1](https://golang.org/pkg/crypto/sha1), [crypto/sha256](https://golang.org/pkg/crypto/sha256), [crypto/sha512](https://golang.org/pkg/crypto/sha512):暗号化ハッシュ
+* [crypto/tls](https://golang.org/pkg/crypto/tls): 制限付きTLS機能
+* [encoding/base64](https://golang.org/pkg/encoding/base64): 制限付きベース64機能
+* [encoding/csv](https://golang.org/pkg/encoding/csv)：CSVデータをエンコードおよびデコードします。
+* [encoding/hex](https://golang.org/pkg/encoding/hex): 制限付きHEXエンコーディング 機能
+* [encoding/json](https://golang.org/pkg/encoding/json)：jsonデータをエンコードおよびデコードします。
+* [encoding/xml](https://golang.org/pkg/encoding/xml): 制限付きXMLエンコーディング機能
+* [errors](https://golang.org/pkg/errors)：Goエラーを処理します。
+* [flag](https://golang.org/pkg/flag):：コマンドライン引数を処理します。
+* [fmt](https://golang.org/pkg/fmt)：文字列の印刷とフォーマット
+* [github.com/google/uuid](https://github.com/google/uuid): UUIDの生成および検索
+* [github.com/gravwell/ipexist](https://github.com/gravwell/ipexist): Gravwell IPヘルパー機能
+* [github.com/RackSec/srslog](https://github.com/RackSec/srslog): golangの標準ライブラリに代わるsyslogパッケージ
+* [io](https://golang.org/pkg/io): basic I/O primitives
+* [io/util](https://golang.org/pkg/io/util): ただの`ioutil.ReadAll`関数 (以下を参照)
+* [math](https://golang.org/pkg/math)：数学関数
+* [math/big](https://golang.org/pkg/math/big)：bignums
+* [math/rand](https://golang.org/pkg/math/rand)：乱数
+* [net](https://golang.org/pkg/net): 制限付きネットワーク機能
+* [net/https](https://golang.org/pkg/net/https)：制限されたHTTP機能（クライアントのみ）
+* [net/url](https://golang.org/pkg/net/url)：URL
+* [path](https://golang.org/pkg/path)：パス
+* [path/filepath](https://golang.org/pkg/path/filepath)：ファイルに固有のパス関数
+* [regexp](https://golang.org/pkg/regexp)：正規表現
+* [sort](https://golang.org/pkg/sort)：並べ替え
+* [strings](https://golang.org/pkg/strings):：文字列処理関数
+* [time](https://golang.org/pkg/time)：時間処理関数
+* [github.com/ziutek/telnet](https://github.com/ziutek/telnet): telnetクライアント関数 (Dial, DialTimeout, NewConn関数が利用できます。ドキュメントは [https://godoc.org/github.com/ziutek/telnet](https://godoc.org/github.com/ziutek/telnet) を参照してください。
 
 このドキュメントでは、すべてのパッケージを網羅的に説明することはできません。各パッケージにエクスポートされた利用可能な機能は、 [公式 anko リポジトリ](https://github.com/mattn/anko/tree/master/packages) で見ることができます。公式 anko リポジトリでエクスポートされた完全な機能を提供していないパッケージもありますので、以下でさらに説明します。
 
-### `net/http` パッケージ
+## パッケージの制限
+
+パッケージの中には、スクリプト言語を使ってエクスポートするのは危険な可能性がある機能を持っているものがあります。Gravwell は、特定のパッケージのエクスポートを、フルパッケージで利用可能なもののサブセットに制限しています。以下に、各パッケージの制限事項の一覧を示します。
+
+### crypto/md5
+
+`crypto/md5` は "New" と "Sum" 関数のみをエクスポートします:
+
+- `md5.New`
+- `md5.Sum`
+
+### crypto/sha1
+
+`crypto/sha1` は "New" と "Sum" 関数のみをエクスポートします:
+
+- `sha1.New`
+- `sha1.Sum`
+
+### crypto/sha256
+
+`crypto/sha256`は様々な "New" と "Sum" 関数のみをエクスポートします:
+
+- `sha256.New`
+- `sha256.New224`
+- `sha256.Sum224`
+- `sha256.Sum256`
+
+### crypto/sha512
+
+`crypto/sha512`は様々な "New" と "Sum" 関数のみをエクスポートします:
+
+- `sha512.New`
+- `sha512.New384`
+- `sha512.New512_224`
+- `sha512.New512_256`
+- `sha512.Sum384`
+- `sha512.Sum512`
+- `sha512.Sum512_224`
+- `sha512.Sum512_256`
+
+### crypto/tls
+
+このモジュールは、Gravwellの設定で`Disable-Network-Script-Functions`が`false`に設定されている場合にのみ利用可能です。`crypto/tls`は、`net/http`モジュールで使用するTLS設定タイプをエクスポートするだけです:
+
+- `tls.Config`
+
+### encoding/csv
+
+`encoding/csv`はCSVのイニシャライザのみをエクスポートします:
+
+- `csv.NewReader` (LazyQuotes オプションを true に設定した状態で `csv.NewReader` を実際に呼び出します)
+- `csv.NewWriter`
+- `csv.NewBuilder`
+
+### encoding/base64
+
+`encoding/base64`はbase64の初期化子とエンコーディング型のみをエクスポートします:
+
+- `base64.NewDecoder`
+- `base64.NewEncoder`
+- `base64.NewEncoding`
+- `base64.RawStdEncoding`
+- `base64.RawURLEncoding`
+- `base64.StdEncoding`
+- `base64.URLEncoding`
+
+### encoding/hex
+
+`encoding/hex`は、イニシャライザとラッパーのサブセットをエクスポートします:
+
+- `hex.Decode`
+- `hex.DecodeString`
+- `hex.DecodedLen`
+- `hex.Dump`
+- `hex.Dumper`
+- `hex.Encode`
+- `hex.EncodeToString`
+- `hex.EncodedLen`
+- `hex.NewDecoder`
+- `hex.NewEncoder`
+
+### encoding/xml
+
+`encoding/exml`は、イニシャライザ、ラッパー、エンコーディングオプションのサブセットをエクスポートします:
+
+- `xml.Escape`
+- `xml.EscapeText`
+- `xml.Marshal`
+- `xml.MarshalIndent`
+- `xml.Unmarshal`
+- `xml.NewDecoder`
+- `xml.NewTokenDecoder`
+- `xml.NewEncoder`
+- `xml.HTMLAutoClose`
+- `xml.HTMLEntity`
+- `xml.Attr`
+- `xml.CharData`
+- `xml.Comment`
+- `xml.Directive`
+- `xml.EndElement`
+- `xml.Name`
+- `xml.ProcInst`
+- `xml.StartElement`
+
+### flag 
+
+`flag`は `flag` パッケージ全体ではなく、型のサブセットのみをエクスポートします:
+
+- `flag.NewFlagSet`
+- `flag.PanicOnError`
+- `flag.ContinueOnError`
+
+### github.com/google/uuid
+
+`github.com/google/uuid` は"New"と "Parse"の関数のみをエクスポートします。
+
+- `uuid.New`
+- `uuid.Parse`
+- `uuid.ParseBytes`
+
+### github.com/gravwell/ipexist
+
+このモジュールは、Gravwellの設定で `Disable-Network-Script-Functions` が `false` に設定されている場合にのみ利用可能です。`github.com/gravwell/ipexist` は "New"関連の関数のみをエクスポートします:
+
+- `ipexist.New`
+- `ipexist.NewIPBitMap`
+
+### github.com/RackSec/srslog
+
+このモジュールは、Gravwellの設定で`Disable-Network-Script-Functions`が `false`に設定されている場合にのみ利用可能です。`github.com/RackSec/srslog`はsyslog関連の機能のみを公開します:
+
+- `srslog.Dial`
+- `srslog.DefaultFormatter`
+- `srslog.DefaultFramer`
+- `srslog.RFC3164Formatter`
+- `srslog.RFC5424Formatter`
+- `srslog.RFC5425MessageLengthFramer`
+- `srslog.UnixFormatter`
+- `srslog.LOG_EMERG`
+- `srslog.LOG_ALERT`
+- `srslog.LOG_CRIT`
+- `srslog.LOG_ERR`
+- `srslog.LOG_WARNING`
+- `srslog.LOG_NOTICE`
+- `srslog.LOG_INFO`
+- `srslog.LOG_DEBUG`
+- `srslog.LOG_KERN`
+- `srslog.LOG_USER`
+- `srslog.LOG_MAIL`
+- `srslog.LOG_DAEMON`
+- `srslog.LOG_AUTH`
+- `srslog.LOG_SYSLOG`
+- `srslog.LOG_LPR`
+- `srslog.LOG_NEWS`
+- `srslog.LOG_UUCP`
+- `srslog.LOG_CRON`
+- `srslog.LOG_AUTHPRIV`
+- `srslog.LOG_FTP`
+- `srslog.LOG_LOCAL0`
+- `srslog.LOG_LOCAL1`
+- `srslog.LOG_LOCAL2`
+- `srslog.LOG_LOCAL3`
+- `srslog.LOG_LOCAL4`
+- `srslog.LOG_LOCAL5`
+- `srslog.LOG_LOCAL6`
+- `srslog.LOG_LOCAL7`
+
+### github.com/ziutek/telnet
+
+このモジュールは、Gravwell設定で `Disable-Network-Script-Functions` が `false` に設定されている場合にのみ利用可能です。エクスポートされる関数と型は以下の通りです:
+
+- `telnet.Dial`
+- `telnet.DialTimeout`
+- `telnet.NewConn`
+- `telnet.Conn`
+
+### io/ioutil
+
+`io/ioutil`は`ioutil.ReadAll()`という関数を1つだけエクスポートします。
+
+### net
+
+このモジュールは、Gravwell設定で `Disable-Network-Script-Functions` が `false` に設定されている場合にのみ利用可能です。エクスポートされる関数と型は以下の通りです:
+
+- `net.CIDRMask`
+- `net.Dial`
+- `net.DialIP`
+- `net.DialTCP`
+- `net.DialTimeout`
+- `net.DialUDP`
+- `net.ErrWriteToConnected`
+- `net.FlagBroadcast`
+- `net.FlagLoopback`
+- `net.FlagMulticast`
+- `net.FlagPointToPoint`
+- `net.FlagUp`
+- `net.IPv4`
+- `net.IPv4Mask`
+- `net.IPv4allrouter`
+- `net.IPv4allsys`
+- `net.IPv4bcast`
+- `net.IPv4len`
+- `net.IPv4zero`
+- `net.IPv6interfacelocalallnodes`
+- `net.IPv6len`
+- `net.IPv6linklocalallnodes`
+- `net.IPv6linklocalallrouters`
+- `net.IPv6loopback`
+- `net.IPv6unspecified`
+- `net.IPv6zero`
+- `net.InterfaceAddrs`
+- `net.InterfaceByIndex`
+- `net.InterfaceByName`
+- `net.Interfaces`
+- `net.JoinHostPort`
+- `net.LookupAddr`
+- `net.LookupCNAME`
+- `net.LookupHost`
+- `net.LookupIP`
+- `net.LookupMX`
+- `net.LookupNS`
+- `net.LookupPort`
+- `net.LookupSRV`
+- `net.LookupTXT`
+- `net.ParseCIDR`
+- `net.ParseIP`
+- `net.ParseMAC`
+- `net.ResolveIPAddr`
+- `net.ResolveTCPAddr`
+- `net.ResolveUDPAddr`
+- `net.ResolveUnixAddr`
+- `net.SplitHostPort`
+
+### net/http
+
+このモジュールは、Gravwellの設定で `Disable-Network-Script-Functions` が `false` に設定されている場合にのみ利用可能です。
+
 
 `net/http`は、HTTP *リクエスト*を実行するための関数、タイプ、変数のサブセットをエクスポートします。 タイプ `Client`、`Cookie`、`Request`、および` Response`がエクスポートされます。 これらのタイプの説明については、[Goのドキュメント](https://golang.org/pkg/net/http/)を参照してください。
 

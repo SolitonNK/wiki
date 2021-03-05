@@ -1,10 +1,10 @@
 ## Langfind
 
-langfindモジュールは、データを検索してテキストを探し、そのテキストを人間の言語として分類しようとする基本的な人間言語分析モジュールです。
+langfindモジュールは、テキストのデータを検索し、そのテキストを人間の言語として分類しようとする基本的な人間言語分析モジュールです。
 
 ### 検索例
 
-次の検索では、Redditのコメントで使用されている最も一般的な言語のテーブルを、人気の高いものから低いものへ降順に作成します。
+以下の検索では、Redditのコメントで最も一般的に使用されている言語を、人気のあるものから少ないものへと降順に並べた表を作成します。
 
 ```
 tag=reddit json Body | langfind -e Body | count by lang | sort by count desc | table lang count
@@ -12,4 +12,9 @@ tag=reddit json Body | langfind -e Body | count by lang | sort by count desc | t
 
 ### サポートされているオプション
 
-* `-e <arg>`: “ -e”オプションは、レコード全体ではなく列挙値に作用します。たとえば、HTTPペイロードの言語分析を実行したパイプラインは次のようになります。`tag=pcap ipv4.DstPort==80 tcp.Payload | langfind -e Payload`
+* `-e <arg>`: "e"オプションはレコード全体ではなく、列挙値に対して操作する。例えば、HTTPペイロードの言語解析を行うパイプラインは、`tag=pcap ipv4.DstPort==80 tcp.Payload | langfind -e Payload`のようになります。
+* デフォルトでは、列挙値 "lang "で出力されます。オプションで、最後の引数に列挙値名を指定することができます。例えば、列挙値 "foo "で出力を生成するには:
+
+```
+tag=reddit json Body | langfind -e Body foo | table foo
+```

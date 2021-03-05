@@ -68,7 +68,8 @@ require(`alerts/email.ank`, cfg.email_lib_revision)
 * `setPersistentMap(mapname, key, value)` は、スケジュールされたスクリプトを実行する間に持続するキーと値のペアをマップに格納します。
 * `getPersistentMap(mapname, key)value` は、指定されたキーに関連付けられた値を、指定された永続マップから返します。
 * `delPersistentMap(mapname, key)` は指定されたキーと値のペアを指定されたマップから削除します。
-* 返されたマップの変更は実行に成功したときに自動的に持続します。
+* `persistentMap(mapname)`は返されたマップの変更は実行に成功したときに自動的に持続します。
+* `getMacro(name) string, error`与えられたマクロの値を返し、存在しない場合はエラーを返します。この関数はマクロの展開を行わないことに注意してください。
 
 ## 検索エントリー操作
 
@@ -99,6 +100,7 @@ Gravwellの検索システムの動作方法により、このセクションの
 * `startBackgroundSearch（query、start、end）（search、err）`は、指定されたクエリ文字列を使用してバックグラウンド検索を作成し、「start」と「end」で指定された時間範囲で実行されます。 戻り値は検索構造体です。 これらの時間値は、時間ライブラリを使用して指定する必要があります。 デモの例を参照してください。
 * `startSearch(query, start, end) (search, err)` は `startBackgroundSearch` と全く同じように動作しますが、検索のバックグラウンド化は行いません。
 * `detachSearch(search)` は与えられた検索(Search構造体)を切り離します。これにより、バックグラウンド化されていない検索を自動的にクリーンアップできるようになります。
+* `waitForSearch(search) error`は、与えられた検索が完全に実行されるのを待ち、エラーがあればそれを返します。
 * `attachSearch（searchID）（search、error）`は、指定されたIDの検索にアタッチし、エントリなどの読み取りに使用できるSearch構造体を返します。
 * `getSearchStatus(searchID) (string, error)` は、指定された検索の状態、例えば "SAVED "を返します。
 * `getAvailableEntryCount（search）（uint64、bool、error）`は、指定された検索から読み取ることができるエントリの数、検索が完了したかどうかを指定するブール値、および問題が発生した場合のエラーを返します。
@@ -107,6 +109,7 @@ Gravwellの検索システムの動作方法により、このセクションの
 * `executeSearch（query、start、end）（[] SearchEntry、error）`は検索を開始し、検索が完了するのを待ち、最大1万のエントリを取得し、検索から切り離してエントリを返します。
 * `deleteSearch（searchID）error`は、指定されたIDの検索を削除します。
 * `backgroundSearch（searchID）error`は、指定された検索をバックグラウンドに送信します。これは、後で手動で検査するために検索を「維持」するのに役立ちます。
+* `saveSearch(searchID) error`は与えられた検索結果を長期保存用にマークします。 この呼び出しはクエリが完了するのを待たず、保存したものとしてマークするリクエストが失敗した場合にのみエラーを返します。
 * `downloadSearch（searchID、format、start、end）（[] byte、error）`は、ユーザーがWebUIの[ダウンロード]ボタンをクリックしたかのように、指定された検索をダウンロードします。 `format`は、必要に応じて「json」、「csv」、「text」、「pcap」、または「lookupdata」のいずれかを含む文字列である必要があります。 `start`と` end`は時間の値です。
 * `getDownloadHandle（searchID、format、start、end）（io.Reader、error）`は、ユーザーがWeb UIの[ダウンロード]ボタンをクリックしたかのように、指定された検索結果へのストリーミングハンドルを返します。返されるハンドルは、このドキュメントで後述するHTTPライブラリ関数での使用に適しています。
 
@@ -171,10 +174,10 @@ ScheduledSearch構造には、次のフィールドが含まれています：
 
 ユーザーがGravwell内で個人の電子メール設定を構成している場合、`email`機能は電子メールを送信する非常に簡単な方法です。
 
-* `email（from、to、subject、message）error`はSMTP経由でメールを送信します。`from`フィールドは単なる文字列ですが、`to`はメールアドレスを含む文字列のスライスである必要があります。`subject`フィールドと`message`フィールドも文字列であり、メールの件名と本文を含める必要があります。
-  * メール機能は、オプションで添付ファイルのリストも受け取ります。
+* `email(from, to, subject, message, attachments...) error`はSMTP経由でメールを送信します。`from`フィールドは単なる文字列であり`to`はメールアドレスを含む文字列のスライスか、1つのメールアドレスを含む単一の文字列でなければなりません。フィールド`subject`と`message`もまた文字列で、メールの件名と本文を含む必要があります。attachmentsパラメータはオプションです。
   * 添付ファイルはバイト配列で送信することができ、自動ファイル名が付与されます。
   * 添付ファイルパラメータがマップの場合、キーはファイル名、値は添付ファイルです。
+  * `emailWithCC(from, to, cc, bcc, subject, message, attachments...) error`はSMTP経由で電子メールを送信する。これは `email` 関数と全く同じように動作しますが、CCとBCCの受信者を指定することもできます。これらは単一の文字列(`"foo@example.com"`)または文字列の配列(`["foo@example.com", "bar@example.com"]`)のいずれかです。 
 
 添付ファイル付きの電子メールの送信例：
 ```
@@ -391,6 +394,18 @@ if err != nil {
 c.Write("foo")
 c.Close()
 ```
+
+## 管理機能
+
+スクリプトシステムは、様々なGravwell APIと自動的に対話するために使用できる管理機能にアクセスすることができます。
+
+### システムのバックアップを実行する
+
+システムのバックアップや`io.ReadCloser`の操作を容易にするために、ヘルパー関数`backup`が提供されます。関数`backup`の定義は以下の通りです:
+```
+backup(io.Writer, bool) error
+```
+backup関数は、提供されたライターにバックアップパッケージ全体を書き込み、失敗した場合はエラーを返します。 backup関数の第2引数は、保存された検索をバックアップに含めるかどうかを示します。 保存された検索は非常に大きくなる可能性があるので、バックアップパッケージが非常に大きくなる可能性があることに注意してください。
 
 #### バックアップスクリプトの例
 
