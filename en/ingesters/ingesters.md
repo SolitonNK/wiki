@@ -52,6 +52,7 @@ Most of the core ingesters support a common set of global configuration paramete
 
 * Ingest-Secret
 * Connection-Timeout
+* Rate-Limit
 * Insecure-Skip-TLS-Verify
 * Cleartext-Backend-Target
 * Encrypted-Backend-Target
@@ -88,6 +89,27 @@ The Insecure-Skip-TLS-Verify token tells the ingester to ignore bad certificates
 ```
 Insecure-Skip-TLS-Verify=true
 Insecure-Skip-TLS-Verify=false
+```
+
+### Rate-Limit
+
+The Rate-Limit parameter sets a maximum bandwidth which the ingester can consume. This can be useful when configuring a "bursty" ingester that talks to the indexer over a slow connection, so the ingester doesn't hog all the available bandwidth when it is trying to send a lot of data.
+
+The argument should be a number followed by an optional rate suffix, e.g. `1048576` or `10Mbit`. The following suffixes exist:
+
+* **kbit, kbps, Kbit, Kbps**: "kilobits per second"
+* **KBps**: "kilobytes per second"
+* **mbit, mbps, Mbit, Mbps**: "megabits per second"
+* **MBps**: "megabytes per second"
+* **gbit, gbps, Gbit, Gbps**: "gigabits per second"
+* **GBps**: "gigabytes per second"
+
+#### Examples
+
+```
+Rate-Limit=1Mbit
+Rate-Limit=2048Kbps
+Rate-Limit=3MBps
 ```
 
 ### Cleartext-Backend-Target
@@ -439,7 +461,7 @@ This is an extremely convenient method for scriptable data ingest, since the `cu
 
 ### Listener Examples
 
-In addition to the universal configuration parameters used by all ingesters, the HTTP POST ingester has two additional global configuration parameters that control the behavior of the embedded webserver.  The first configuration parameter is the `Bind` option, which specifies the interface and port that the webserver listens on.  The second is the `Max-Body` parameter, which controls how large of a POST the webserver will allow.  The Max-Body parameter is a good safety net to prevent rogue processes from attempting to upload very large files into your Gravwell instance as a single entry.  Gravwell can support up to 2GB as a single entry, but we wouldn't recommend it.
+In addition to the universal configuration parameters used by all ingesters, the HTTP POST ingester has two additional global configuration parameters that control the behavior of the embedded webserver.  The first configuration parameter is the `Bind` option, which specifies the interface and port that the webserver listens on.  The second is the `Max-Body` parameter, which controls how large of a POST the webserver will allow.  The Max-Body parameter is a good safety net to prevent rogue processes from attempting to upload very large files into your Gravwell instance as a single entry.  Gravwell can support up to 1GB as a single entry, but we wouldn't recommend it.
 
 Multiple "Listener" definitions can be defined allowing specific URLs to send entries to specific tags.  In the example configuration we define two listeners which accept data from a weather IOT device and a smart thermostat.
 
@@ -483,6 +505,25 @@ Multiple "Listener" definitions can be defined allowing specific URLs to send en
 	AuthType="preshared-parameter"
 	TokenName=Gravwell
 	TokenValue=Secret
+```
+
+### Health Checks
+
+Some systems (such as AWS load balancers) require an unauthenticated URL that can be probed and interpreted as "proof of life".  The HTTP ingester can be configured to provide an a URL which when accessed with any method, body, and/or query parameters will always return a 200 OK.  To enable this health check endpoint add the `Health-Check-URL` stanza to the Global configuration block.
+
+Here is a minimal example configuration snippet with the health check URL `/logbot/are/you/alive`:
+
+```
+[Global]
+Ingest-Secret = IngestSecrets
+Connection-Timeout = 0
+Pipe-Backend-Target=/opt/gravwell/comms/pipe #a named pipe connection, this should be used when ingester is on the same machine as a backend
+Log-Level=INFO #options are OFF INFO WARN ERROR
+Bind=":8080"
+Max-Body=4096000 #about 4MB
+Log-File="/opt/gravwell/log/http_ingester.log"
+Health-Check-URL="/logbot/are/you/alive"
+
 ```
 
 ### Installation
