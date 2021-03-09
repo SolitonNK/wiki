@@ -1,19 +1,19 @@
-# クイックスタート手順
+# Quick Start Instructions
 
-このセクションは、Gravwellを起動して実行するための基本的なクイックスタート手順です。この説明は、最も一般的なユースケースをサポートし、Gravwell入門としても機能します。 クイックスタートの手順では、Cluster Editionで利用可能な、分散検索とストレージに関する高度なGravwellの機能は利用できないことに注意してください。より高度な設定が必要な場合は、本ガイドの「高度なトピック」のセクションを参照してください。
+This section contains basic “quick start” instructions for getting Gravwell up and running.  These instructions support the most common use case and act as an introduction to Gravwell.  Please note, the “Quick Start” instructions do not take advantage of the more advanced Gravwell features regarding distributed search and storage that are available in the Cluster Edition. If you require a more advanced setup, please review the Advanced Topics section of this guide.
 
-このガイドはCommunity Editionユーザーおよび、有料のシングルノードGravwellサブスクリプションをお持ちのユーザーに適しています。
+This guide is suitable for Community Edition users as well as users with a paid single-node Gravwell subscription.
 
-注：Community Editionユーザーは、インストールを開始する前に[https://www.gravwell.io/download](https://www.gravwell.io/download)から独自のライセンスを取得する必要があります。 購入済みユーザーは、すでに電子メールでライセンスファイルを受け取っているはずです。
+Note: Community Edition users will need to obtain their own license from [https://www.gravwell.io/download](https://www.gravwell.io/download) before beginning installation. Paid users should already have received a license file via email.
 
-## インストール
-Gravwellを1台のマシンにインストールするのは非常に簡単です。このセクションの指示に従ってください。 複数のシステムを含むより高度な環境については、「高度なトピック」セクションを確認してください。
+## Installation
+Installing Gravwell on a single machine is quite simple--just follow the instructions in this section. For more advanced environments involving multiple systems, review the Advanced Topics section.
 
-Gravwellは4つの方法で配布されています。 Docker コンテナ経由、ディストリビューションに依存しない自己解凍インストーラー経由、Debian パッケージリポジトリ経由、Redhat パッケージリポジトリ経由です。システムが Debian や Ubuntu を動かしている場合は Debian リポジトリ、システムが RHEL、CentOS、SuSE を動かしている場合は Redhat パッケージ、それ以外の場合は自己解凍インストーラーを使うことをお勧めします。Docker ディストリビューションは、Docker に慣れている人にも便利です。Gravwellは主要なLinuxディストリビューションのすべてでテストされており、問題なく動作しますが、より望ましいのはUbuntu Server LTSです。Ubuntuのインストールに関するヘルプは、https://tutorials.ubuntu.com/tutorial/tutorial-install-ubuntu-server を参照してください。
+Gravwell is distributed in four ways: via a Docker container, via a distribution-agnostic self-extracting installer, via a Debian package repository, and via a Redhat package repository. We recommend using the Debian repository if your system runs Debian or Ubuntu, the Redhat packages if your system runs RHEL, CentOS, or SuSE, and the self-extracting installer otherwise. The Docker distribution is also useful for those familiar with Docker. Gravwell has been tested on all of the major Linux distributions and runs well, but Ubuntu Server LTS is preferred. Help installing Ubuntu can be found at https://tutorials.ubuntu.com/tutorial/tutorial-install-ubuntu-server.
 
-### Debianリポジトリ
+### Debian repository
 
-Debianリポジトリからのインストールは非常に簡単です。 最初にいくつかの手順を実行して、GravwellのPGP署名キーおよびDebianパッケージリポジトリを追加する必要がありますが、その後は単に`gravwell`パッケージをインストールするだけです。
+Installing from the Debian repository is quite simple. We need to take a few steps first to add Gravwell's PGP signing key and Debian package repository, but then it's just a matter of installing the `gravwell` package:
 
 ```
 curl https://update.gravwell.io/debian/update.gravwell.io.gpg.key | sudo apt-key add -
@@ -23,7 +23,7 @@ sudo apt-get update
 sudo apt-get install gravwell
 ```
 
-インストールプロセスでは、Gravwellのコンポーネントが使用するいくつかの共有シークレット値を設定するよう求められます。 セキュリティのために、インストーラーがランダムな値（デフォルト）を生成できるようにすることを強くお勧めします。
+The installation process will prompt to set some shared secret values used by components of Gravwell. We strongly recommend allowing the installer to generate random values (the default) for security.
 
 ![Read the EULA](eula.png)
 
@@ -31,68 +31,68 @@ sudo apt-get install gravwell
 
 ![Generate secrets](secret-prompt.png)
 
-### Redhat/CentOS リポジトリ
+### Redhat/CentOS Repositories
 
-Gravwell は、Redhat と CentOS Linux ディストリビューションの両方で `yum` リポジトリとして利用できます。Gravwell の yum リポジトリを使うには、以下のスタンザを `yum.conf` (`/etc/yum.conf` にあります) に追加してください。
+Gravwell is available as a `yum` repository for both Redhat and CentOS Linux distributions. To use the Gravwell yum repository, add the following stanza to your `yum.conf` (located in `/etc/yum.conf`)
 
 ```
 [gravwell]
 name=gravwell
-baseurl=https://update.gravwell.io/rhel
+baseurl=https://update.gravwell.io/rhel 
 gpgkey=https://update.gravwell.io/rhel/gpg.key
 ```
 
-次に以下を実行します。
+Next perform the following:
 
 ```
 yum update
 yum install -y gravwell
 ```
 
-インストールしたら、次のように実行して、webports用のcentOSファイアウォールをバンプします。
+Once installed you will have to bump the centOS firewall for webports, executing the following:
 
 ```
 sudo firewall-cmd --zone=public --add-service=http
 sudo firewall-cmd --zone=public --add-service=https
 ```
 
-これで、centOS/RHELシステムに割り当てられたIP上のGravwell Webインターフェースにアクセスできるようになります。
+You should now be able to access the Gravwell web interface on the IP assigned to the centOS/RHEL system.
 
-### Dockerコンテナ
+### Docker Container
 
-Gravwellは、ウェブサーバーとインデクサーの両方を含む単一のコンテナとしてDockerhubで利用できます。 GravwellをDockerにインストールする詳細な手順については、[Dockerのインストール手順](#!configuration/docker.md) を参照してください。
+Gravwell is available on Dockerhub as a single container including both the webserver and indexer. Refer to [the Docker installation instructions](#!configuration/docker.md) for detailed instructions on installing Gravwell in Docker.
 
-### 自己完結型インストーラー
+### Self-contained Installer
 
-Debian以外のシステムの場合、[ダウンロードページ](#!quickstart/downloads.md)から自己完結型のインストーラーをダウンロードします。
+For non-Debian systems, download the self-contained installer from our [downloads page](#!quickstart/downloads.md).
 
-次に、インストーラーを実行します。
+Then run the installer:
 
 ```
 sudo bash gravwell_X.X.X.sh
 ```
 
-プロンプトに従い、完了後、実行中のGravwellインスタンスが必要です。
+Follow the prompts and, after completion, you should have a running Gravwell instance.
 
-注：ディストリビューションがSystemDを使用していない場合、インストール後にGravwellプロセスを手動で開始する必要があります。 サポートが必要な場合は、support@gravwell.ioまでご連絡ください。
+Note: If your distribution does not use SystemD, you will have to start the Gravwell processes manually after installation. Please contact support@gravwell.io if you need help.
 
-## ライセンスの設定
+## Configuring the License
 
-Gravwellがインストールされたら、Webブラウザを開き、サーバーに移動します(例: [http://localhost/](http://localhost/))。ライセンスファイルをアップロードするよう求められます。
+Once Gravwell is installed, open a web browser and navigate to the server (e.g. [http://localhost/](http://localhost/)). It should prompt you to upload a license file:
 
-![ライセンスをアップロード](upload-license.png)
+![Upload license](upload-license.png)
 
-アップロードしたライセンスが検証されると、Gravwell ログイン画面が表示されます。ユーザー名「admin」とパスワード「changeme」を入力しログインします。
+Once the license is uploaded and verified, Gravwell should present a login screen. Log in as "admin" with the password "changeme".
 
-重要：Gravwellのデフォルトのユーザー名/パスワードの組み合わせはadmin/changemeです。 できるだけ早く管理者パスワードを変更することを強くお勧めします！ これを行うには、ナビゲーションサイドバーから[アカウント設定]を選択するか、右上の[ユーザー]アイコンをクリックします。
+Attention: The default username/password combination for Gravwell is admin/changeme. We highly recommend changing the admin password as soon as possible! This can be done by choosing “Account Settings” from the navigation sidebar or clicking the “user” icon in the upper right.
 
 ![](login.png)
 
-## インジェスターの設定
+## Configuring Ingesters
 
-インストールされたばかりのGravwellインスタンスには、検索できるデータがありません。データを取り込むためにはインジェスターが必要です。リポジトリからパッケージをインストールするか、[ダウンロード](downloads.md)にアクセスして、各インジェスターの自己解凍インストーラーを取得することができます。
+A freshly installed Gravwell instance, by itself, is boring. You'll want some ingesters to provide data. You can either install packages from the repositories or head over to [the Downloads page](downloads.md) to fetch self-extracting installers for each ingester.
 
-Debianリポジトリで利用可能なインジェスターは、`apt-cache search gravwell`を実行することで表示できます：
+The ingesters available in the Debian repository can be viewed by running `apt-cache search gravwell`:
 
 ```
 root@debian:~# apt-cache search gravwell
@@ -118,248 +118,248 @@ gravwell-simple-relay - Gravwell simple relay ingester
 gravwell-sqs - Gravwell SQS ingester
 ```
 
-メインGravwellインスタンスと同じノードにインストールする場合、インデクサーに接続するように自動的に構成する必要がありますが、ほとんどの場合、データソースを設定する必要があります。 その手順については、[インジェスター設定](#!ingesters/ingesters.md) を参照してください。
+If you install them on the same node as the main Gravwell instance, they should be automatically configured to connect to the indexer, but you'll need to set up data sources for most. See the [ingester configuration documents](#!ingesters/ingesters.md) for instructions on that.
 
-最初の実験として、File Follow インジェスター（gravwell-file-follow）をインストールすることを強くお勧めします。これはLinuxログファイルを取り込むように事前に設定されているため、`tag=auth`などで検索することにより、いくつかのエントリをすぐに見ることができるはずです。
+We highly recommend installing the File Follow ingester (gravwell-file-follow) as a first experiment; it comes pre-configured to ingest Linux log files, so you should be able to see some entries immediately by issuing a search such as `tag=auth`:
 
 ![Auth entries](auth.png)
 
-### File Follower インジェスター
+### File Ingester
 
-File Follower インジェスターは、標準のLinuxログファイルを取り込むように事前に構成されているため、ログをGravwellに取り込む最も簡単な方法の1つです。
+The File Follower ingester is one of the simplest ways to start getting logs into Gravwell, because it comes pre-configured to ingest standard Linux log files.
 
-Gravwell Debianリポジトリを使用している場合、インストールはaptコマンド1つで済みます。
+If you're using the Gravwell Debian repository, installation is just a single apt command:
 
 ```
 apt-get install gravwell-file-follow
 ```
 
-それ以外の場合は、[ダウンロード](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上のターミナルを使用して、次のコマンドをスーパーユーザーとして（たとえば`sudo`コマンド経由で）発行し、インジェスターをインストールします。
+Otherwise, download the installer from the [Downloads page](#!quickstart/downloads.md). Using a terminal on the Gravwell server, issue the following command as a superuser (e.g. via the `sudo` command) to install the ingester:
 
 ```
 root@gravserver ~ # bash gravwell_file_follow_installer.sh
 ```
 
-Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的に`Ingest-Auth`パラメーターを抽出して設定し、適切に設定します。 ただし、ご使用のコンピューターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスの入力を求めます。 インストール時にこれらの値を設定するか、空白のままにして`/opt/gravwell/etc/file_follow.conf`の設定ファイルを手動で変更します。 インジェスターの構成の詳細については、[インジェスター設定](#!ingesters/ingesters.md)を参照してください。
+If the Gravwell services are present on the same machine, the installation script will automatically extract and configure the `Ingest-Auth` parameter and set it appropriately. However, if your ingester is not resident on the same machine as a pre-existing Gravwell backend, the installer will prompt for the authentication token and the IP address of the Gravwell indexer. You can set these values during installation or leave them blank and modify the configuration file in `/opt/gravwell/etc/file_follow.conf` manually. See the [ingesters documentation](#!ingesters/ingesters.md) for more information on configuring the ingester.
 
-### Simple Relay インジェスター
+### Simple Relay Ingester
 
-GravwellのSimple Relay グループは、ネットワーク経由で行区切りまたはsyslog形式のメッセージを取り込むことができます。 既存のデータソースからデータをGravwellに取り込むもう1つの良い方法です。
+Gravwell's 'Simple Relay' ingester can ingest line-delimited or syslog-formatted messages over the network. It's another good way to start getting data into Gravwell from your existing data sources.
 
-Gravwell Debianリポジトリを使用している場合、インストールはaptコマンド1つで済みます。
+If you're using the Gravwell Debian repository, installation is just a single apt command:
 
 ```
 apt-get install gravwell-simple-relay
 ```
 
-それ以外の場合は、[ダウンロード](#!quickstart/downloads.md)からインストーラーをダウンロードします。 Gravwellサーバー上のターミナルを使用して、次のコマンドをスーパーユーザーとして（たとえば`sudo`コマンド経由で）発行して、インジェスターをインストールします。
+Otherwise, download the installer from the [Downloads page](#!quickstart/downloads.md). Using a terminal on the Gravwell server, issue the following command as a superuser (e.g. via the `sudo` command) to install the ingester:
 
 ```
 root@gravserver ~ # bash gravwell_simple_relay_installer.sh
 ```
 
-Gravwellサービスが同じマシンに存在する場合、インストールスクリプトは自動的に`Ingest-Auth`パラメーターを抽出して設定し、適切に設定します。ただし、ご使用のコンピューターが既存のGravwellバックエンドと同じマシンに常駐していない場合、インストーラーは認証トークンとGravwellインデクサーのIPアドレスの入力を求めます。 インストール時にこれらの値を設定するか、空白のままにして`/opt/gravwell/etc/simple_relay.conf`の設定ファイルを手動で変更します。 インジェスターの構成の詳細については、[インジェスター設定](#!ingesters/ingesters.md)を参照してください。
+If the Gravwell services are present on the same machine, the installation script will automatically extract and configure the `Ingest-Auth` parameter and set it appropriately.  However, if your ingester is not resident on the same machine as a pre-existing Gravwell backend, the installer will prompt for the authentication token and the IP address of the Gravwell indexer. You can set these values during installation or leave them blank and modify the configuration file in `/opt/gravwell/etc/simple_relay.conf` manually. See the [ingesters documentation](#!ingesters/ingesters.md) for more information on configuring the ingester.
 
-### インジェスターのメモ
-これらのクイックスタート手順にあるように、インストールが1台のマシンに完全に含まれている場合、インジェスターインストーラーは構成オプションを抽出し、適切に構成します。すべてのGravwellコンポーネントが単一のシステムで実行されているわけではない高度なセットアップを使用している場合は、[インジェスター設定](#!ingesters/ingesters.md)を確認してください。
+### Ingester Notes
+If your installation is entirely contained on one machine, as it is in these quick start instructions, the ingester installers will extract the configuration options and configure themselves appropriately. If you are using an advanced setup where not all Gravwell components are running on a single system, review the [ingesters](#!ingesters/ingesters.md) section of the documentation.
 
-これで、Gravwellサーバー上でFile FollowとSimple Relayサービスが動作するようになりました。File Followは、`/var/log/`のいくつかのファイルからログエントリを自動的に取り込みます。 デフォルトでは、「auth」タグ付きの/var/log/auth.log、「dpkg」タグ付きの/var/log/dpkg.logおよび「kernel」タグ付き/var/log/dmesgおよび/var/log/kern.logを取り込みます。
+You now have the File Follow and Simple Relay services running on the Gravwell server. File Follow will automatically ingest log entries from some files in `/var/log/`. By default it ingests /var/log/auth.log with the "auth" tag, /var/log/dpkg.log with the "dpkg" tag, and /var/log/dmesg and /var/log/kern.log with the "kernel" tag.
 
-Simple Relayは、TCPポート601またはUDPポート514で送信されたsyslogエントリを取り込みます。これらは「syslog」タグでタグ付けされます。Simple Relayの設定ファイルには、ポート7777で行区切りデータをListenするためのエントリも含まれています。syslogのみを使用する場合、これを無効にできます。設定ファイルの`[Listener "default"]`セクションをコメントアウトして、Simple Relayサービスを再起動してください。 このサービスの設定ファイルは`/opt/gravwell/etc/simple_relay.conf`にあります。高度な設定オプションについては、[インジェスター設定](#!ingesters/ingesters.md)のSimple Relayセクションを参照してください。
+Simple Relay will ingest syslog entries sent to it on TCP port 601 or UDP port 514; these will be tagged with the "syslog" tag. The Simple Relay config file also contains an entry to listen for any line-delimited data on port 7777. This can be disabled if you only intend to use syslog; simply comment out the `[Listener "default"]` section in the config file and restart the simple relay service. The configuration file for this service is located at `/opt/gravwell/etc/simple_relay.conf`. See the Simple Relay section of the [Ingesters documentation](#!ingesters/ingesters.md) for advanced configuration options.
 
-## Gravwellへのデータの供給
-このセクションでは、データをGravwellに送信するための基本的な手順を説明します。他のデータインジェスターの設定手順については、[インジェスター設定](#!ingesters/ingesters.md)セクションを確認してください。
+## Feeding Data into Gravwell
+This section provides basic instructions for sending data into Gravwell. Review the [ingesters](#!ingesters/ingesters.md) section for instructions for setting up other data ingesters.
 
-Gravwellの「システム統計」ページは、Gravwellサーバーがデータを受信しているかどうかを確認するのに役立ちます。 データが表示されず、それがエラーによると思われる場合、インジェスターが実行されていること(`ps aux | grep gravwell`コマンドを実行し、`gravwell_webserver`、`gravwell_indexer`、`gravwell_simple_relay`、および`gravwell_file_follow`が表示される必要があります)と、それらの設定ファイルが正しいことを再確認してください。
+The “System Stats” page in Gravwell can help you see if the Gravwell server is receiving any data. If no data is reported and you think that is an error, double-check that the ingesters are running (`ps aux | grep gravwell` should show `gravwell_webserver`, `gravwell_indexer`, `gravwell_simple_relay`, and `gravwell_file_follow`) and that their configuration files are correct.
 
 ![](stats.png)
 
-### Syslogの取り込み
-Gravwellサーバーがインストールされ、Simple Relayテキストインジェスターサービスが実行されたら、syslogプロトコルを介してログやテキストデータのGravwellへの供給を開始することができます。デフォルトでは、Simple Relayインジェスターはポート601のTCP syslogとポート514のUDP syslogをリッスンします。
+### Ingesting Syslog
+Once the Gravwell server is installed and the Simple Relay text ingester service is running, you can start feeding any log or text data into Gravwell via the syslog protocol. By default, the Simple Relay ingester listens for TCP syslog on port 601 and UDP syslog on port 514.
 
-rsyslogを実行しているLinuxサーバからGravwellにsyslogエントリを送信するには、サーバ上に`/etc/rsyslog.d/90-gravwell.conf`という名前の新しいファイルを作成し、以下の行をUDP syslog用に貼り付けます。ホスト名`gravwell.example.com`を自分のGravwellインスタンスに変更するよう注意してください。
+To send the syslog entries from a Linux server running rsyslog to Gravwell, create a new file named `/etc/rsyslog.d/90-gravwell.conf` on the server and paste the following line into it for UDP syslog, taking care to modify the hostname `gravwell.example.com` to point at your own Gravwell instance:
 
 ```
 *.* @gravwell.example.com;RSYSLOG_SyslogProtocol23Format
 ```
 
-または、代わりにTCP syslogにこれを使用します。
+or use this instead for TCP syslog:
 
 ```
 *.* @@gravwell.example.com;RSYSLOG_SyslogProtocol23Format
 ```
 
-（UDP構成での`@`の使用とTCPでの`@@`の使用に注意してください）
+(note the use of `@` in the UDP configuration vs. `@@` for TCP)
 
-次に、rsyslogデーモンを再起動します。
+Then restart the rsyslog daemon:
 
 ```
 sudo systemctl restart rsyslog.service
 ```
 
-多くのLinuxサービス（DNS、Apache、sshなど）は、syslogを介してイベントデータを送信するように構成できます。 これらのサービスとGravwellの「間」としてsyslogを使用することは、多くの場合、イベントをリモートで送信するようにこれらのサービスを構成する最も簡単な方法です。
+Many Linux services (such as DNS, Apache, ssh, and others) can be configured to send event data via syslog. Using syslog as a “go between” for those services and Gravwell is often the easiest way to configure those services to send events remotely.
 
-たとえば、Apacheの構成エントリにこの行を追加すると、すべてのApacheログがrsyslogに送信され、それらがGravwellに転送されます。
+Adding this line to an Apache configuration entry, for example, will send all Apache logs to rsyslog, which will forward them to Gravwell:
 
 ```
 CustomLog "|/usr/bin/logger -t apache2.access -p local6.info" combined
 ```
 
-### アーカイブされたログ
-Simple Relay インジェスターは、ファイルシステム上にある古いログ（Apache、syslogなど）を取り込むためにも使用できます。 netcatのような基本的なネットワーク通信ツールを利用することにより、どんなデータでもSimple Relay インジェスターの行区切りリスナーに送り込むことができます。 デフォルトでは、Simple RelayはTCPポート7777で行区切りエントリをリッスンします。
+### Archived Logs
+The Simple Relay ingester can also be used to ingest any old logs (Apache, syslog, etc) that are sitting around on the filesystem. By utilizing a basic network comms tool like netcat, any data can be shoveled into the Simple Relay ingester's line-delimited listener. By default Simple Relay listens for line-delimated entries on TCP port 7777.
 
-たとえば、Gravwellで分析したい古いApacheログファイルがある場合、次のようなコマンドを実行して取り込むことができます。
+For example, if you have some old Apache log files you'd like to analyze in Gravwell, you could run a command like this to ingest them:
 
 ```
 user@webserver ~# cat /tmp/apache-oct2017.log | nc -q gravwell.server.address 7777
 ```
 
-注：複数のファイルからなる非常に大きなログのセットを取り込む場合、Simple Relay インジェスターではなく、Mass File インジェスターユーティリティを使用して、事前に最適化してまとめて取り込むことをお勧めします。
+Note: If you are ingesting a very large set of logs in multiple files, we recommend using the MassFileIngester utility to pre-optimize and ingest en masse, rather than relaying through the Simple Relay ingester.
 
-### ネットワークパケットインジェスター
+### Network Packet Ingester
 
-Gravwellの第一の強みは、バイナリデータを取り込めることです。ネットワークインジェスターを使用すると、分析用にネットワークから完全なパケットをキャプチャすることができます。ストレージの使用量は増えますが、Netflowまたはその他の凝縮されたトラフィック情報を保存するより、はるかに優れた柔軟性が提供されます。
+A primary strength of Gravwell is the ability to ingest binary data. The network ingester allows you to capture full packets from the network for later analysis; this provides much better flexibility than simply storing Netflow or other condensed traffic information at the cost of increased storage use.
 
-Gravwell Debianリポジトリを使用している場合、インストールはaptコマンド1つで済みます。
+If you're using the Gravwell Debian repository, installation is just a single apt command:
 
 ```
 apt-get install libpcap0.8 gravwell-network-capture
 ```
 
-それ以外の場合は、[ダウンロード](#!quickstart/downloads.md)からインストーラーをダウンロードします。 ネットワークインジェスターをインストールするには、rootとしてインストーラーを実行するだけです（ファイル名は若干異なる場合があります）。
+Otherwise, download the installer from the [Downloads page](#!quickstart/downloads.md). To install the network ingester, simply run the installer as root (the file name may differ slightly):
 
 ```
 root@gravserver ~ # bash gravwell_network_capture_installer.sh
 ```
 
-ネットワークインジェスターには、libpcap共有ライブラリが必要です。スタンドアロンインストーラーを使用する場合は、ライブラリもインストールされていることを確認する必要があります。パッケージはDebianでは `libpcap0.8`です。
+The network ingester requires the libpcap shared libraries. If using the standalone installer, you'll need to make sure you have also installed the libraries; the package is `libpcap0.8` on Debian.
 
-もしインジェスターが、すでにGravwellバックエンドがインストールされているマシン上にある場合、インストーラーは自動的に正しい`Ingest-Secrets`値を取得し、それを設定ファイルに追加してくれるでしょう。いずれにしても、実行する前に`/opt/gravwell/etc/network_capture.conf`の設定ファイルを確認してください。Interfaceフィールドがシステムのネットワークインターフェースの1つに設定され、かつ少なくとも1つの"Sniffer"セクションがコメントアウトされていないことを確認してください。 詳細については、[インジェスター設定](#!ingesters/ingesters.md)を参照してください
+If the ingester is on a machine with a Gravwell backend already installed, the installer should automatically pick up the correct `Ingest-Secrets` value and populate the config file with it. In any case, review the configuration file in `/opt/gravwell/etc/network_capture.conf` before running. Make sure at least one "Sniffer" section is uncommented, with the Interface field set to one of your system's network interfaces. For more information, see the [Ingesters documentation](#!ingesters/ingesters.md)
 
-注：Debianパッケージとスタンドアロンインストーラーば、どちらもキャプチャ元のデバイスを要求してくるはずです。設定を変更したい場合は、`/opt/gravwell/etc/network_capture.conf`を開き、希望するインターフェイスを設定し、`service gravwell_network_capture restart`を実行して、インジェスターを再起動します。
+Note: The Debian package and the standalone installer should both prompt for a device from which to capture. If you wish to change your selection, open `/opt/gravwell/etc/network_capture.conf`, set the desired interface, and run `service gravwell_network_capture restart` to restart the ingester.
 
-## 検索
-Gravwellサーバーが稼働し、データを受信できるようになると、検索パイプラインの能力が利用可能になります。
+## Searching
+Once the Gravwell server is up and running and receiving data, the power of the search pipeline is made available.
 
-ここでは、このクイックスタートでの設定で取り込まれたデータのタイプに基づいた検索の例を紹介します。これらの例では、Linuxサーバーによって生成されたsyslogデータが、Simple Relayインジェスターを介して取り込まれ、前のセクションで説明したようにネットワークからパケットがキャプチャされていると想定しています。
+Here are a few example searches based on the type of data ingested in this quick-start setup. For these examples, we assume there is syslog data being generated by Linux servers and ingested via the Simple Relay text ingester, and that packets are being captured from the network as described in the preceding sections.
 
-### syslogの例
-Syslogは、Unixのロギングおよび監査操作の中核的コンポーネントです。 UNIXインフラストラクチャのデバッグと防御を行いながら、ログイン、クラッシュ、セッション、またはその他のサービスアクションを完全に可視化することが重要です。 Gravwellを使用すると、多くのリモートマシンからsyslogデータを中央に簡単に集約して検索できます。この例では、いくつかのSSHログを追跡し、管理者やセキュリティの専門家がSSHアクティビティを監視する方法を検討します。
+### Syslog Example
+Syslog is a core component of any Unix logging and auditing operation. It is important to have complete visibility into logins, crashes, sessions, or any other service action while debugging and defending unix infrastructure.  Gravwell makes it easy to get syslog data off your many remote machines into a central location and ready for query.  For this example we will pursue some SSH logs and examine how an administrator or security professional might keep tabs on SSH activity.
 
-この例は、GravwellインスタンスにSSHログインデータを送信するためのサーバです。すべてのSSH関連エントリの一覧を見たい場合は、以下のように検索を実行します。
+In this example, servers to send SSH login data to a Gravwell instance. If you want to see a list of all SSH-related entries, you can issue a search like:
 
 ```
 tag=syslog grep ssh
 ```
 
-検索コマンドの内訳は次のとおりです。
+The breakdown of the search command is as follows:
 
-* `tag=syslog`: "syslog"とタグ付けされたデータを検索します。 Simple Relay インジェスターは、TCPポート601またはUDPポート514を介して入ってくるデータに"syslog"タグを付けるように設定されています。
-* `grep ssh`: "grep"モジュール（同様のlinuxコマンドにちなんで命名）は、特定のテキストを検索します。 この場合、検索は"ssh"を含むエントリを探します。
+* `tag=syslog`: Only look at data tagged “syslog”. The SimpleRelay ingester is set up to tag data with the “syslog” tag when it comes in via TCP port 601 or UDP port 514.
+* `grep ssh`: The “grep” module (named after the similar linux command) searches for specific text. In this case, the search is looking for any entry that contains “ssh” in it.
 
-検索結果は、概要グラフと一連のログエントリとして表示されます。概要グラフには、パイプラインを通過したマッチングレコードの頻度プロットが表示されます。このグラフを使用して、ログエントリの頻度を特定したり、検索のタイムウィンドウをナビゲートしたりして、検索を再実行せずに表示を絞り込むことができます。ほぼすべての検索には、タイムウィンドウをリフォーカスして調整する機能があり、時間の順序を変更する検索のみ、概要グラフが表示されません。
+The search results come back as an overview graph and a series of log entries. The overview graph shows the frequency plot of matching records that made it through the pipeline. This graph can be used to identify the frequency of log entries and to navigate around the time window of the search, narrowing down the view without re-issuing the search.  Nearly every search has the ability to refocus and adjust the time window; only searches which alter the order of time do not have the overview graph.
 
-"ssh"を含むすべてのエントリの結果を以下に示します。
+Here are see the results of all entries containing “ssh”:
 
-![概要グラフ](overview.png)
+![Overview graph](overview.png)
 
-これらの結果も非常に大まかな洞察を与えてくれるかもしれませんが、本当に有用な情報を抽出するには、検索を絞り込む必要があります。この例では、成功したSSHログインを抽出します。また、ログレコードからいくつかの特定のフィールドを抽出して、結果を見やすくします。
+These results might give a very broad insight, but to truly extract useful information we need to refine our search. For this example, we will extract successful SSH logins. We'll also extract some particular fields from the log records to make displaying the results easier:
 
 ```
 tag=syslog syslog Appname==sshd Message~Accepted | regex -e Message "Accepted\s(?P<method>\S+)\sfor\s(?P<user>\S+)\sfrom\s(?P<ip>\S+)"
 ```
 
-検索の内訳は以下の通りです：
+Breaking down the search:
 
-* ```tag=syslog```："syslog"とタグ付けされたデータに検索を制限する
-* ```syslog Appname==sshd Message~Accepted```：syslogモジュールを呼び出し、"sshd"アプリケーションによって生成され、かつメッセージ本文に"Accepted"という文字列を含むsyslogメッセージのみにフィルタリングします。
-* ```regex -e Message "Accepted\s(?P<method>\S+)\sfor\s(?P<user>\S+)\sfrom\s(?P<ip>\S+)"```：syslogモジュールを用いて抽出したメッセージ本文のみを正規表現で処理しています。ユーザ、IP、ログインに成功した方法を抽出します。
+* ```tag=syslog```: Limit searches to data tagged “syslog”
+* ```syslog Appname==sshd Message~Accepted```: This will invoke the syslog module to filter to only syslog messages generated by the "sshd" application and contain the string "Accepted" in the Message body
+* ```regex -e Message "Accepted\s(?P<method>\S+)\sfor\s(?P<user>\S+)\sfrom\s(?P<ip>\S+)"```: This is a regular expression operates on just the Message body which was extracted using the syslog module.  We extract the user, IP, and method of successful login.
 
-これにより、結果はログインのみに絞り込まれます：
+The results are filtered down to only logins:
 
-![ログインに絞り込まれた検索](logins-only.png)
+![Search filtered to logins](logins-only.png)
 
-結果の下部にある「列挙値」ボタンをクリックすると、この検索で抽出された使用可能な列挙値がすべて表示されます。
+If you click the "Enumerated Values" button at the bottom of the results, we can see all the available enumerated values which have been extracted by this search.
 
-![ログインに絞り込まれた検索](logins-only-enums.png)
+![Search filtered to logins](logins-only-enums.png)
 
-検索文の最後に*レンダリングモジュール*を指定して、結果の表示方法を変更できます。 ログインしたすべてのユーザー名のグラフが必要な場合は、次の検索を実行します。
+We can specify a *render module* at the end of the query to change how results are displayed. If you want a chart of all the usernames that have logged in, you could issue the following search:
 
 ```
 tag=syslog syslog Appname==sshd Message~Accepted | regex -e Message "Accepted\s(?P<method>\S+)\sfor\s(?P<user>\S+)\sfrom\s(?P<ip>\S+)" | count by user | chart count by user
 ```
 
-新しい検索クエリアイテムの内訳は次のとおりです。
+The breakdown of  the new search query items is as follows:
 
-* ```count by user```: `count`モジュールは（regexによって抽出された）各`user`値が出現する回数をカウントします。
-* ```chart count by user```: カウントモジュールの出力をチャート描画レンダラーにパイプし、カウントモジュールの結果によって決定される大きさでユーザーごとに個別の線を描画します。
+* ```count by user```: The `count` module will count how many times each `user` value (as extracted by regex) appears.
+* ```chart count by user```: Pipe the output of the count module into a charting renderer, drawing a separate line per user with magnitude determined by the count module's results.
 
-結果には、検索期間中にシステムにログインしたすべてのユーザーの素晴らしいグラフが表示されます。グラフの種類を変更してデータにさまざまなビューを表示したり、概要チャートを使用して結果のより短い時間枠を選択したりできます。予想通り、最近これらのシステムにログインしているのはIT管理者の「クリス」だけのようです。
+The results show a nice graph of all users that have logged into the system during the search timeframe. You can change the graph type to get different views into the data as well as use the overview chart to select smaller timeframes of the results. Looks like the IT admin 'kris' is the only user to log into these systems lately, as expected.
 
-![ユーザーによる検索カウント](users-chart.png)
+![Search counting by users](users-chart.png)
 
-チャートアイコン（ジグザグ線）をクリックして、チャートのタイプを変更することもできます。 これは、棒グラフに表示されるまったく同じデータです。
+You can also click on the charting icon (the zig zag line) and change the type of chart.  Here is the exact same data displayed in a bar chart.
 
-![ユーザーによる検索カウント](users-chart-bar.png)
+![Search counting by users](users-chart-bar.png)
 
-### ネットワークの例
-ユーザーがLinuxルーターでパケットキャプチャインジェスターを設定し、インターネットとの間で送受信されるすべてのパケットをキャプチャするホームネットワークの例を考えてみましょう。このデータを使用して、特定のゲームがいつ遊ばれたかといった利用パターンを分析できます。サンプルは10.0.0.0/24ネットワークサブネットを使用し、Blizzard Entertainmentゲームがゲームトラフィックにポート1119を使用しています。次の検索では、どのPCがいつBlizzardゲームをプレイしているかが表示されます。
+### Network Examples
+Consider an example home network in which the user has set up the packet capture ingester on their Linux router, thus capturing all packets to and from the Internet. We can use this data to analyze use patterns, such as when particular games are played. The example house uses a 10.0.0.0/24 network subnet and Blizzard Entertainment games use port 1119 for game traffic. The following search will show which PCs are playing Blizzard games and when:
 
 ```
 tag=pcap packet ipv4.DstIP !~ 10.0.0.0/24 tcp.DstPort==1119 ipv4.SrcIP | count by SrcIP | chart count by SrcIP
 ```
 
-検索コマンドの内訳は次のとおりです。
+A review of the search command is as follows:
 
-* ```tag=pcap```: Gravwellに、"pcap"というタグの付いたアイテムのみを検索するように指示します。
-* ```packet```: パケット解析検索パイプラインモジュールを呼び出し、このコマンドの残りのオプションを有効にします。
-  * ```ipv4.DstIP !~ 10.0.0.0/24```: Gravwellパケットパーサーは、パケットをさまざまなフィールドに分割します。 この場合、検索は宛先IPを比較し、10.0.0.xクラスCサブネットにないものを探しています。
-  * ```tcp.DstPort == 1119```: 宛先ポートを指定します。 これにより、ほとんどのBlizzard Entertainmentゲームで使用されるポート1119宛てのパケットのみがフィルターされます。
-  * ```ipv4.SrcIP```: 比較演算子なしでこのフィールドを指定すると、パケットパーサーはソースIPを抽出してパイプラインに配置します。
-* ```count by SrcIP```: フィルタリングされた結果をパケットパーサーからカウントモジュールにパイプし、各ソースIPが表示される回数をカウントするように指示します。
-* ```chart count by SrcIP```: カウント結果をグラフ表示レンダラーにパイプして表示し、ソースIP値ごとに個別の線を描画します。
+* ```tag=pcap```: Tells Gravwell to only search through items tagged 'pcap'.
+* ```packet```: Invokes the packet parsing search pipeline module and enables the rest of the options in this command.
+  * ```ipv4.DstIP !~ 10.0.0.0/24```: The Gravwell packet parser splits out a packet into its various fields. In this case, the search is comparing Destination IPs and looking for those not in the 10.0.0.x class C subnet
+  * ```tcp.DstPort == 1119```: Specifies a destination port. This will filter only packets destined for port 1119, used by most Blizzard Entertainment games.
+  * ```ipv4.SrcIP```: Specifying this field without a comparison operator tells the packet parser to extract and place the source IP into the pipeline.
+* ```count by SrcIP```: Pipe the filtered results from the packet parser into the math count module and tell it to count how many times each source IP appears.
+* ```chart count by SrcIP```: Pipe the count results into the charting renderer for display, drawing a separate line for each source IP value.
 
-結果：2つのシステムがポート1119にトラフィックを送信しています。黄色（10.0.0.6）で表されるIPはパッシブトラフィックであるように見えますが、青色の10.0.0.183はBlizzardゲームサービスとアクティブに通信しています。
+Results: We see two systems sending traffic to port 1119. The IP represented in yellow (10.0.0.6) appears to be passive traffic, while 10.0.0.183 in blue is actively communicating with the Blizzard games services.
 
-![ゲームトラフィック](games.png)
+![Game traffic](games.png)
 
-パケット解析検索モジュールの使用法の詳細については、[パケット検索モジュールのドキュメント](#!search/packet/packet.md)を参照してください。
+For more details on using the packet parsing search module, see the [packet search module documentation](#!search/packet/packet.md).
 
-## ダッシュボード
-ダッシュボードは、データの複数の側面を一度に表示する検索の集約ビューです。
+## Dashboards
+Dashboards are aggregated views of searches that provide a view into multiple aspects of the data at once.
 
-「ダッシュボード」ページに移動し（左上のメニューを使用）、「+追加」ボタンをクリックして新しいダッシュボードを作成します。これを「SSH auth monitoring」と呼びます。次に、検索を追加します。この例では、先ほどのSSH認証検索を使用します。その検索を再実行し、結果画面から、右上の3ドットメニューを使用して[ダッシュボードに追加]を選択し、新しいダッシュボードを選択します。右下のポップアップで検索がダッシュボードに追加されたことが通知され、そのダッシュボードに移動するためのリンクが表示されますので、リンクをクリックします。
+Navigate to the “Dashboards" page (use the menu at top-left) and click the "+Add" button to create a new dashboard -- call it “SSH auth monitoring”. Then, add a search. For this example, use the SSH authentication search from earlier. Re-issue that search and from the results screen, use the 3-dot menu in the upper right to choose “Add to Dashboard” and select the new dashboard. A popup in the lower right should inform you that the search was added to the dashboard and provide a link to go to that dashboard; click the link.
 
-ダッシュボードには検索用のタイルが自動的に作成されているはずですが、そのサイズを変更することもできます。タイルのメニューから[タイルの編集]を選択すると、タイルの表示方法を変更できます。
+The dashboard should have automatically created a tile for the search, but you may wish to resize it. You can change how the tile is displayed by selecting "Edit tile" from the tile's menu.
 
-### 動作中のダッシュボード
-Gravwellの一般的な使用例の1つは、ネットワークアクティビティの追跡です。ここでは、アウトバウンドおよびインバウンドの帯域幅レート、wifi上のアクティブなMAC、Windowsネットワーキングイベント、および一般的なパケット頻度をレポートするダッシュボードを見てみます。このデータはすべて、pcap、netflow、およびWindowsイベントから抽出されています。
+### Dashboards in Action
+One common use case for Gravwell is keeping track of network activity. Here we see a dashboard that reports on outbound and inbound bandwidth rates, active MACs on wifi, Windows networking events, and general packet frequency. All of this data is extracted from pcap, netflow, and Windows events.
 
-![ネットワークダッシュボード](network-dashboard.png)
+![network dashboard](network-dashboard.png)
 
-アウトバウンドトラフィックチャートは、午前10時34分ごろ静かなシステムでかなり大きなスパイクを示しているため、概要チャートで短い時間枠を「ブラッシング」してズームインします。 デフォルトでは、1つの概要をズームすると、このダッシュボードに関連付けられている他の検索もズームされます。そのため、成功したログインをズームすると、その短い時間範囲が反映されて残りのグラフも更新されます。ズームインすると、アドレス10.0.0.57のスパイクを確認できます。さらに調査するには、事前に構築されたネットワーク調査ダッシュボードを使用できますが、これはこのクイックスタートの範囲外です。
+The outbound traffic chart shows a pretty big spike for an otherwise quiet system around 10:34 AM, so we zoom in by "brushing" out a smaller timeframe on the Overview chart. By default, zooming in on one overview will zoom in on any other searches that are attached to this dashboard. So, when we zoom in on the successful logins, the rest of the charts will update to reflect this smaller time range. Zooming in we can see the spike for the address 10.0.0.57. To further investigate we could use a pre-built network investigation dashboard, but that's outside the scope of this quickstart.
 
-![ネットワークダッシュボード、ズームイン](network-dashboard-zoomed.png)
+![network dashboard, zoomed in](network-dashboard-zoomed.png)
 
-## Kitインストール
+## Installing Kits
 
-Gravwellキットは、特定のデータソースを分析するための事前にパッケージ化されたツールセットです。キットは、Netflow v5、IPFIX、CoreDNSなどを分析するために存在します。これらのキットは、データの解析を始めるのに最適な方法であり、独自の解析を構築するためのジャンプオフの場となります。
+Gravwell Kits are pre-packaged toolsets for analyzing a particular data source. Kits exist to analyze Netflow v5, IPFIX, CoreDNS, and more. They're a great way to get started with your data, a jumping-off place to building your own analysis.
 
-ほとんどのキットはインジェスターの設定に依存していますが（例えば Netflow v5 キットは Netflowレコードを収集するために Netflowインジェスターを実行していることを想定しています）、*Weather* キットは完全に自己完結しています。このキットには、毎分ごとに実行され、指定した場所の天気データを取得するスクリプトが含まれています。
+Most kits rely on you to set up ingesters (e.g. the Netflow v5 kit expects that you're running the Netflow ingester to gather Netflow records), but the *Weather* kit is actually entirely self-contained. It includes a script which will run every minute and fetch weather data for locations you specify.
 
-注：ウェザーキットを使用するには、[openweathermap.org](https://openweathermap.org)のAPIキーが必要です。APIキーの取得方法は[こちら](https://openweathermap.org/appid)をご覧ください。
+Note: To use the Weather kit, you'll need an API key from [openweathermap.org](https://openweathermap.org). The instructions to get an API key [can be found here](https://openweathermap.org/appid).
 
-メインメニューの "Kits"項目をクリックするとキットを見つけることができます。キットが何もインストールされていない場合、GUIは自動的に *利用可能な* キットのリストを表示します。
+You can find the kit by clicking the "Kits" item in the main menu. If there are no kits already installed, the GUI will automatically show you a list of *available* kits:
 
 ![](available-kits.png)
 
-Weatherキットをインストールするには、Weatherキットのタイル上のデプロイアイコン（箱から出ている矢印）をクリックします。これにより、インストールウィザードが表示されます。最初のページでは、キットに含まれるアイテムが一覧表示され、内容を確認することができます。
+We want to install the Weather kit, so click the deploy icon (an arrow pointing out of a box) on the Weather kit's tile. This will bring up the installation wizard. The first page lists the items included in the kit and provides an opportunity to review the contents; select the checkbox at the bottom, then hit Next:
 
 ![](kit-wizard1.png)
 
-2ページ目には設定マクロが含まれています。これらはキットを設定するために使用します。最初のマクロに OpenWeatherMap API キーを入力し、2番目に監視する場所のリストを設定する必要があります。3番目のマクロでは、使用する単位を制御し、デフォルトのままにするか、「メートル法」に変更することができます。設定マクロのフィールドに値を入力するときは、まず「カスタム値を入力」リンクをクリックして、特定の検証ルールをオフにします。
+The second page contains Configuration Macros. These are used to configure the kit. You'll need to enter your OpenWeatherMap API key in the first macro, then set a list of locations to monitor in the second. The third macro controls the units used and can be left at the default ("imperial") or changed to "metric". When entering values in the configuration macro fields, first click the "Enter custom value" link to turn off certain validation rules.
 
-注：場所のリストは、[ここ](https://openweathermap.org/current#one)に記載されているように、コロンで区切られた場所のリストで構成されている必要があります。複数の国が米国と同じ郵便番号フォーマットを使用しているため、"87110,us"と指定する方が通常は"87110"よりも良いことに注意してください。
+Note: The list of locations should consist of a colon-separated list of locations as described in [this document](https://openweathermap.org/current#one). Note that multiple countries use the same ZIP code format as the US, so specifying "87110,us" is usually better than just "87110".
 
 ![](kit-wizard2.1.png)
 
@@ -367,27 +367,27 @@ Weatherキットをインストールするには、Weatherキットのタイル
 
 ![](kit-wizard2.3.png)
 
-設定マクロの設定が終わったら、ウィザードの最終ページの "Next"をクリックします。これでキットのインストールに関連した最終的なオプションがいくつか出てきます。
+When you are done setting up Config Macros, click "Next" for the final page of the wizard. This gives a few final options relating to the kit installation; you can simply click "Deploy":
 
 ![](kit-wizard3.png)
 
-キットがインストールされると、インストールされたキットのリストが表示され、新しくインストールされたWeatherキットが表示されます。
+Once the kit is installed, you will be taken to a list of installed kits, which should show the newly-installed Weather kit:
 
 ![](kit-list.png)
 
-キットに含まれているスクリプトは、すぐに天気データの取り込みを開始します。1、2分後には、いくつかのデータが取得されるはずなので、メインメニューをクリックしてダッシュボードページを開き、"Weather Overview" ダッシュボードをクリックしてください。気温チャートはまだ少ししか表示されないはずですが、少なくとも左下の「現在の状況」の表を見ることができるはずです。
+The script included in the kit should soon begin pulling in weather data. After a minute or two, we should have some data to work with, so click the main menu, open the "Dashboards" page, and click the "Weather Overview" dashboard. There won't be much to see on the temperature charts yet, but you should at least be able to look at the "Current Conditions" table in the lower left:
 
 ![](current-conditions.png)
 
-1日ほどすると、このような素敵なチャートが見られるほどのデータが集まってきます。
+After a day or so, you'll have gathered enough data to see nice charts like this:
 
 ![](weather.png)
 
-Gravwellキットの詳細は[キット](#!kits/kits.md)を参照してください。
+Refer to the [kits documentation](#!kits/kits.md) for more details on Gravwell Kits.
 
-## Gravwellの更新
+## Updating Gravwell
 
-Gravwellを問題なくアップグレードするために、私たちはインストールとアップグレードのプロセスが迅速かつ容易になるよう細心の注意を払っています。アップグレードのプロセスは、元々のインストール方法によって異なります。 Debian のようなパッケージリポジトリを使用している場合、Gravwell は他のアプリケーションと同様にアップグレードできます。
+Upgrading Gravwell is an uneventful affair, we take great pains to ensure that the installation and upgrade process is fast and easy.  The upgrade process is different depending on your original installation method.  If you are using one of the package repositories, such as Debian, Gravwell is upgraded like any other application:
 
 
 ```
@@ -396,53 +396,53 @@ apt upgrade
 ```
 
 
-元のインストール方法が自己完結型シェルインストーラの場合は、最新バージョンのインストーラをダウンロードして実行するだけです。 自己完結型インストーラは、インストールとアップグレードの両方のシステムとして機能し、既存のインストールを検出し、アップグレードに適用されないステップをスキップします。
+If your original installation method was the self-contained shell installer, you simply download and run the latest version of the installer.  The self-contained installers act as both installation and upgrade systems, they will detect an existing installation and skip over any steps that do not apply to an upgrade.
 
 
-### アップグレードのヒント
+### Upgrade Tips
 
-いくつかのインストールで役立つアップグレードのヒントがあります。
+There are a few tips to upgrading that can help in some installations.
 
-* クラスタ構成ではインデクサーのアップグレードを数珠つなぎに行い、アップグレード中にインジェスターが通常の操作を継続できるようにすべきです。
-  * 同じことが分散型ウェブサーバーの構成に当てはまり、ロードバランサーは、必要に応じてユーザーをシフトします
-* 可能であれば、大規模な自動化スクリプトジョブが実行されていないときに、検索エージェントのアップグレードを行います。
-* ディストリビューションパッケージマネージャが設定ファイルの変更を要求してくることがありますが、 *既存の*設定を維持するようにしてください。
-  * 何が変わったかを確認するのはいいのですが、通常は新機能のための設定を追加しているだけです。
-  * 新たな設定ファイルにすると、設定を上書きしてコンポーネントの障害を引き起こす可能性があります。
+* Cluster configurations should cascade indexer upgrades so that ingesters can continue normal operation during the upgrade
+ * The same is true for distributed webserver configurations, the load balancer will shift users as needed
+* If possible, time upgrades to the search agent when there are no large automated script jobs running
+* Distribution package managers will sometimes prompt about upstream configuration file changes, but make sure to keep your *existing* configs
+ * It's ok to check what changed, we are usually just adding configurations for new features
+ * If you accept upstream configuration files it may overwrite your configurations and cause components failures
 
-アップグレード後、すべてのインデクサーが表示されていること、インジェスターが再接続され、期待されたバージョン番号が表示されていることを確認し、Gravwellの状態をチェックしてください。
-
-![インジェスターのステータス](ingesters.png)
+After an upgrade it is always a good practice to check the state of Gravwell by ensuring that all indexers are present and accounted for and that ingesters have reconnected and are reporting the expected version numbers.
 
 
-## 高度なトピック
-
-### クラッシュレポートとメトリクス
-
-Gravwellソフトウェアには、自動化されたクラッシュレポートとメトリクスレポートが組み込まれています。Gravwellに送られてくるものの詳細については、[クラッシュレポートとメトリクス](#!metrics.md)を参照してください。
+![Ingester status](ingesters.png)
 
 
-### クラスター構成
+## Advanced Topics
 
-マルチノードライセンスを持つユーザーは、複数のインデクサーとウェブサーバーのインスタンスを展開し、ネットワーク上でそれらを調整できます。 このドキュメントで基本的な手順の概要を説明しますが、このようなセットアップを展開する前に、Gravwellのサポートチームと調整することを強くお勧めします。
+### Crash Reporting and Metrics
 
-ほとんどのユースケースでは、単一のウェブサーバーと複数のインデクサーノードが望ましいでしょう。 簡単にするために、ウェブサーバーがインデクサーの1つと同じノードに存在する環境について説明します。
+The Gravwell software has automated crash reporting & metrics reporting built in. For more information about what gets sent back to us at Gravwell, see the [crash reporting and metrics page](#!metrics.md)
 
-最初に、ヘッドノードとなるシステムで、上記のシングルノードGravwellインストールを実行します。 これにより、ウェブサーバーとインデクサーがインストールされ、認証シークレットが生成されます。
+### Clustered Configurations
+
+Users with multi-node licenses can deploy multiple indexer and webserver instances and coordinate them over the network. We highly recommend coordinating with Gravwell's support team before deploying such a setup, but will outline the basic steps in this document.
+
+For most use cases, a single webserver and multiple indexer nodes will be desirable. For simplicity, we will describe an environment in which the webserver resides on the same node as one of the indexers.
+
+First, perform a single-node Gravwell installation as described above on the system which will be the head node. This will install the webserver and indexer and generate authentication secrets:
 
 ```
 root@headnode# bash gravwell_installer.sh
 ```
 
-次に、`/opt/gravwell/etc/gravwell.conf`のコピーを別の場所に作成し、"Indexer-UUID"で始まる行を削除します。 このgravwell.confファイルとインストーラーを各インデクサーノードにコピーします。 インデクサーノードで、追加の引数をインストーラーに渡して、ウェブサーバーのインストールを無効にし、新しいファイルを生成するのではなく、既存のgravwell.confファイルを使用するように指定します。
+Next, make a copy of `/opt/gravwell/etc/gravwell.conf` somewhere else and remove any lines beginning with 'Indexer-UUID'. Copy this gravwell.conf file and the installer to each of the indexer nodes. On the indexer nodes, we pass additional arguments to the installer to disable installation of the webserver and to specify that the existing gravwell.conf file should be used rather than generating a new one:
 
 ```
 root@indexer0# bash gravwell_installer.sh --no-webserver --no-searchagent --use-config /root/gravwell.conf
 ```
 
-インデクサーノードごとにこのプロセスを繰り返します。
+Repeat this process for each indexer node.
 
-インストールの最後のステップは、これらすべてのインデクサーをウェブサーバーに通知することです。 *ヘッドノード*で、`/opt/gravwell/etc/gravwell.conf`を開き、 'Remote-Indexers'行を見つけます。`Remote-Indexers=net:127.0.0.1:9404`のようになります。 次に、その行を複製し、他のインデクサーを指すようにIPを変更します（IPアドレスまたはホスト名を指定できます）。 たとえば、ローカルマシンとindexer0.example.net、indexer1.example.net、indexer2.example.netという3つの他のマシンにインデクサーがある場合、設定ファイルには次の行が含まれている必要があります。
+The final step of the installation is to inform the webserver of all these indexers. On the *head node*, open `/opt/gravwell/etc/gravwell.conf` and find the 'Remote-Indexers' line. It should look something like `Remote-Indexers=net:127.0.0.1:9404`. Now duplicate that line and modify the IPs to point at the other indexers (you can specify IP addresses or hostnames). For example, if there is an indexer on the local machine and on 3 other machines named indexer0.example.net, indexer1.example.net, and indexer2.example.net, the config file should contain these lines:
 
 ```
 Remote-Indexers=net:127.0.0.1:9404
@@ -451,4 +451,4 @@ Remote-Indexers=net:indexer1.example.net:9404
 Remote-Indexers=net:indexer2.example.net:9404
 ```
 
-コマンド`systemctl restart gravwell_webserver`でウェブサーバーを再起動します。「システム統計」ページを表示して「ハードウェア」タブをクリックすると、4つのインデクサープロセスのそれぞれのエントリが表示されるはずです。
+Restart the webserver with the command `systemctl restart gravwell_webserver`. Now, when you view the "Systems Stats" page and click on the "Hardware" tab, you should see entries for each of the 4 indexer processes.
